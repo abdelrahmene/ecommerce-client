@@ -1,0 +1,62 @@
+export const mockFeaturedProducts = [
+  {
+    id: 'quantum-elite',
+    title: 'Quantum Elite X9',
+    price: 329.99,
+    image: '/placeholder-product.jpg',
+    description: 'Innovation futuriste et confort absolu',
+    badge: 'Nouveau',
+    rating: 4.9,
+    reviews: 128,
+    colors: ['Noir Cosmos', 'Argent Plasma', 'Or Solaire'],
+    sizes: ['40', '41', '42', '43', '44', '45'],
+    accent: 'from-purple-600 via-violet-800 to-indigo-900',
+    status: 'En stock',
+    promotion: '-20%'
+  },
+  {
+    id: 'nebula-air',
+    title: 'Nebula Air Pro',
+    price: 289.99,
+    image: '/placeholder-product.jpg',
+    description: 'Légèreté et performance maximale',
+    badge: 'Best-seller',
+    rating: 4.8,
+    reviews: 256,
+    colors: ['Bleu Glacier', 'Blanc Cristal', 'Rose Aurora'],
+    sizes: ['39', '40', '41', '42', '43', '44'],
+    accent: 'from-cyan-500 via-blue-700 to-indigo-900',
+    status: 'Dernières pièces',
+    promotion: 'Exclusif'
+  },
+  {
+    id: 'phoenix-boost',
+    title: 'Phoenix Boost',
+    price: 299.99,
+    image: '/placeholder-product.jpg',
+    description: 'Puissance et style dynamique',
+    badge: 'Limited',
+    rating: 4.7,
+    reviews: 89,
+    colors: ['Rouge Magma', 'Or Fusion', 'Noir Volcanique'],
+    sizes: ['40', '41', '42', '43', '44'],
+    accent: 'from-red-600 via-orange-700 to-yellow-800',
+    status: 'Précommande',
+    promotion: 'Edition Limitée'
+  },
+  {
+    id: 'shadow-stealth',
+    title: 'Shadow Stealth V2',
+    price: 359.99,
+    image: '/placeholder-product.jpg',
+    description: 'Design minimaliste, impact maximal',
+    badge: 'Premium',
+    rating: 4.9,
+    reviews: 167,
+    colors: ['Noir Absolu', 'Gris Titanium', 'Blanc Polaire'],
+    sizes: ['39', '40', '41', '42', '43', '44', '45'],
+    accent: 'from-gray-800 via-zinc-800 to-stone-900',
+    status: 'En stock',
+    promotion: 'Premium'
+  }
+];

@@ -1,0 +1,256 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles personnalisés pour la carte de fidélité et effets spéciaux */
+@layer utilities {
+  .drop-shadow-glow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 0 30px rgba(79, 70, 229, 0.4);
+  }
+  
+  .shadow-glow {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 25px rgba(79, 70, 229, 0.3);
+  }
+  
+  .bg-loyalty-card {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #312e81 100%);
+  }
+}
+
+/* Custom font imports - Fonts modernes et dynamiques pour l'été */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Base styles */
+@layer base {
+  :root {
+    /* Summer Badass Theme - Mode clair */
+    --color-primary-50: 250 245 255; /* Violet très clair */
+    --color-primary-100: 243 232 255;
+    --color-primary-200: 233 213 255;
+    --color-primary-300: 216 180 254;
+    --color-primary-400: 192 132 252;
+    --color-primary-500: 168 85 247; /* Violet principal */
+    --color-primary-600: 147 51 234;
+    --color-primary-700: 126 34 206;
+    --color-primary-800: 107 33 168;
+    --color-primary-900: 88 28 135;
+    --color-primary-950: 59 7 100;
+    
+    /* Couleurs secondaires - Gris/Noir pour contraste */
+    --color-secondary-50: 249 250 251;
+    --color-secondary-100: 243 244 246;
+    --color-secondary-200: 229 231 235;
+    --color-secondary-300: 209 213 219;
+    --color-secondary-400: 156 163 175;
+    --color-secondary-500: 107 114 128;
+    --color-secondary-600: 75 85 99;
+    --color-secondary-700: 45 55 72;
+    --color-secondary-800: 26 32 44;
+    --color-secondary-900: 17 21 28;
+    --color-secondary-950: 8 10 14;
+    
+    /* Couleurs d'été vibrantes - Accents */
+    --color-gold-300: 253 224 71; /* Jaune vif */
+    --color-gold-400: 250 204 21;
+    --color-gold-500: 234 179 8;
+    --color-gold-600: 202 138 4;
+    --color-gold-700: 161 98 7;
+    
+    /* Nouvelles couleurs d'été */
+    --color-summer-cyan: 6 182 212; /* Turquoise */
+    --color-summer-pink: 236 72 153; /* Rose vif */
+    --color-summer-orange: 249 115 22; /* Orange */
+    --color-summer-yellow: 250 204 21; /* Jaune */
+    --color-summer-green: 16 185 129; /* Vert menthe */
+    
+    /* Variables pour les dégradés d'été */
+    --gradient-summer-yellow: linear-gradient(to right, #fef08a, #fde047, #facc15);
+    --gradient-summer-pink: linear-gradient(to right, #fbcfe8, #f9a8d4, #ec4899);
+    --gradient-summer-blue: linear-gradient(to right, #bae6fd, #7dd3fc, #0ea5e9);
+    --gradient-summer-purple: linear-gradient(to right, #e9d5ff, #d8b4fe, #c084fc);
+    --gradient-summer-orange: linear-gradient(to right, #fed7aa, #fdba74, #fb923c);
+  }
+  
+  html {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-zinc-50 text-gray-900 dark:bg-secondary-950 dark:text-gray-100 transition-colors duration-300;
+    overflow-x: hidden; /* Évite les débordements horizontaux sur mobile */
+    font-family: 'Poppins', 'Inter', sans-serif;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABOSURBVGhD7c6xCQAgDAVRR3H/ld3AFkHIg+v+KwIAAICv1NqUmZXZlzz3TA+1Qy1qUYta1KIWtahFLWpRi1rUoha1qEUtAADAL0WcN8AEjhJoXJ0AAAAASUVORK5CYII=');
+    background-repeat: repeat;
+    background-size: 50px 50px;
+    background-blend-mode: overlay;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    @apply tracking-tight;
+  }
+  
+  /* Improve focus styles for better accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-secondary-950;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  /* Hide scrollbar but allow scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    /* Firefox scrollbar style handled via JavaScript for better compatibility */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+  
+  /* Custom animation for flip countdown */
+  .animate-flip-down {
+    animation: flip-down 0.3s ease-out;
+    transform-style: preserve-3d;
+  }
+
+  @keyframes flip-down {
+    0% {
+      transform: rotateX(0deg);
+      opacity: 1;
+    }
+    50% {
+      transform: rotateX(90deg);
+      opacity: 0.2;
+    }
+    100% {
+      transform: rotateX(0deg);
+      opacity: 1;
+    }
+  }
+  
+  /* Shadow top for mobile nav */
+  .shadow-top {
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* Custom components */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-secondary-950;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-200 text-secondary-900 hover:bg-secondary-300 active:bg-secondary-400 dark:bg-secondary-700 dark:text-white dark:hover:bg-secondary-600;
+  }
+  
+  .btn-outline {
+    @apply border border-secondary-300 bg-transparent text-secondary-900 hover:bg-secondary-50 active:bg-secondary-100 dark:border-secondary-700 dark:text-white dark:hover:bg-secondary-800;
+  }
+  
+  .input {
+    @apply w-full rounded-lg border border-secondary-300 bg-white px-4 py-2 text-secondary-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-secondary-700 dark:bg-secondary-900 dark:text-white dark:focus:border-primary-500;
+  }
+  
+  .input-error {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-500;
+  }
+}
+
+/* Custom styles for range input */
+input[type="range"] {
+  @apply h-2 w-full cursor-pointer appearance-none rounded-full bg-secondary-200 dark:bg-secondary-700;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  @apply h-4 w-4 appearance-none rounded-full bg-primary-500 ring-2 ring-primary-500 ring-offset-2 ring-offset-white transition-all hover:bg-primary-600 dark:ring-offset-secondary-950;
+}
+
+input[type="range"]::-moz-range-thumb {
+  @apply h-4 w-4 appearance-none rounded-full bg-primary-500 ring-2 ring-primary-500 ring-offset-2 ring-offset-white transition-all hover:bg-primary-600 dark:ring-offset-secondary-950;
+}
+
+/* Styles pour les animations d'été */
+.summer-glow {
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+  transition: box-shadow 0.3s ease;
+}
+
+.summer-glow:hover {
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.8);
+}
+
+/* Styles pour les cartes de produits et collections */
+.summer-card {
+  @apply relative overflow-hidden rounded-xl transition-all duration-300;
+}
+
+.summer-card:hover {
+  @apply transform scale-[1.03] shadow-xl;
+}
+
+/* Styles pour les badges été */
+.summer-badge {
+  @apply absolute top-4 right-4 rounded-full px-3 py-1 text-sm font-semibold;
+  background: var(--gradient-summer-yellow);
+  color: #000;
+  text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+}
+
+/* Styles pour les boutons d'été */
+.summer-button {
+  @apply rounded-full px-6 py-2 font-medium transition-all duration-300;
+  background: var(--gradient-summer-purple);
+  color: white;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(192, 132, 252, 0.5);
+}
+
+.summer-button:hover {
+  box-shadow: 0 6px 15px rgba(192, 132, 252, 0.7);
+  transform: translateY(-2px);
+}
+
+/* Styles responsive pour mobile */
+@media (max-width: 640px) {
+  .summer-card {
+    @apply rounded-lg;
+  }
+  
+  .summer-badge {
+    @apply top-2 right-2 px-2 py-0.5 text-xs;
+  }
+  
+  .summer-button {
+    @apply px-4 py-1.5 text-sm;
+  }
+}
+
+/* Custom styles for toast notifications */
+.toast-enter {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.toast-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.toast-exit {
+  opacity: 1;
+}
+
+.toast-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
+}

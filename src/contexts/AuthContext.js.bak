@@ -1,0 +1,132 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { 
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+  onAuthStateChanged
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, firestore } from '../services/firebase/firebase';
+import toast from 'react-hot-toast';
+
+const AuthContext = createContext();
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+export function AuthProvider({ children }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fonction pour s'inscrire (créer un compte)
+  async function signup(email, password, name) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Création du profil utilisateur dans Firestore
+      await setDoc(doc(firestore, 'users', user.uid), {
+        email,
+        name,
+        role: 'customer', // Le rôle par défaut pour les clients est 'customer'
+        createdAt: new Date().toISOString(),
+        shippingAddresses: [],
+        wishlist: [],
+        cart: []
+      });
+      
+      return user;
+    } catch (error) {
+      console.error('Erreur lors de l\'inscription:', error);
+      toast.error(error.message);
+      throw error;
+    }
+  }
+
+  // Fonction pour se connecter
+  async function login(email, password) {
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      return result.user;
+    } catch (error) {
+      console.error('Erreur lors de la connexion:', error);
+      toast.error('Échec de connexion : vérifiez vos identifiants');
+      throw error;
+    }
+  }
+
+  // Fonction pour se déconnecter
+  async function logout() {
+    try {
+      await signOut(auth);
+      toast.success('Déconnexion réussie');
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+      toast.error(error.message);
+      throw error;
+    }
+  }
+
+  // Fonction pour réinitialiser le mot de passe
+  async function resetPassword(email) {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success('Email de réinitialisation envoyé');
+    } catch (error) {
+      console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+      toast.error(error.message);
+      throw error;
+    }
+  }
+
+  // Fonction pour récupérer le profil utilisateur
+  async function getUserProfile(uid) {
+    try {
+      const userDoc = await getDoc(doc(firestore, 'users', uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setUserProfile(userData);
+        return userData;
+      }
+      return null;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du profil:', error);
+      return null;
+    }
+  }
+
+  // Effet pour suivre l'état d'authentification
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      if (user) {
+        await getUserProfile(user.uid);
+      } else {
+        setUserProfile(null);
+      }
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Valeurs fournies par le contexte
+  const value = {
+    currentUser,
+    userProfile,
+    login,
+    signup,
+    logout,
+    resetPassword,
+    getUserProfile
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
+}
