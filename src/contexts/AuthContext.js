@@ -1,132 +1,100 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  sendPasswordResetEmail,
-  onAuthStateChanged
-} from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, firestore } from '../services/firebase/firebase';
-import toast from 'react-hot-toast';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { AuthService } from '../services/mockServices';
 
 const AuthContext = createContext();
 
-export function useAuth() {
-  return useContext(AuthContext);
+const initialState = {
+  user: null,
+  loading: true,
+  error: null
+};
+
+function authReducer(state, action) {
+  switch (action.type) {
+    case 'SET_USER':
+      return { ...state, user: action.payload, loading: false, error: null };
+    case 'SET_LOADING':
+      return { ...state, loading: action.payload };
+    case 'SET_ERROR':
+      return { ...state, error: action.payload, loading: false };
+    case 'LOGOUT':
+      return { ...state, user: null, loading: false, error: null };
+    default:
+      return state;
+  }
 }
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Fonction pour s'inscrire (créer un compte)
-  async function signup(email, password, name) {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      // Création du profil utilisateur dans Firestore
-      await setDoc(doc(firestore, 'users', user.uid), {
-        email,
-        name,
-        role: 'customer', // Le rôle par défaut pour les clients est 'customer'
-        createdAt: new Date().toISOString(),
-        shippingAddresses: [],
-        wishlist: [],
-        cart: []
-      });
-      
-      return user;
-    } catch (error) {
-      console.error('Erreur lors de l\'inscription:', error);
-      toast.error(error.message);
-      throw error;
-    }
-  }
-
-  // Fonction pour se connecter
-  async function login(email, password) {
-    try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      return result.user;
-    } catch (error) {
-      console.error('Erreur lors de la connexion:', error);
-      toast.error('Échec de connexion : vérifiez vos identifiants');
-      throw error;
-    }
-  }
-
-  // Fonction pour se déconnecter
-  async function logout() {
-    try {
-      await signOut(auth);
-      toast.success('Déconnexion réussie');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-      toast.error(error.message);
-      throw error;
-    }
-  }
-
-  // Fonction pour réinitialiser le mot de passe
-  async function resetPassword(email) {
-    try {
-      await sendPasswordResetEmail(auth, email);
-      toast.success('Email de réinitialisation envoyé');
-    } catch (error) {
-      console.error('Erreur lors de la réinitialisation du mot de passe:', error);
-      toast.error(error.message);
-      throw error;
-    }
-  }
-
-  // Fonction pour récupérer le profil utilisateur
-  async function getUserProfile(uid) {
-    try {
-      const userDoc = await getDoc(doc(firestore, 'users', uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        setUserProfile(userData);
-        return userData;
-      }
-      return null;
-    } catch (error) {
-      console.error('Erreur lors de la récupération du profil:', error);
-      return null;
-    }
-  }
-
-  // Effet pour suivre l'état d'authentification
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
-      if (user) {
-        await getUserProfile(user.uid);
-      } else {
-        setUserProfile(null);
+    const checkAuth = async () => {
+      try {
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+          dispatch({ type: 'SET_USER', payload: JSON.parse(savedUser) });
+        } else {
+          dispatch({ type: 'SET_LOADING', payload: false });
+        }
+      } catch (error) {
+        dispatch({ type: 'SET_ERROR', payload: error.message });
       }
-      setLoading(false);
-    });
+    };
 
-    return unsubscribe;
+    checkAuth();
   }, []);
 
-  // Valeurs fournies par le contexte
+  const login = async (email, password) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const user = await AuthService.login(email, password);
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      dispatch({ type: 'SET_USER', payload: user });
+      return user;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message });
+      throw error;
+    }
+  };
+
+  const register = async (userData) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const user = await AuthService.register(userData);
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      dispatch({ type: 'SET_USER', payload: user });
+      return user;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message });
+      throw error;
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('currentUser');
+    dispatch({ type: 'LOGOUT' });
+  };
+
   const value = {
-    currentUser,
-    userProfile,
+    currentUser: state.user,
+    loading: state.loading,
+    error: state.error,
     login,
-    signup,
-    logout,
-    resetPassword,
-    getUserProfile
+    register,
+    logout
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }

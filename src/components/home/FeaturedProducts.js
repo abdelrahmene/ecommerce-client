@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ChevronLeft, ChevronRight, ArrowRight, ShoppingBag, Heart } from 'lucide-react';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
-import { firestore } from '../../services/firebase/firebase';
+// Imports Firebase supprimés - utilise maintenant des données mock
 import cloudinaryService from '../../services/cloudinary/cloudinary';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishlistContext';
@@ -103,45 +102,12 @@ const FeaturedProducts = ({ products: propProducts, loading: propLoading }) => {
         try {
           setLoading(true);
           
-          // Requête pour récupérer les produits mis en avant
-          const productsQuery = query(
-            collection(firestore, 'products'),
-            where('active', '==', true),
-            where('featured', '==', true),
-            orderBy('createdAt', 'desc'),
-            limit(8)
-          );
+          // Mock: Simuler le chargement depuis une base de données
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const mockFeaturedProducts = productStyles.filter(p => p.isNew || p.isExclusive);
           
-          const productsSnapshot = await getDocs(productsQuery);
-          
-          if (productsSnapshot.empty) {
-            // Si aucun produit n'est trouvé, utiliser les produits par défaut
-            setProducts(productStyles);
-          } else {
-            // Transformer les données Firestore en produits stylisés
-            const productsData = productsSnapshot.docs.map((doc, index) => {
-              const productData = {
-                id: doc.id,
-                ...doc.data()
-              };
-              
-              // Appliquer un style au produit
-              const style = productStyles[index % productStyles.length];
-              
-              return {
-                ...productData,
-                accent: style.accent,
-                bg: style.bg,
-                textColor: style.textColor,
-                // S'assurer que l'image est correctement formatée pour l'affichage
-                displayImage: productData.images && productData.images.length > 0 
-                  ? productData.images[0] 
-                  : style.image
-              };
-            });
-            
-            setProducts(productsData);
-          }
+          // Mock: Utiliser les produits par défaut avec styles
+          setProducts(mockFeaturedProducts.length > 0 ? mockFeaturedProducts : productStyles);
         } catch (error) {
           console.error('Erreur lors de la récupération des produits:', error);
           // En cas d'erreur, utiliser les produits par défaut

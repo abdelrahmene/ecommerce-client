@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { firestore } from '../../services/firebase/firebase';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { mockFirestore, collection, getDocs, query, where, orderBy } from '../../services/mockServices';
 
 const CollectionsPage = () => {
   const [collections, setCollections] = useState([]);
@@ -16,7 +15,7 @@ const CollectionsPage = () => {
         setLoading(true);
         
         const collectionsQuery = query(
-          collection(firestore, 'collections'),
+          collection(mockFirestore, 'collections'),
           where('active', '==', true),
           orderBy('order', 'asc')
         );

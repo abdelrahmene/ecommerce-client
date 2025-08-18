@@ -4,8 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ArrowLeft, AlertTriangle, ShoppingBag, Star, Eye, Heart } from 'lucide-react';
-import { firestore } from '../../services/firebase/firebase';
-import { doc, getDoc, collection as firestoreCollection, query, where, orderBy, limit, getDocs, startAfter } from 'firebase/firestore';
+import { mockFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs, startAfter } from '../../services/mockServices';
 
 // Animations
 const fadeIn = {
@@ -171,10 +170,10 @@ const CollectionPage = () => {
         console.log('Trying to fetch collection with ID:', collectionId);
         
         // Récupérer toutes les collections pour voir leurs IDs
-        const allCollectionsSnapshot = await getDocs(firestoreCollection(firestore, 'collections'));
+        const allCollectionsSnapshot = await getDocs(collection(mockFirestore, 'collections'));
         console.log('All collections IDs:', allCollectionsSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name })));
         
-        const collectionDoc = await getDoc(doc(firestore, 'collections', collectionId));
+        const collectionDoc = await getDoc(doc(mockFirestore, 'collections', collectionId));
         
         if (!collectionDoc.exists()) {
           setError('Collection not found');
@@ -228,7 +227,7 @@ const CollectionPage = () => {
       
       // Simple approche directe: récupérer les produits de cette collection spécifique
       const productsQuery = query(
-        firestoreCollection(firestore, 'products'),
+        collection(mockFirestore, 'products'),
         where('collectionId', '==', collectionData.id),
         where('active', '==', true),
         limit(20)
@@ -243,7 +242,7 @@ const CollectionPage = () => {
         
         // Récupérer tous les produits pour débogage
         const allProductsSnapshot = await getDocs(query(
-          firestoreCollection(firestore, 'products'),
+          collection(mockFirestore, 'products'),
           limit(10)
         ));
         
@@ -303,7 +302,7 @@ const CollectionPage = () => {
       setProductsLoading(true);
       
       const productsQuery = query(
-        firestoreCollection(firestore, 'products'),
+        collection(mockFirestore, 'products'),
         where('collectionId', '==', collectionId),
         where('active', '==', true),
         orderBy('createdAt', 'desc'),

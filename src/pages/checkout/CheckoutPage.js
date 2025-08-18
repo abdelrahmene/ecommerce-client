@@ -5,8 +5,7 @@ import { motion } from 'framer-motion';
 import { Check, CreditCard, Truck, MapPin, AlertTriangle } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { firestore } from '../../services/firebase/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from '../../services/mockServices';
 import toast from 'react-hot-toast';
 
 const CheckoutPage = () => {
@@ -99,7 +98,7 @@ const CheckoutPage = () => {
         createdAt: serverTimestamp()
       };
       
-      const orderRef = await addDoc(collection(firestore, 'orders'), orderData);
+      const orderRef = await addDoc(collection('orders'), orderData);
       
       // Clear cart after successful order
       clearCart();

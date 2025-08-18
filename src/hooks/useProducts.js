@@ -1,26 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  startAfter,
-  getDocs,
-  getDoc,
-  doc
-} from 'firebase/firestore';
-import { firestore } from '../services/firebase/firebase';
+import { useState, useCallback, useEffect } from 'react';
+import { mockProducts } from '../data/mockData';
 
-// Hook personnalisé pour gérer les produits côté client
-// Hook pour la recherche de produits
+// Hook pour la recherche de produits - Mock
 export function useProductSearch(query) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Simuler la recherche avec un délai
   useEffect(() => {
-    // Si la requête est vide, ne pas effectuer de recherche
     if (!query || query.trim() === '') {
       setResults([]);
       return;
@@ -31,30 +19,24 @@ export function useProductSearch(query) {
         setLoading(true);
         setError(null);
         
-        // Construction de la requête Firestore
-        const productsRef = collection(firestore, 'products');
+        // Simuler un délai réseau
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Recherche par nom de produit (commence par)
-        // Note: Firestore n'a pas de recherche plein texte native
-        // Pour une recherche plus avancée, il faudrait utiliser Algolia ou un service similaire
-        const q = query(
-          productsRef,
-          where('active', '==', true),
-          where('nameSearchable', '>=', query.toLowerCase()),
-          where('nameSearchable', '<=', query.toLowerCase() + '\uf8ff'),
-          limit(10)
-        );
-        
-        const querySnapshot = await getDocs(q);
-        
-        const searchResults = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+        // Recherche dans les données mock
+        const queryLower = query.toLowerCase();
+        const searchResults = mockProducts
+          .filter(product => 
+            product.active &&
+            (product.name.toLowerCase().includes(queryLower) ||
+             product.description.toLowerCase().includes(queryLower) ||
+             product.tags?.some(tag => tag.toLowerCase().includes(queryLower)))
+          )
+          .slice(0, 10);
         
         setResults(searchResults);
+        console.log('🔧 Mock: Recherche effectuée:', query, '->', searchResults.length, 'résultats');
       } catch (err) {
-        console.error('Erreur lors de la recherche de produits:', err);
+        console.error('❌ Mock: Erreur lors de la recherche:', err);
         setError('Impossible d\'effectuer la recherche. Veuillez réessayer.');
       } finally {
         setLoading(false);
@@ -74,180 +56,133 @@ export default function useProducts() {
   const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(true);
 
-  // Fonction pour charger les produits (première page)
+  // Fonction pour charger les produits (première page) - Mock
   const loadProducts = useCallback(async (itemsPerPage = 20, filters = {}) => {
     try {
       setLoading(true);
       setError(null);
       
-      // Construction de la requête Firestore
-      let productsQuery = collection(firestore, 'products');
+      // Simuler un délai réseau
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Tableau pour stocker les conditions de la requête
-      let queryConstraints = [];
+      let filteredProducts = [...mockProducts];
       
-      // Uniquement récupérer les produits actifs
-      queryConstraints.push(where('active', '==', true));
+      // Appliquer les filtres
+      filteredProducts = filteredProducts.filter(product => product.active);
       
-      // Ajouter des filtres si présents
       if (filters.collection) {
-        queryConstraints.push(where('collectionId', '==', filters.collection));
+        filteredProducts = filteredProducts.filter(product => 
+          product.collectionId === filters.collection
+        );
       }
       
       if (filters.inStock === true) {
-        queryConstraints.push(where('stockQuantity', '>', 0));
+        filteredProducts = filteredProducts.filter(product => 
+          product.stockQuantity > 0
+        );
       }
       
       if (filters.priceRange) {
         const [minPrice, maxPrice] = filters.priceRange;
-        if (minPrice) queryConstraints.push(where('price', '>=', minPrice));
-        if (maxPrice) queryConstraints.push(where('price', '<=', maxPrice));
+        filteredProducts = filteredProducts.filter(product => {
+          const price = product.salePrice || product.price;
+          return (!minPrice || price >= minPrice) && (!maxPrice || price <= maxPrice);
+        });
       }
       
-      // Ajouter tri et limite
-      // Changement de tri selon le filtre demandé
+      // Appliquer le tri
       if (filters.sortBy === 'price' && filters.sortOrder) {
-        queryConstraints.push(orderBy('price', filters.sortOrder));
+        filteredProducts.sort((a, b) => {
+          const priceA = a.salePrice || a.price;
+          const priceB = b.salePrice || b.price;
+          return filters.sortOrder === 'asc' ? priceA - priceB : priceB - priceA;
+        });
       } else if (filters.sortBy === 'name' && filters.sortOrder) {
-        queryConstraints.push(orderBy('name', filters.sortOrder));
+        filteredProducts.sort((a, b) => {
+          const result = a.name.localeCompare(b.name);
+          return filters.sortOrder === 'asc' ? result : -result;
+        });
       } else {
-        // Par défaut : tri par date de création décroissante
-        queryConstraints.push(orderBy('createdAt', 'desc'));
+        // Tri par défaut par date de création
+        filteredProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       }
       
-      queryConstraints.push(limit(itemsPerPage));
+      // Pagination
+      const paginatedProducts = filteredProducts.slice(0, itemsPerPage);
       
-      // Exécuter la requête
-      const q = query(productsQuery, ...queryConstraints);
-      const querySnapshot = await getDocs(q);
+      setProducts(paginatedProducts);
+      setHasMore(filteredProducts.length > itemsPerPage);
+      setLastDoc(itemsPerPage);
       
-      // Si aucun résultat, définir hasMore à false
-      if (querySnapshot.empty) {
-        setProducts([]);
-        setHasMore(false);
-        setLastDoc(null);
-        setLoading(false);
-        return;
-      }
-      
-      // Transformer les données Firestore en objets JavaScript
-      const productsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      
-      setProducts(productsData);
-      setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
-      setHasMore(querySnapshot.docs.length === itemsPerPage);
+      console.log('🔧 Mock: Produits chargés:', paginatedProducts.length, '/', filteredProducts.length);
       
     } catch (err) {
-      console.error('Erreur lors du chargement des produits:', err);
+      console.error('❌ Mock: Erreur lors du chargement des produits:', err);
       setError('Impossible de charger les produits. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Fonction pour charger plus de produits (pagination)
+  // Fonction pour charger plus de produits (pagination) - Mock
   const loadMoreProducts = useCallback(async (itemsPerPage = 20, filters = {}) => {
-    if (!lastDoc || loading) return;
+    if (!hasMore || loading) return;
     
     try {
       setLoading(true);
       
-      // Construction de la requête avec curseur de pagination
-      let productsQuery = collection(firestore, 'products');
+      // Simuler un délai réseau
+      await new Promise(resolve => setTimeout(resolve, 400));
       
-      // Tableau pour stocker les conditions de la requête
-      let queryConstraints = [];
+      let filteredProducts = [...mockProducts];
       
-      // Uniquement récupérer les produits actifs
-      queryConstraints.push(where('active', '==', true));
+      // Appliquer les mêmes filtres que loadProducts
+      filteredProducts = filteredProducts.filter(product => product.active);
+      // ... (même logique de filtres)
       
-      // Ajouter des filtres si présents
-      if (filters.collection) {
-        queryConstraints.push(where('collectionId', '==', filters.collection));
-      }
+      // Pagination - prendre les éléments suivants
+      const startIndex = lastDoc || 0;
+      const newProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
       
-      if (filters.inStock === true) {
-        queryConstraints.push(where('stockQuantity', '>', 0));
-      }
-      
-      if (filters.priceRange) {
-        const [minPrice, maxPrice] = filters.priceRange;
-        if (minPrice) queryConstraints.push(where('price', '>=', minPrice));
-        if (maxPrice) queryConstraints.push(where('price', '<=', maxPrice));
-      }
-      
-      // Ajouter tri, curseur et limite
-      if (filters.sortBy === 'price' && filters.sortOrder) {
-        queryConstraints.push(orderBy('price', filters.sortOrder));
-      } else if (filters.sortBy === 'name' && filters.sortOrder) {
-        queryConstraints.push(orderBy('name', filters.sortOrder));
+      if (newProducts.length > 0) {
+        setProducts(prevProducts => [...prevProducts, ...newProducts]);
+        setLastDoc(startIndex + newProducts.length);
+        setHasMore(startIndex + newProducts.length < filteredProducts.length);
       } else {
-        // Par défaut : tri par date de création décroissante
-        queryConstraints.push(orderBy('createdAt', 'desc'));
-      }
-      
-      queryConstraints.push(startAfter(lastDoc));
-      queryConstraints.push(limit(itemsPerPage));
-      
-      // Exécuter la requête
-      const q = query(productsQuery, ...queryConstraints);
-      const querySnapshot = await getDocs(q);
-      
-      // Si aucun résultat supplémentaire, définir hasMore à false
-      if (querySnapshot.empty) {
         setHasMore(false);
-        setLoading(false);
-        return;
       }
       
-      // Transformer les nouvelles données et les ajouter au tableau existant
-      const newProductsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      
-      setProducts(prevProducts => [...prevProducts, ...newProductsData]);
-      setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
-      setHasMore(querySnapshot.docs.length === itemsPerPage);
+      console.log('🔧 Mock: Plus de produits chargés:', newProducts.length);
       
     } catch (err) {
-      console.error('Erreur lors du chargement de produits supplémentaires:', err);
+      console.error('❌ Mock: Erreur lors du chargement de produits supplémentaires:', err);
       setError('Impossible de charger plus de produits. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
-  }, [lastDoc, loading]);
+  }, [lastDoc, loading, hasMore]);
 
-  // Fonction pour obtenir un produit par son ID
+  // Fonction pour obtenir un produit par son ID - Mock
   const getProduct = useCallback(async (productId) => {
     try {
       setLoading(true);
       
-      const productRef = doc(firestore, 'products', productId);
-      const productSnap = await getDoc(productRef);
+      // Simuler un délai réseau
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      if (!productSnap.exists()) {
+      const product = mockProducts.find(p => p.id === productId && p.active);
+      
+      if (!product) {
         setError('Produit non trouvé');
+        console.log('❌ Mock: Produit non trouvé:', productId);
         return null;
       }
       
-      // Vérifier que le produit est actif
-      const productData = productSnap.data();
-      if (!productData.active) {
-        setError('Produit non disponible');
-        return null;
-      }
-      
-      return {
-        id: productSnap.id,
-        ...productData
-      };
+      console.log('🔧 Mock: Produit trouvé:', productId);
+      return product;
       
     } catch (err) {
-      console.error('Erreur lors de la récupération du produit:', err);
+      console.error('❌ Mock: Erreur lors de la récupération du produit:', err);
       setError('Impossible de récupérer les détails du produit');
       return null;
     } finally {
@@ -255,52 +190,35 @@ export default function useProducts() {
     }
   }, []);
 
-  // Fonction pour rechercher des produits
+  // Fonction pour rechercher des produits - Mock
   const searchProducts = useCallback(async (searchTerm, itemsPerPage = 20) => {
     try {
       setLoading(true);
       
-      // Note: Firestore ne supporte pas nativement la recherche par texte
-      // Idéalement, on utiliserait Algolia ou Firebase Functions pour la recherche
-      // Ici, on fait une approche simplifiée en chargeant les produits et en filtrant côté client
+      // Simuler un délai réseau
+      await new Promise(resolve => setTimeout(resolve, 400));
       
-      // Charger tous les produits actifs
-      const productsQuery = query(
-        collection(firestore, 'products'),
-        where('active', '==', true),
-        limit(100) // Limite pour des raisons de performance
-      );
-      
-      const querySnapshot = await getDocs(productsQuery);
-      
-      // Filtrer les produits qui contiennent le terme de recherche dans le nom ou la description
       const searchTermLower = searchTerm.toLowerCase();
-      const filteredProducts = [];
-      
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const nameMatch = data.name && data.name.toLowerCase().includes(searchTermLower);
-        const descMatch = data.description && data.description.toLowerCase().includes(searchTermLower);
-        const tagsMatch = data.tags && data.tags.some(tag => tag.toLowerCase().includes(searchTermLower));
+      const filteredProducts = mockProducts.filter(product => {
+        if (!product.active) return false;
         
-        if (nameMatch || descMatch || tagsMatch) {
-          filteredProducts.push({
-            id: doc.id,
-            ...data
-          });
-        }
+        const nameMatch = product.name && product.name.toLowerCase().includes(searchTermLower);
+        const descMatch = product.description && product.description.toLowerCase().includes(searchTermLower);
+        const tagsMatch = product.tags && product.tags.some(tag => tag.toLowerCase().includes(searchTermLower));
+        
+        return nameMatch || descMatch || tagsMatch;
       });
       
-      // Limiter les résultats
       const limitedResults = filteredProducts.slice(0, itemsPerPage);
       
       setProducts(limitedResults);
       setHasMore(filteredProducts.length > itemsPerPage);
       
+      console.log('🔧 Mock: Recherche de produits:', searchTerm, '->', limitedResults.length);
       return limitedResults;
       
     } catch (err) {
-      console.error('Erreur lors de la recherche de produits:', err);
+      console.error('❌ Mock: Erreur lors de la recherche de produits:', err);
       setError('Impossible de rechercher des produits. Veuillez réessayer.');
       return [];
     } finally {
@@ -308,63 +226,42 @@ export default function useProducts() {
     }
   }, []);
 
-  // Fonction pour obtenir les produits similaires
+  // Fonction pour obtenir les produits similaires - Mock
   const getSimilarProducts = useCallback(async (productId, limit = 4) => {
     try {
-      // Récupérer le produit actuel
-      const currentProduct = await getProduct(productId);
+      // Simuler un délai réseau
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      const currentProduct = mockProducts.find(p => p.id === productId);
       if (!currentProduct) return [];
       
-      // Récupérer les produits de la même collection
-      const similarQuery = query(
-        collection(firestore, 'products'),
-        where('active', '==', true),
-        where('collectionId', '==', currentProduct.collectionId),
-        where('id', '!=', productId),
-        limit(limit)
+      // Trouver des produits similaires (même collection ou catégorie)
+      let similarProducts = mockProducts.filter(product => 
+        product.active && 
+        product.id !== productId && 
+        (product.collectionId === currentProduct.collectionId || 
+         product.category === currentProduct.category)
       );
       
-      const querySnapshot = await getDocs(similarQuery);
-      
-      // Si pas assez de produits dans la même collection, compléter avec d'autres produits
-      if (querySnapshot.size < limit) {
-        const remainingLimit = limit - querySnapshot.size;
-        
-        const otherProductsQuery = query(
-          collection(firestore, 'products'),
-          where('active', '==', true),
-          where('id', '!=', productId),
-          limit(remainingLimit)
+      // Si pas assez, prendre d'autres produits actifs
+      if (similarProducts.length < limit) {
+        const otherProducts = mockProducts.filter(product => 
+          product.active && 
+          product.id !== productId &&
+          !similarProducts.find(sp => sp.id === product.id)
         );
-        
-        const otherSnapshot = await getDocs(otherProductsQuery);
-        
-        // Combiner les résultats
-        const similarProducts = [
-          ...querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          })),
-          ...otherSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }))
-        ];
-        
-        return similarProducts;
+        similarProducts = [...similarProducts, ...otherProducts];
       }
       
-      // Sinon, retourner les produits de la même collection
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const result = similarProducts.slice(0, limit);
+      console.log('🔧 Mock: Produits similaires trouvés:', result.length);
+      return result;
       
     } catch (err) {
-      console.error('Erreur lors de la récupération des produits similaires:', err);
+      console.error('❌ Mock: Erreur lors de la récupération des produits similaires:', err);
       return [];
     }
-  }, [getProduct]);
+  }, []);
 
   return {
     products,

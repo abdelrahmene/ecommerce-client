@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
-import { 
-  collection,
-  query,
-  orderBy,
-  onSnapshot
-} from 'firebase/firestore';
-import { firestore as db } from '../services/firebase/firebase';
+import { mockHomeContent } from '../data/mockData';
 
 export const useHomeContent = () => {
   const [sections, setSections] = useState([]);
@@ -13,44 +7,38 @@ export const useHomeContent = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Créer une requête pour obtenir les sections triées par ordre
-    const q = query(
-      collection(db, 'homeContent'),
-      orderBy('order', 'asc')
-    );
+    const fetchSections = async () => {
+      try {
+        console.log('🔧 Mock: Chargement des sections de la page d\'accueil...');
+        
+        // Simuler un délai réseau
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Utiliser les données mock triées par ordre
+        const sortedSections = [...mockHomeContent]
+          .filter(section => section.isVisible !== false)
+          .sort((a, b) => a.order - b.order);
 
-    // S'abonner aux mises à jour en temps réel
-    const unsubscribe = onSnapshot(q, 
-      (snapshot) => {
-        const sectionsData = snapshot.docs
-          .map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
+        console.log('🔧 Mock: Sections chargées:', sortedSections.length);
+        console.log('Sections détails:', sortedSections.map(s => ({ type: s.type, visible: s.isVisible })));
 
-        console.log('Sections chargées:', sectionsData);
-
-        // Ne garder que les sections visibles
-        const visibleSections = sectionsData.filter(section => section.isVisible);
-        console.log('Sections visibles:', visibleSections);
-
-        setSections(visibleSections);
+        setSections(sortedSections);
         setLoading(false);
-      },
-      (err) => {
-        console.error('Erreur lors du chargement des sections:', err);
-        setError(err.message);
+      } catch (err) {
+        console.error('❌ Mock: Erreur lors du chargement des sections:', err);
+        setError(err.message || 'Erreur de chargement');
         setLoading(false);
       }
-    );
+    };
 
-    // Nettoyer l'abonnement lors du démontage
-    return () => unsubscribe();
+    fetchSections();
   }, []);
 
   // Fonction utilitaire pour obtenir une section spécifique
   const getSection = (type) => {
-    return sections.find(section => section.type === type);
+    const section = sections.find(section => section.type === type);
+    console.log('🔧 Mock: Section demandée:', type, 'trouvée:', !!section);
+    return section;
   };
 
   return {
