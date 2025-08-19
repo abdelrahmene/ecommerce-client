@@ -39,7 +39,7 @@ echo.
 echo ✅ MIGRATION TERMINÉE !
 echo.
 echo 📋 Prochaines étapes:
-echo   1. Aller sur http://localhost:3000/content
+echo   1. Aller sur http://localhost:4000/content
 echo   2. Modifier le contenu des sections
 echo   3. Voir les changements sur http://localhost:3001
 echo.

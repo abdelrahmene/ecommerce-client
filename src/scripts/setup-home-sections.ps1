@@ -4,7 +4,7 @@
 Write-Host "🛡️ [SETUP SÉCURISÉ] Démarrage..." -ForegroundColor Green
 
 # Variables de configuration
-$AdminUrl = if ($env:REACT_APP_ADMIN_API_URL) { $env:REACT_APP_ADMIN_API_URL } else { "http://localhost:3000" }
+$AdminUrl = if ($env:REACT_APP_ADMIN_API_URL) { $env:REACT_APP_ADMIN_API_URL } else { "http://localhost:4000" }
 $ApiEndpoint = "$AdminUrl/api/content/home-sections"
 
 Write-Host "🔗 [CONFIG] URL Admin: $AdminUrl" -ForegroundColor Cyan

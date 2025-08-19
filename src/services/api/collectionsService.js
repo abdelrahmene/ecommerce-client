@@ -58,7 +58,7 @@ const createFetchConfig = (options = {}) => {
       'X-Requested-With': 'XMLHttpRequest',
       ...options.headers
     },
-    timeout: isMobile ? 30000 : 15000,
+    timeout: isMobile ? 40000 : 14000,
     ...options
   };
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { OrderService } from '../../services/mockServices';
+import { OrderService } from '../../services/orderService';
 import './OrdersPage.css';
 
 const OrdersPage = () => {

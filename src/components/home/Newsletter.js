@@ -51,7 +51,7 @@ const Newsletter = () => {
       setTimeout(() => {
         setStatus('idle');
         setMessage('');
-      }, 5000);
+      }, 4000);
     }, 1500);
   };
   

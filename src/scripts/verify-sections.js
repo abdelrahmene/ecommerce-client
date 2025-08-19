@@ -3,7 +3,7 @@
  * Vérifie juste ce qui existe sans rien modifier
  */
 
-const ADMIN_URL = 'http://localhost:3000';
+const ADMIN_URL = 'http://localhost:4000';
 
 const verifyOnly = async () => {
   console.log('🔍 Vérification des sections...');

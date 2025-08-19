@@ -71,7 +71,7 @@ const HeroSlider = () => {
       // Déterminer le délai en fonction du type de slide
       // Donner plus de temps pour la carte de fidélité pour que l'animation se termine
       const isLoyaltyCard = mockSlides[currentIndex].isLoyaltyCard;
-      const slideDelay = isLoyaltyCard ? 12000 : 5000; // 12 secondes pour la carte de fidélité, 5 secondes pour les autres
+      const slideDelay = isLoyaltyCard ? 12000 : 4000; // 12 secondes pour la carte de fidélité, 5 secondes pour les autres
       
       console.log(`Délai pour la slide ${currentIndex}: ${slideDelay}ms (${isLoyaltyCard ? 'Carte de fidélité' : 'Slide normale'})`);
       

@@ -4,7 +4,7 @@
  * Il vérifie d'abord ce qui existe, puis insère UNIQUEMENT ce qui manque.
  */
 
-const ADMIN_API_URL = process.env.REACT_APP_ADMIN_API_URL || 'http://localhost:3000';
+const ADMIN_API_URL = process.env.REACT_APP_ADMIN_API_URL || 'http://localhost:4000';
 
 /**
  * ✅ FONCTION DE VÉRIFICATION SÉCURISÉE

@@ -73,7 +73,7 @@ const isMobileDevice = () => {
 // Configuration fetch améliorée
 const createFetchConfig = (options = {}) => {
   const isMobile = isMobileDevice();
-  const timeoutMs = isMobile ? 30000 : 15000; // 30s mobile, 15s desktop
+  const timeoutMs = isMobile ? 40000 : 14000; // 30s mobile, 15s desktop
   
   console.log(`📱 Fetch Config - Mobile: ${isMobile}, Timeout: ${timeoutMs}ms`);
   
@@ -158,7 +158,7 @@ const fetchWithTimeout = async (url, options = {}) => {
     });
     
     // Retry logic pour mobile
-    if (isMobileDevice() && duration < 5000 && !options._isRetry) {
+    if (isMobileDevice() && duration < 4000 && !options._isRetry) {
       console.log('🔄 Retry on mobile...');
       await new Promise(resolve => setTimeout(resolve, 1000));
       return fetchWithTimeout(url, { ...options, _isRetry: true });

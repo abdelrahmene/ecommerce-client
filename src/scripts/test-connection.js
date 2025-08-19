@@ -4,7 +4,7 @@
  */
 
 const testConnection = async () => {
-  const ADMIN_URL = 'http://localhost:3000';
+  const ADMIN_URL = 'http://localhost:4000';
   
   console.log('🧪 [TEST] Démarrage du test de connectivité...');
   
@@ -44,7 +44,7 @@ const testConnection = async () => {
     
     if (error.message.includes('Failed to fetch')) {
       console.log('💡 [TEST] Solutions possibles:');
-      console.log('  1. Vérifiez que le serveur admin tourne sur http://localhost:3000');
+      console.log('  1. Vérifiez que le serveur admin tourne sur http://localhost:4000');
       console.log('  2. Vérifiez les CORS si nécessaire');
       console.log('  3. Vérifiez la route /api/content/home-sections');
     }

@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { mockFirestore, collection, getDocs, query, where, orderBy } from '../../services/mockServices';
+import productService from '../../services/productService';
+
+console.log('🔧 CollectionsPage - Utilisation exclusive de l\'API');
 
 const CollectionsPage = () => {
   const [collections, setCollections] = useState([]);
@@ -13,24 +15,15 @@ const CollectionsPage = () => {
     const fetchCollections = async () => {
       try {
         setLoading(true);
+        console.log('📡 API Collections - Récupération des collections');
         
-        const collectionsQuery = query(
-          collection(mockFirestore, 'collections'),
-          where('active', '==', true),
-          orderBy('order', 'asc')
-        );
+        const collectionsData = await productService.getCollections();
         
-        const snapshot = await getDocs(collectionsQuery);
-        
-        const collectionsData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
+        console.log('✅ API Collections - Collections récupérées:', collectionsData.length);
         setCollections(collectionsData);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching collections:', err);
+        console.error('❌ API Collections - Erreur:', err);
         setError('Failed to load collections');
         setLoading(false);
       }

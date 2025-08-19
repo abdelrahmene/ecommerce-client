@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { OrderService } from '../../services/mockServices';
+import { OrderService } from '../../services/orderService';
 import './AccountPage.css';
 
 const AccountPage = () => {

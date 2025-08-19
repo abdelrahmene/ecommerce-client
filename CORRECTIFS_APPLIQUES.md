@@ -50,7 +50,7 @@
 
 ## 🧪 TESTS À EFFECTUER
 
-### 📱 CÔTÉ CLIENT (http://localhost:3000)
+### 📱 CÔTÉ CLIENT (http://localhost:4000)
 1. **Page d'accueil :**
    - ✅ Vérifier que les catégories s'affichent correctement
    - ✅ Vérifier que l'espace s'adapte au nombre de catégories  

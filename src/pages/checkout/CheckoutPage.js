@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Check, CreditCard, Truck, MapPin, AlertTriangle } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { collection, addDoc, serverTimestamp } from '../../services/mockServices';
+import { collection, addDoc, serverTimestamp } from '../../services/firebaseService';
 import toast from 'react-hot-toast';
 
 const CheckoutPage = () => {

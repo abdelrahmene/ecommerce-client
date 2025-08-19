@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { AuthService } from '../services/mockServices';
+import { AuthService } from '../services/authService';
 
 const AuthContext = createContext();
 

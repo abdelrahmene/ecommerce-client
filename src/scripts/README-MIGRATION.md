@@ -70,17 +70,17 @@ node src/scripts/verify-sections.js
 
 ### Variables d'environnement (.env)
 ```env
-REACT_APP_ADMIN_API_URL=http://localhost:3000
+REACT_APP_ADMIN_API_URL=http://localhost:4000
 ```
 
 ### URLs importantes
-- **Admin Dashboard** : http://localhost:3000/content
+- **Admin Dashboard** : http://localhost:4000/content
 - **Page d'accueil client** : http://localhost:3001
-- **API Sections** : http://localhost:3000/api/content/home-sections
+- **API Sections** : http://localhost:4000/api/content/home-sections
 
 ## 🎯 UTILISATION APRÈS MIGRATION
 
-1. **Modifier le contenu** : Aller sur http://localhost:3000/content
+1. **Modifier le contenu** : Aller sur http://localhost:4000/content
 2. **Voir les changements** : Actualiser http://localhost:3001
 3. **Fallback automatique** : Si la DB est vide, le contenu par défaut s'affiche
 
@@ -89,7 +89,7 @@ REACT_APP_ADMIN_API_URL=http://localhost:3000
 ### Problème : "Erreur de connexion"
 ```bash
 # Vérifier que le serveur admin tourne
-curl http://localhost:3000/api/content/home-sections
+curl http://localhost:4000/api/content/home-sections
 ```
 
 ### Problème : "Sections non visibles"

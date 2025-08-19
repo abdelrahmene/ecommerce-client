@@ -4,7 +4,9 @@ import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ArrowLeft, AlertTriangle, ShoppingBag, Star, Eye, Heart } from 'lucide-react';
-import { mockFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs, startAfter } from '../../services/mockServices';
+import productService from '../../services/productService';
+
+console.log('🔧 CollectionPage - Utilisation exclusive de l\'API');
 
 // Animations
 const fadeIn = {
@@ -166,35 +168,27 @@ const CollectionPage = () => {
         setLoading(true);
         setError(null);
         
-        // Débogage - voir l'ID exact de la collection en cours
-        console.log('Trying to fetch collection with ID:', collectionId);
+        console.log('📡 API Collections - Récupération de la collection:', collectionId);
         
-        // Récupérer toutes les collections pour voir leurs IDs
-        const allCollectionsSnapshot = await getDocs(collection(mockFirestore, 'collections'));
-        console.log('All collections IDs:', allCollectionsSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name })));
+        const collections = await productService.getCollections();
+        const collection = collections.find(c => c.id === collectionId || c.slug === collectionId);
         
-        const collectionDoc = await getDoc(doc(mockFirestore, 'collections', collectionId));
-        
-        if (!collectionDoc.exists()) {
+        if (!collection) {
+          console.error('❌ API Collections - Collection non trouvée:', collectionId);
           setError('Collection not found');
           setLoading(false);
           return;
         }
         
-        const data = {
-          id: collectionDoc.id,
-          ...collectionDoc.data()
-        };
-        
-        console.log('Found collection:', data.name, 'with ID:', data.id);
-        setCollectionData(data);
+        console.log('✅ API Collections - Collection trouvée:', collection.name);
+        setCollectionData(collection);
         setLoading(false);
         
         // NE PLUS appeler fetchProducts ici
         // fetchProducts est maintenant appelé via un useEffect séparé
         
       } catch (err) {
-        console.error('Error fetching collection:', err);
+        console.error('❌ API Collections - Erreur:', err);
         setError('Failed to load collection details');
         setLoading(false);
       }
@@ -208,7 +202,7 @@ const CollectionPage = () => {
   // Nouveau useEffect pour appeler fetchProducts uniquement quand collectionData est disponible
   useEffect(() => {
     if (collectionData) {
-      console.log('collectionData est disponible, appel de fetchProducts');
+      console.log('📡 Collection data disponible, récupération des produits');
       fetchProducts();
     }
   }, [collectionData]);
@@ -223,73 +217,24 @@ const CollectionPage = () => {
   const fetchProducts = async () => {
     try {
       setProductsLoading(true);
-      console.log('Collection data disponible pour fetchProducts:', collectionData);
+      console.log('📡 API Products - Récupération des produits pour la collection:', collectionData.id);
       
-      // Simple approche directe: récupérer les produits de cette collection spécifique
-      const productsQuery = query(
-        collection(mockFirestore, 'products'),
-        where('collectionId', '==', collectionData.id),
-        where('active', '==', true),
-        limit(20)
-      );
+      const filters = {
+        collection: collectionData.id,
+        active: true,
+        limit: 20
+      };
       
-      console.log('Recherche de produits avec collectionId:', collectionData.id);
-      const snapshot = await getDocs(productsQuery);
+      const productsData = await productService.getProducts(filters);
       
-      // Si on ne trouve rien, essayons de récupérer tous les produits et voir ce qui est disponible
-      if (snapshot.empty) {
-        console.log('Aucun produit trouvé pour cette collection, vérifions ce qui existe...');
-        
-        // Récupérer tous les produits pour débogage
-        const allProductsSnapshot = await getDocs(query(
-          collection(mockFirestore, 'products'),
-          limit(10)
-        ));
-        
-        if (!allProductsSnapshot.empty) {
-          // Afficher les ID de collection de tous les produits pour débogage
-          console.log('Produits disponibles et leurs collectionId:', 
-            allProductsSnapshot.docs.map(doc => ({
-              id: doc.id,
-              name: doc.data().name,
-              collectionId: doc.data().collectionId
-            }))
-          );
-          
-          // Essayons une dernière approche avec l'ID directement
-          console.log('Tentative de correspondance directe par nom de produit');
-          
-          const matchingByName = allProductsSnapshot.docs
-            .filter(doc => {
-              const productName = doc.data().name || '';
-              const collectionName = collectionData.name || '';
-              return productName.toLowerCase() === collectionName.toLowerCase();
-            })
-            .map(doc => ({
-              id: doc.id,
-              ...doc.data()
-            }));
-            
-          console.log('Produits correspondant au nom de la collection:', matchingByName.length);
-          setProducts(matchingByName);
-        } else {
-          setProducts([]);
-        }
-      } else {
-        // Nous avons trouvé des produits, les traiter
-        const productsData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
-        console.log('Produits trouvés pour cette collection:', productsData.length);
-        setProducts(productsData);
-        setHasMore(productsData.length >= 20);
-      }
-      
+      console.log('✅ API Products - Produits récupérés:', productsData.length);
+      setProducts(productsData);
+      setHasMore(productsData.length >= 20);
       setProductsLoading(false);
+      
     } catch (err) {
-      console.error('Error fetching products:', err);
+      console.error('❌ API Products - Erreur:', err);
+      setError('Failed to load products');
       setProductsLoading(false);
       setProducts([]);
     }
@@ -300,34 +245,27 @@ const CollectionPage = () => {
     
     try {
       setProductsLoading(true);
+      console.log('📡 API Products - Chargement de plus de produits');
       
-      const productsQuery = query(
-        collection(mockFirestore, 'products'),
-        where('collectionId', '==', collectionId),
-        where('active', '==', true),
-        orderBy('createdAt', 'desc'),
-        startAfter(lastVisible),
-        limit(12)
-      );
+      const filters = {
+        collection: collectionData.id,
+        active: true,
+        limit: 12,
+        offset: products.length
+      };
       
-      const snapshot = await getDocs(productsQuery);
+      const newProducts = await productService.getProducts(filters);
       
-      if (snapshot.empty) {
+      if (newProducts.length === 0) {
         setHasMore(false);
       } else {
-        const newProducts = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
         setProducts(prev => [...prev, ...newProducts]);
-        setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
-        setHasMore(snapshot.docs.length >= 12);
+        setHasMore(newProducts.length >= 12);
       }
       
       setProductsLoading(false);
     } catch (err) {
-      console.error('Error loading more products:', err);
+      console.error('❌ API Products - Erreur chargement supplémentaire:', err);
       setProductsLoading(false);
     }
   };

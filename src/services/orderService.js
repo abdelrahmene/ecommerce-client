@@ -1,181 +1,76 @@
-// 🎯 SERVICE DE COMMANDES MOCK - Remplace Firebase Firestore
-// Ce service simule les opérations sur les commandes avec des données locales
+// Service de commandes utilisant UNIQUEMENT l'API
+const API_BASE_URL = (process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000') + '/api';
 
-import { mockOrders } from '../data/mockData';
+console.log('🔧 Service de commandes API initialisé');
 
-const ORDERS_COLLECTION = 'orders';
-
-// Simuler un stockage local des commandes
-let localOrders = [...mockOrders];
-
-/**
- * Crée une nouvelle commande (mock)
- * @param {Object} orderData - Données de la commande
- * @returns {Promise<Object>} - Objet contenant l'ID de la commande et le statut
- */
-export const createOrder = async (orderData) => {
-  try {
-    // Simuler un délai réseau
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Nettoyer les données (remplacer undefined par null)
-    const cleanData = JSON.parse(JSON.stringify(orderData));
+const orderService = {
+  async createOrder(orderData) {
+    console.log('📡 API Orders - Création de commande:', orderData);
     
-    // S'assurer que le code couleur est défini
-    if (cleanData.product && cleanData.product.colorCode === undefined) {
-      cleanData.product.colorCode = null;
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur de création de commande');
+      }
+
+      const data = await response.json();
+      console.log('✅ API Orders - Commande créée:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ API Orders - Erreur de création:', error);
+      throw error;
     }
-    
-    // Créer la nouvelle commande
-    const newOrder = {
-      id: 'order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-      ...cleanData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: cleanData.status || 'pending'
-    };
-    
-    // Ajouter à la liste locale
-    localOrders.unshift(newOrder);
-    
-    console.log('🔧 Mock: Nouvelle commande créée:', newOrder.id);
-    
-    return {
-      success: true,
-      orderId: newOrder.id
-    };
-  } catch (error) {
-    console.error('❌ Mock: Erreur lors de la création de la commande:', error);
-    return {
-      success: false,
-      error: error.message
-    };
-  }
-};
+  },
 
-/**
- * Récupère une commande par son ID (mock)
- * @param {string} orderId - ID de la commande
- * @returns {Promise<Object>} - Données de la commande
- */
-export const getOrderById = async (orderId) => {
-  try {
-    // Simuler un délai réseau
-    await new Promise(resolve => setTimeout(resolve, 300));
+  async getUserOrders(userId) {
+    console.log('📡 API Orders - Récupération des commandes pour:', userId);
     
-    const order = localOrders.find(o => o.id === orderId);
-    
-    if (order) {
-      console.log('🔧 Mock: Commande trouvée:', orderId);
-      return {
-        id: order.id,
-        ...order
-      };
-    } else {
-      throw new Error('Commande non trouvée');
-    }
-  } catch (error) {
-    console.error('❌ Mock: Erreur lors de la récupération de la commande:', error);
-    throw error;
-  }
-};
-
-/**
- * Met à jour le statut d'une commande (mock)
- * @param {string} orderId - ID de la commande
- * @param {string} status - Nouveau statut
- * @returns {Promise<boolean>} - Succès de la mise à jour
- */
-export const updateOrderStatus = async (orderId, status) => {
-  try {
-    // Simuler un délai réseau
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const orderIndex = localOrders.findIndex(o => o.id === orderId);
-    
-    if (orderIndex >= 0) {
-      localOrders[orderIndex] = {
-        ...localOrders[orderIndex],
-        status,
-        updatedAt: new Date().toISOString()
-      };
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders/user/${userId}`);
       
-      console.log('🔧 Mock: Statut de commande mis à jour:', orderId, '->', status);
-      return true;
-    } else {
-      console.error('❌ Mock: Commande non trouvée pour mise à jour:', orderId);
-      return false;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur de récupération des commandes');
+      }
+
+      const data = await response.json();
+      console.log('✅ API Orders - Commandes récupérées:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ API Orders - Erreur de récupération:', error);
+      throw error;
     }
-  } catch (error) {
-    console.error('❌ Mock: Erreur lors de la mise à jour du statut:', error);
-    return false;
-  }
-};
+  },
 
-/**
- * Récupère toutes les commandes (mock)
- * @param {Object} filters - Filtres optionnels (status, date, etc.)
- * @returns {Promise<Array>} - Liste des commandes
- */
-export const getAllOrders = async (filters = {}) => {
-  try {
-    // Simuler un délai réseau
-    await new Promise(resolve => setTimeout(resolve, 400));
+  async getOrderById(orderId) {
+    console.log('📡 API Orders - Récupération de la commande:', orderId);
     
-    let filteredOrders = [...localOrders];
-    
-    // Appliquer les filtres si nécessaire
-    if (filters.status) {
-      filteredOrders = filteredOrders.filter(order => order.status === filters.status);
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders/${orderId}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur de récupération de la commande');
+      }
+
+      const data = await response.json();
+      console.log('✅ API Orders - Commande récupérée:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ API Orders - Erreur de récupération:', error);
+      throw error;
     }
-    
-    // Trier par date de création (plus récent d'abord)
-    filteredOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    
-    console.log('🔧 Mock: Commandes récupérées:', filteredOrders.length);
-    
-    return filteredOrders.map(order => ({
-      id: order.id,
-      ...order
-    }));
-  } catch (error) {
-    console.error('❌ Mock: Erreur lors de la récupération des commandes:', error);
-    throw error;
   }
 };
 
-/**
- * Récupère les commandes d'un client spécifique (mock)
- * @param {string} clientId - ID du client
- * @returns {Promise<Array>} - Liste des commandes du client
- */
-export const getOrdersByClient = async (clientId) => {
-  try {
-    // Simuler un délai réseau
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const clientOrders = localOrders
-      .filter(order => order.clientId === clientId)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    
-    console.log('🔧 Mock: Commandes du client récupérées:', clientId, '->', clientOrders.length);
-    
-    return clientOrders.map(order => ({
-      id: order.id,
-      ...order
-    }));
-  } catch (error) {
-    console.error('❌ Mock: Erreur lors de la récupération des commandes du client:', error);
-    throw error;
-  }
-};
-
-console.log('🔧 Service de commandes Mock initialisé');
-
-export default {
-  createOrder,
-  getOrderById,
-  updateOrderStatus,
-  getAllOrders,
-  getOrdersByClient
-};
+export { orderService as OrderService };
+export const createOrder = orderService.createOrder;
+export default orderService;
