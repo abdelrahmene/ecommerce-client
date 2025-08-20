@@ -3,8 +3,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { mockSlides } from './mockData';
 import { FaStamp, FaMapMarkerAlt, FaPhone, FaFacebookF } from 'react-icons/fa';
 import { HiSparkles } from 'react-icons/hi';
+import ImageWithFallback from '../../common/ImageWithFallback';
 
-const HeroSlider = () => {
+const HeroSlider = ({ data }) => {
+  // Debug: Données reçues de l'API
+  console.log('📊 HeroSlider - Données reçues:', data);
+  console.log('📊 HeroSlider - Content:', data?.content);
+  console.log('📊 HeroSlider - Content Type:', data?.content?.type);
+  console.log('📊 HeroSlider - Slides:', data?.content?.slides);
+  
+  // Extraction des données de la section depuis l'admin
+  const sectionTitle = data?.content?.title || '';
+  const sectionSubtitle = data?.content?.subtitle || '';
+  const sectionImages = data?.content?.images || [];
+  const apiSlides = data?.content?.slides || [];
+  
+  // Utiliser les slides de l'API si disponibles, sinon utiliser les mockSlides
+  const slides = (apiSlides && apiSlides.length > 0) ? apiSlides : mockSlides;
+  
+  console.log('🎯 HeroSlider - Slides finaux utilisés:', slides);
+  console.log('🎯 HeroSlider - Source des slides:', (apiSlides && apiSlides.length > 0) ? 'API' : 'Mock');
+  console.log('🎯 HeroSlider - Nombre total de slides:', slides.length);
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
 
@@ -39,11 +59,11 @@ const HeroSlider = () => {
     setDirection(newDirection);
     setCurrentIndex((prevIndex) => {
       let nextIndex = prevIndex + newDirection;
-      if (nextIndex < 0) nextIndex = mockSlides.length - 1;
-      if (nextIndex >= mockSlides.length) nextIndex = 0;
+      if (nextIndex < 0) nextIndex = slides.length - 1;
+      if (nextIndex >= slides.length) nextIndex = 0;
       return nextIndex;
     });
-  }, [mockSlides.length]);
+  }, [slides.length]);
 
   // Fonction pour naviguer manuellement avec pause temporaire
   const handleManualNavigation = useCallback((newDirection) => {
@@ -70,8 +90,8 @@ const HeroSlider = () => {
     } else {
       // Déterminer le délai en fonction du type de slide
       // Donner plus de temps pour la carte de fidélité pour que l'animation se termine
-      const isLoyaltyCard = mockSlides[currentIndex].isLoyaltyCard;
-      const slideDelay = isLoyaltyCard ? 12000 : 4000; // 12 secondes pour la carte de fidélité, 5 secondes pour les autres
+      const isLoyaltyCard = slides[currentIndex]?.isLoyaltyCard;
+      const slideDelay = isLoyaltyCard ? 12000 : 4000; // 12 secondes pour la carte de fidélité, 4 secondes pour les autres
       
       console.log(`Délai pour la slide ${currentIndex}: ${slideDelay}ms (${isLoyaltyCard ? 'Carte de fidélité' : 'Slide normale'})`);
       
@@ -94,7 +114,27 @@ const HeroSlider = () => {
     }
   }, [paginate, isPaused, autoplayEnabled, currentIndex]); // Ajouter currentIndex comme dépendance
 
-  const currentSlide = mockSlides[currentIndex];
+  const currentSlide = slides[currentIndex];
+  
+  // Sécurité: Vérifier que nous avons des slides et une slide courante
+  if (!slides || slides.length === 0 || !currentSlide) {
+    console.log('⚠️ HeroSlider - Aucune slide disponible');
+    return (
+      <div className="relative w-full h-screen overflow-hidden flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🔄</div>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+            Chargement...
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Récupération du contenu
+          </p>
+        </div>
+      </div>
+    );
+  }
+  
+  console.log('🏁 HeroSlider - Slide courante:', currentSlide);
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
@@ -420,8 +460,8 @@ const HeroSlider = () => {
                   transition={{ delay: 0.2 }}
                   className="hidden lg:block w-1/2 relative pointer-events-auto"
                 >
-                  <motion.img
-                    src={currentSlide.image}
+                  <ImageWithFallback
+                    imagePath={currentSlide.image}
                     alt={currentSlide.title}
                     className="w-full h-auto max-h-[80vh] object-contain"
                     animate={{ 
@@ -432,6 +472,12 @@ const HeroSlider = () => {
                       duration: 8,
                       repeat: Infinity,
                       repeatType: "reverse"
+                    }}
+                    onError={() => {
+                      console.log('❌ Erreur chargement image du slider:', currentSlide.image);
+                    }}
+                    onLoad={() => {
+                      console.log('✅ Image du slider chargée avec succès:', currentSlide.image);
                     }}
                   />
                 </motion.div>

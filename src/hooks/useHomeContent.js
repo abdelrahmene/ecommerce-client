@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { mockHomeContent } from '../data/mockData';
+import axios from 'axios';
+import { API_CONFIG, getImageUrl } from '../config/api';
 
 export const useHomeContent = () => {
   const [sections, setSections] = useState([]);
@@ -9,23 +10,30 @@ export const useHomeContent = () => {
   useEffect(() => {
     const fetchSections = async () => {
       try {
-        console.log('🔧 Mock: Chargement des sections de la page d\'accueil...');
+        console.log('📡 Chargement des sections depuis l\'API...');
         
-        // Simuler un délai réseau
-        await new Promise(resolve => setTimeout(resolve, 300));
+        const response = await axios.get(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.HOME_SECTIONS}`);
         
-        // Utiliser les données mock triées par ordre
-        const sortedSections = [...mockHomeContent]
+        // Traiter les sections pour corriger les URLs d'images
+        const sectionsWithImages = response.data.map(section => {
+          if (section.content && section.content.slides) {
+            section.content.slides = section.content.slides.map(slide => ({
+              ...slide,
+              image: getImageUrl(slide.image)
+            }));
+          }
+          return section;
+        });
+        
+        const sortedSections = sectionsWithImages
           .filter(section => section.isVisible !== false)
           .sort((a, b) => a.order - b.order);
 
-        console.log('🔧 Mock: Sections chargées:', sortedSections.length);
-        console.log('Sections détails:', sortedSections.map(s => ({ type: s.type, visible: s.isVisible })));
-
+        console.log('✅ Sections chargées depuis l\'API:', sortedSections.length);
         setSections(sortedSections);
         setLoading(false);
       } catch (err) {
-        console.error('❌ Mock: Erreur lors du chargement des sections:', err);
+        console.error('❌ Erreur lors du chargement des sections:', err);
         setError(err.message || 'Erreur de chargement');
         setLoading(false);
       }

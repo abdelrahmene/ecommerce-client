@@ -22,10 +22,11 @@ export const DynamicSection = ({ section }) => {
 
   switch (section.type) {
     case 'hero':
-      // Pour le hero, on garde toujours le slider actuel avec la carte de fidélité
+      // Passer les données de la section au HeroSlider
+      console.log('🎯 DynamicSection: Transmission des données hero à HeroSlider:', section);
       return (
         <section className="w-full min-h-screen snap-start snap-always">
-          <HeroSlider />
+          <HeroSlider data={section} />
         </section>
       );
 

@@ -94,13 +94,26 @@ const CollectionCard = ({ collection, isActive, direction }) => {
   );
 };
 
-const Collection = () => {
+const Collection = ({ data }) => {
+  // Extraction des données de la section depuis l'admin
+  const sectionTitle = data?.content?.title || 'Collections en vedette';
+  const sectionSubtitle = data?.content?.subtitle || '';
+  const sectionCollections = data?.content?.collections || [];
+  
+  // Debug: Données de la section
+  // console.log('Collection - Section data:', data);
+  // console.log('Collection - Title:', sectionTitle);
+  // console.log('Collection - Subtitle:', sectionSubtitle);
+  // console.log('Collection - Collections:', sectionCollections);
+  
+  // Utiliser les collections de l'admin si disponibles, sinon fallback sur mockCollections
+  const collectionsToShow = sectionCollections.length > 0 ? sectionCollections : mockCollections;
   const [[activeIndex, direction], setActiveIndex] = useState([0, 0]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveIndex(([current, dir]) => {
-        const next = (current + 1) % mockCollections.length;
+        const next = (current + 1) % collectionsToShow.length;
         return [next, 1];
       });
     }, 2000);
@@ -117,8 +130,8 @@ const Collection = () => {
         <div className="relative h-[70vh] w-full">
           <AnimatePresence initial={false} custom={direction}>
             <CollectionCard
-              key={mockCollections[activeIndex].id}
-              collection={mockCollections[activeIndex]}
+              key={collectionsToShow[activeIndex]?.id || `collection-${activeIndex}`}
+              collection={collectionsToShow[activeIndex]}
               isActive={true}
               direction={direction}
             />
@@ -126,7 +139,7 @@ const Collection = () => {
 
           {/* Indicateurs de navigation */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2">
-            {mockCollections.map((_, index) => (
+            {collectionsToShow.map((_, index) => (
               <motion.button
                 key={index}
                 className={`w-2 h-2 rounded-full ${index === activeIndex ? 'bg-white' : 'bg-white/40'}`}

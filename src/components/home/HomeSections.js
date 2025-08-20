@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import useHomeSections from '../../hooks/useHomeSections';
-import HeroBanner from './HeroBanner';
-import CategoryCollection from './CategoryCollection';
+import HeroSlider from './HeroSlider';
+import Categories from './Categories';
 import SectionCollection from './SectionCollection';
 import LoadingSpinner from '../ui/LoadingSpinner';
+
 
 /**
  * Composant qui gère l'affichage de toutes les sections de la page d'accueil
@@ -28,7 +29,8 @@ const HomeSections = () => {
 
   // Rendu des sections en fonction de leur type
   const renderSection = (section) => {
-    console.log('Rendering section:', section.type, section);
+    // Debug: Section en cours de rendu
+    // console.log('Rendering section:', section.type, section);
     
     // Wrapper commun pour toutes les sections avec snap scrolling
     const SectionWrapper = ({ children }) => (
@@ -44,7 +46,7 @@ const HomeSections = () => {
       case 'hero':
         return (
           <SectionWrapper key={section.id}>
-            <HeroBanner data={section} />
+            <HeroSlider data={section} />
           </SectionWrapper>
         );
       
@@ -52,7 +54,7 @@ const HomeSections = () => {
       case 'categories':
         return (
           <SectionWrapper key={section.id}>
-            <CategoryCollection data={section} />
+            <Categories data={section} />
           </SectionWrapper>
         );
       

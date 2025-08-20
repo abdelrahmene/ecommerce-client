@@ -117,13 +117,26 @@ const CategoryCard = ({ category, index }) => {
   );
 };
 
-const Categories = () => {
+const Categories = ({ data }) => {
+  // Extraction des données de la section depuis l'admin
+  const sectionTitle = data?.content?.title || 'Nos Catégories';
+  const sectionSubtitle = data?.content?.subtitle || '';
+  const sectionCategories = data?.content?.categories || [];
+  
+  // Debug: Données de la section
+  // console.log('Categories - Section data:', data);
+  // console.log('Categories - Title:', sectionTitle);
+  // console.log('Categories - Subtitle:', sectionSubtitle);
+  // console.log('Categories - Categories:', sectionCategories);
+  
+  // Utiliser les catégories de l'admin si disponibles, sinon fallback sur mockCategories
+  const categoriesToShow = sectionCategories.length > 0 ? sectionCategories : mockCategories;
   return (
     <section className="w-full bg-gray-50 dark:bg-slate-900/90 transition-colors duration-300 py-4 px-4">
       {/* Titre supprimé pour éviter les doublons */}
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-          {mockCategories.map((category, index) => (
+          {categoriesToShow.map((category, index) => (
             <CategoryCard
               key={category.id}
               category={category}
