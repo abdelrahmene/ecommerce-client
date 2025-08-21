@@ -218,6 +218,7 @@ const CheckoutForm = ({ product, onSubmit }) => {
             </label>
             <input
               type="text"
+              id="firstName"
               name="firstName"
               value={formData.firstName}
               onChange={handleInputChange}
@@ -238,6 +239,7 @@ const CheckoutForm = ({ product, onSubmit }) => {
             </label>
             <input
               type="text"
+              id="lastName"
               name="lastName"
               value={formData.lastName}
               onChange={handleInputChange}
@@ -260,6 +262,7 @@ const CheckoutForm = ({ product, onSubmit }) => {
           </label>
           <input
             type="tel"
+            id="phone"
             name="phone"
             value={formData.phone}
             onChange={handleInputChange}
@@ -295,6 +298,7 @@ const CheckoutForm = ({ product, onSubmit }) => {
             🏠 Adresse complète <span className="text-red-500">*</span>
           </label>
           <textarea
+            id="address"
             name="address"
             value={formData.address}
             onChange={handleInputChange}
@@ -316,6 +320,7 @@ const CheckoutForm = ({ product, onSubmit }) => {
             📝 Note (optionnel)
           </label>
           <textarea
+            id="note"
             name="note"
             value={formData.note}
             onChange={handleInputChange}
@@ -335,6 +340,7 @@ const CheckoutForm = ({ product, onSubmit }) => {
             <label className="flex items-center">
               <input
                 type="radio"
+                id="paymentMethod"
                 name="paymentMethod"
                 value="cash-on-delivery"
                 checked={formData.paymentMethod === 'cash-on-delivery'}

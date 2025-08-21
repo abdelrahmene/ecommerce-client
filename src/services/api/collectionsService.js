@@ -188,4 +188,23 @@ export const collectionsService = {
   }
 };
 
+// Service pour récupérer les sections de collection depuis l'API Node.js
+export const getHomeSections = async () => {
+  try {
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000/api'
+    const response = await fetchWithLogs(`${apiUrl}/content/home-sections`)
+    
+    if (response && Array.isArray(response)) {
+      const collectionSections = response.filter(section => section.type === 'collection')
+      console.log(`✅ [HOME-SECTIONS] ${collectionSections.length} sections collection trouvées`)
+      return collectionSections
+    }
+    
+    return []
+  } catch (error) {
+    console.error('❌ [HOME-SECTIONS] Erreur:', error)
+    return []
+  }
+}
+
 export default collectionsService;

@@ -17,8 +17,12 @@ export const getHomeSections = async () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
       },
-      cache: 'no-cache' // Toujours récupérer les données fraîches
+      mode: 'cors',
+      credentials: 'omit',
+      cache: 'no-cache'
     });
     
     console.log('📊 [HOME-SERVICE] Réponse reçue, status:', response.status);
@@ -56,7 +60,11 @@ export const getHomeSection = async (id) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
       },
+      mode: 'cors',
+      credentials: 'omit'
     });
     
     if (!response.ok) {

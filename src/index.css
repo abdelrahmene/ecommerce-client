@@ -130,6 +130,15 @@
       opacity: 1;
     }
   }
+
+  @keyframes float {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 100% 100%;
+    }
+  }
   
   /* Shadow top for mobile nav */
   .shadow-top {
