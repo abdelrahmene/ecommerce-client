@@ -31,9 +31,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:prod": "NODE_ENV=production REACT_APP_API_BASE_URL=http://148.230.125.251:4000 react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "node deploy.js",
+    "deploy:prod": "npm run build:prod && echo 'Build terminé pour la production'",
     "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "eslintConfig": {

@@ -79,6 +79,33 @@ export const DynamicSection = ({ section }) => {
         </section>
       );
 
+    case 'featured_products':
+      return (
+        <section className="w-full min-h-screen snap-start snap-always">
+          <div className="h-full flex flex-col justify-center py-8 px-4">
+            <div className="text-center mb-8">
+              <div className="relative inline-block">
+                <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3 drop-shadow-sm">
+                  {section.title || 'Produits en Vedette'}
+                  <div className="absolute -bottom-2 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full shadow-sm"></div>
+                </h2>
+              </div>
+              {section.description && (
+                <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-4 max-w-2xl mx-auto">
+                  {section.description}
+                </p>
+              )}
+            </div>
+            <SectionCollection 
+              data={{ 
+                collections: section.content?.collections || [] 
+              }} 
+            />
+          </div>
+        </section>
+      );
+
+    case 'trust_features':
     case 'advantages':
     case 'trust-features':
       return (
