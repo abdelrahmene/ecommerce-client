@@ -85,15 +85,31 @@ export const getHomeSections = async () => {
       return FALLBACK_SECTIONS;
     }
 
-    const sections = await response.json();
+    const data = await response.json();
     
-    console.log('✅ API: Sections récupérées avec succès:', sections.length);
-    console.log('🔍 API: Détail des sections récupérées:', sections);
+    console.log('✅ API: Réponse récupérée avec succès:', data);
     
-    if (!Array.isArray(sections)) {
-      console.warn('⚠️ API: La réponse n\'est pas un tableau, utilisation du fallback:', typeof sections);
+    // Gérer différents formats de réponse API
+    let sections;
+    
+    if (Array.isArray(data)) {
+      // Format direct : [section1, section2, ...]
+      sections = data;
+      console.log('📋 Format API: Tableau direct');
+    } else if (data.success && Array.isArray(data.data)) {
+      // Format avec wrapper : { success: true, data: [section1, ...] }
+      sections = data.data;
+      console.log('📋 Format API: Wrapper avec data');
+    } else if (data.sections && Array.isArray(data.sections)) {
+      // Format avec sections : { sections: [section1, ...] }
+      sections = data.sections;
+      console.log('📋 Format API: Wrapper avec sections');
+    } else {
+      console.warn('⚠️ API: Format de réponse non reconnu, utilisation du fallback:', data);
       return FALLBACK_SECTIONS;
     }
+    
+    console.log('🔍 API: Détail des sections récupérées:', sections.length, 'sections');
     
     // Si tableau vide, utiliser le fallback
     if (sections.length === 0) {

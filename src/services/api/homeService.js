@@ -34,13 +34,30 @@ export const getHomeSections = async () => {
     const data = await response.json();
     console.log('📝 [HOME-SERVICE] Données reçues:', data);
     
-    if (data.success) {
-      console.log('✅ [HOME-SERVICE] Sections récupérées avec succès:', data.data?.length || 0);
-      return data.data || [];
-    } else {
+    // Gérer différents formats de réponse
+    let sections = [];
+    
+    if (Array.isArray(data)) {
+      // Format direct : [section1, section2, ...]
+      sections = data;
+      console.log('✅ [HOME-SERVICE] Format direct - Sections:', sections.length);
+    } else if (data.success && Array.isArray(data.data)) {
+      // Format avec wrapper : { success: true, data: [section1, ...] }
+      sections = data.data;
+      console.log('✅ [HOME-SERVICE] Format wrapper - Sections:', sections.length);
+    } else if (data.sections && Array.isArray(data.sections)) {
+      // Format avec sections : { sections: [section1, ...] }
+      sections = data.sections;
+      console.log('✅ [HOME-SERVICE] Format sections - Sections:', sections.length);
+    } else if (data.success === false) {
       console.error('❌ [HOME-SERVICE] Erreur API:', data.message);
       return [];
+    } else {
+      console.warn('⚠️ [HOME-SERVICE] Format non reconnu:', typeof data);
+      return [];
     }
+    
+    return sections;
   } catch (error) {
     console.error('❌ [HOME-SERVICE] Erreur réseau:', error);
     return [];
