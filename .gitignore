@@ -1,1 +1,42 @@
-node_modules
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+
+# Build output
+/build
+/.next
+/out
+/dist
+
+# Environment variables
+.env
+.env.*.local
+.env.local
+.env.development
+.env.test
+.env.production
+
+# PM2
+.pm2
+dump.pm2
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+
