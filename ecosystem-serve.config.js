@@ -3,11 +3,11 @@ module.exports = {
     {
       name: 'ecommerce-client',
       script: 'npx',
-      args: 'serve -s build -l 3001',
+      args: 'serve -s build -l 3000',
       cwd: '/var/www/ecommerce-client',
       env: {
         NODE_ENV: 'production',
-        PORT: 3001,
+        PORT: 3000,
         REACT_APP_API_BASE_URL: 'http://148.230.125.251:4000',
         REACT_APP_ENV: 'production',
         REACT_APP_DEBUG: 'false'
@@ -23,3 +23,4 @@ module.exports = {
     }
   ]
 };
+
