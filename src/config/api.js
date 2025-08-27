@@ -2,10 +2,10 @@ import React from 'react'
 
 // Configuration API pour le client ecommerce
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000', // URL de votre API backend
+  BASE_URL: process.env.REACT_APP_API_BASE_URL, // URL de votre API backend
   ENDPOINTS: {
     CONTENT: '/api/content',
-    HOME_SECTIONS: '/api/content/home-sections/all',
+    HOME_SECTIONS: '/uploads/content/home-sections/all',
     PRODUCTS: '/api/products',
     CATEGORIES: '/api/categories'
   }

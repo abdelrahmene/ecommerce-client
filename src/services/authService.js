@@ -1,5 +1,5 @@
 // Service d'authentification utilisant UNIQUEMENT l'API
-const API_BASE_URL = (process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000') + '/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store/api';
 
 console.log('🔧 Service d\'authentification API initialisé');
 

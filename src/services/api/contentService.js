@@ -3,7 +3,7 @@
  * Gère tout le contenu dynamique depuis l'admin MySQL
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Configuration pour les requêtes avec timeout
 const fetchWithTimeout = (url, options = {}, timeout = 4000) => {
@@ -83,12 +83,12 @@ export const getHomeSections = async () => {
     });
     
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      console.error('💡 Problème de connexion au serveur admin. Vérifiez que le serveur admin est démarré sur http://localhost:4000');
+      console.error('💡 Problème de connexion au serveur admin. Vérifiez que le serveur admin est démarré sur process.env.REACT_APP_API_URL);
       console.error('🔍 Tentative de diagnostic...');
       
       // Test de connectivité basique
       try {
-        const pingResponse = await fetch('http://localhost:4000', { method: 'HEAD', timeout: 2000 }).catch(() => null);
+        const pingResponse = await fetch('process.env.REACT_APP_API_URL, { method: 'HEAD', timeout: 2000 }).catch(() => null);
         if (pingResponse) {
           console.log('✅ Serveur admin répond sur port 4000');
         } else {

@@ -61,7 +61,7 @@ const CollectionCard = ({ collection, isActive, direction }) => {
           {/* Image de fond si disponible */}
           {collection.image && (
             <img
-              src={collection.image.startsWith('/uploads') ? `${process.env.REACT_APP_ADMIN_API_URL || 'http://localhost:4000'}${collection.image}` : collection.image}
+              src={collection.image}
               alt={collection.title}
               className="absolute inset-0 w-full h-full object-cover"
               style={{ opacity: (collection.imageOpacity || 50) / 100 }}
@@ -115,7 +115,8 @@ const CollectionCard = ({ collection, isActive, direction }) => {
 const Collection = ({ data }) => {
   const [collectionsData, setCollectionsData] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+ // 🧪 DEBUG
+  console.log("🧪 [DEBUG] Props reçues dans <Collection>:", data);  
   // Extraction des données de la section depuis l'admin
   const sectionTitle = data?.content?.title || 'Collections en vedette';
   const sectionSubtitle = data?.content?.subtitle || '';
@@ -184,6 +185,8 @@ const Collection = ({ data }) => {
       </div>
     );
   }
+  // 🧪 DEBUG
+  console.log("🧪 [DEBUG] Collections à afficher:", collectionsToShow);
 
   return (
     <div className="relative w-full overflow-hidden bg-gray-50 dark:bg-slate-900/90 transition-colors duration-300 py-4">

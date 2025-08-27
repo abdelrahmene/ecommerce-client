@@ -3,7 +3,7 @@
  * Ce script vérifie si l'API Backend est accessible depuis le client
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const testAPIConnection = async () => {
   console.log('🧪 Test API: Démarrage des tests de connexion...');

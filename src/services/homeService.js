@@ -3,11 +3,12 @@
  * Service pour récupérer le contenu de la page d'accueil depuis l'API Backend
  * ✅ AVEC FALLBACK - Si l'API ne fonctionne pas, on retourne des données par défaut
  */
-const API_BASE_URL = (process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000') + '/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store/api';
 
-// Logs de debug pour la variable d'environnement
-console.log('🔧 DEBUG: process.env.REACT_APP_API_BASE_URL =', process.env.REACT_APP_API_BASE_URL);
-console.log('🔧 DEBUG: API_BASE_URL final =', API_BASE_URL);
+// Logs de debug pour la variable 
+console.log(`🔧 DEBUG: API_BASE_URL = ${process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store/api'}`);
+
+console.log("🔧 DEBUG: API_BASE_URL final =", API_BASE_URL);
 
 // Données de fallback si l'API n'est pas disponible
 const FALLBACK_SECTIONS = [

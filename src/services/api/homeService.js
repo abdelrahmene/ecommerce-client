@@ -3,7 +3,7 @@
  * Service pour récupérer le contenu de la page d'accueil côté client
  */
 
-const API_BASE_URL = process.env.REACT_APP_ADMIN_API_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.REACT_APP_ADMIN_API_URL || process.env.REACT_APP_ADMIN_API_URL;
 
 /**
  * Récupérer toutes les sections de la page d'accueil
