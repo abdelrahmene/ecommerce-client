@@ -5,8 +5,6 @@
  * @date 7 août 2025
  */
 
-import { API_CONFIG } from '../../config/api'
-
 export const getCollections = async () => {
   const response = await fetch(`${getApiUrl()}/collections`);
   if (!response.ok) throw new Error('Failed to fetch collections');
@@ -14,9 +12,32 @@ export const getCollections = async () => {
 };
 
 export const getCollection = async (id) => {
+  console.log('🔍 Fetching collection:', id);
   const response = await fetch(`${getApiUrl()}/collections/${id}`);
-  if (!response.ok) throw new Error('Failed to fetch collection');
-  return response.json();
+  
+  if (!response.ok) {
+    console.error('❌ Failed to fetch collection:', id);
+    throw new Error('Failed to fetch collection');
+  }
+  
+  const data = await response.json();
+  console.log('📦 Collection data:', data);
+  return data;
+};
+
+// Nouvelle méthode pour récupérer les collections d'une section
+export const getHomeSectionCollections = async (sectionId) => {
+  console.log('🔍 Fetching collections for section:', sectionId);
+  const response = await fetch(`${getApiUrl()}/content/home-section/${sectionId}/collections`);
+  
+  if (!response.ok) {
+    console.error('❌ Failed to fetch section collections:', sectionId);
+    throw new Error('Failed to fetch section collections');
+  }
+  
+  const data = await response.json();
+  console.log('📦 Section collections data:', data);
+  return data;
 };
 
 // Configuration API basée sur l'environnement
@@ -26,22 +47,23 @@ const getApiUrl = () => {
   console.log('🔧 Collections Service Configuration:', {
     hostname,
     env: process.env.NODE_ENV,
-    envUrl: process.env.REACT_APP_API_BASE_URL
+    envUrl: process.env.REACT_APP_API_URL
   });
 
-  if (process.env.REACT_APP_API_BASE_URL) {
-    return process.env.REACT_APP_API_BASE_URL;
+  // Utiliser la même var d'env que dans api.js
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
   }
 
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:8000';
+    return 'http://localhost:4000/api';
   }
 
   if (hostname.includes('192.168.') || hostname.includes('10.0.')) {
-    return `http://${hostname}:8000`;
+    return `http://${hostname}:4000/api`;
   }
 
-  return 'https://birkshoes.store/api';
+  return 'https://api.birkshoes.store/api';
 };
 
 const API_BASE_URL = getApiUrl();
@@ -131,22 +153,28 @@ export const collectionsService = {
       if (filters.active !== undefined) params.append('active', filters.active);
 
       const queryString = params.toString();
-      const url = `${API_BASE_URL}/endpoints/collections.php${queryString ? `?${queryString}` : ''}`;
+      const url = `${API_BASE_URL}/collections${queryString ? `?${queryString}` : ''}`;
 
       const data = await fetchWithLogs(url);
 
-      if (data.success) {
-        console.log(`✅ [COLLECTIONS] ${data.collections?.length || 0} collections récupérées`);
+      if (data && data.collections && Array.isArray(data.collections)) {
+        console.log(`✅ [COLLECTIONS] ${data.collections.length} collections récupérées`);
         return {
           success: true,
-          collections: data.collections || []
+          collections: data.collections
+        };
+      } else if (data && Array.isArray(data)) {
+        console.log(`✅ [COLLECTIONS] ${data.length} collections récupérées (format direct)`);
+        return {
+          success: true,
+          collections: data
         };
       } else {
-        console.error('❌ [COLLECTIONS] Erreur API:', data.message);
+        console.error('❌ [COLLECTIONS] Format de données invalide');
         return {
           success: false,
           collections: [],
-          error: data.message
+          error: 'Format de données invalide'
         };
       }
     } catch (error) {
@@ -164,14 +192,14 @@ export const collectionsService = {
     try {
       console.log('📁 [COLLECTION] Récupération par ID:', id);
 
-      const url = `${API_BASE_URL}/endpoints/collections.php?id=${encodeURIComponent(id)}`;
+      const url = `${API_BASE_URL}/collections/${encodeURIComponent(id)}`;
       const data = await fetchWithLogs(url);
 
-      if (data.success && data.collection) {
-        console.log('✅ [COLLECTION] Collection trouvée:', data.collection.name);
+      if (data && data.id) {
+        console.log('✅ [COLLECTION] Collection trouvée:', data.name);
         return {
           success: true,
-          collection: data.collection
+          collection: data
         };
       } else {
         console.error('❌ [COLLECTION] Non trouvée:', id);
@@ -193,8 +221,7 @@ export const collectionsService = {
 // Service pour récupérer les sections de collection depuis l'API Node.js
 export const getHomeSections = async () => {
   try {
-    const apiUrl = API_CONFIG.BASE_URL;
-    const response = await fetchWithLogs(`${apiUrl}/content/home-sections`);
+    const response = await fetchWithLogs(`${API_BASE_URL}/content/home-sections`);
 
     if (response && Array.isArray(response)) {
       const collectionSections = response.filter(section => section.type === 'collection');

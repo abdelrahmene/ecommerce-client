@@ -2,10 +2,10 @@ import React from 'react'
 
 // Configuration API pour le client ecommerce
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_BASE_URL, // URL de votre API backend
+  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:4000', // URL de votre API backend (SANS /api)
   ENDPOINTS: {
     CONTENT: '/api/content',
-    HOME_SECTIONS: '/uploads/content/home-sections/all',
+    HOME_SECTIONS: '/api/content/home-sections',
     PRODUCTS: '/api/products',
     CATEGORIES: '/api/categories'
   }
@@ -13,7 +13,7 @@ export const API_CONFIG = {
 
 // Debug configuration
 console.log('🔧 [CONFIG] API_CONFIG.BASE_URL:', API_CONFIG.BASE_URL);
-console.log('🔧 [CONFIG] process.env.REACT_APP_API_BASE_URL:', process.env.REACT_APP_API_BASE_URL);
+console.log('🔧 [CONFIG] process.env.REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
 
 // Fonction pour construire l'URL complète des images avec gestion d'erreur
 export const getImageUrl = (imagePath) => {
@@ -35,6 +35,13 @@ export const getImageUrl = (imagePath) => {
   if (imagePath.startsWith('/uploads/')) {
     finalUrl = `${API_CONFIG.BASE_URL}${imagePath}`;
     console.log(`📁 [IMAGE-URL] URL /uploads construite: ${finalUrl}`);
+    return finalUrl;
+  }
+  
+  // Si c'est un nom de fichier seul (UUID), construire l'URL complète
+  if (imagePath.match(/^[a-f0-9-]+\.(jpg|jpeg|png|gif|webp)$/i)) {
+    finalUrl = `${API_CONFIG.BASE_URL}/uploads/content/${imagePath}`;
+    console.log(`🔑 [IMAGE-URL] UUID détecté: ${finalUrl}`);
     return finalUrl;
   }
   
@@ -115,13 +122,11 @@ export const useImageWithFallback = (imagePath, fallbackImage = null) => {
 
 // Configuration axios pour les appels API
 export const apiConfig = {
-  baseURL: API_CONFIG.BASE_URL,
+  baseURL: `${API_CONFIG.BASE_URL}/api`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    'Accept': 'application/json'
   }
 }
 

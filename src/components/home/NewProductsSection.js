@@ -1,65 +1,78 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { productsService } from '../../services/api/productsService';
+import { getImageUrl } from '../../config/api';
 
 const NewProductsSection = ({ data }) => {
-  const [currentSlide, setCurrentSlide] = useState(2); // Commence à Sport Elite (index 2)
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Slides depuis les données ou fallback
-  const slides = data?.content?.slides || [
+  // Charger les nouveaux produits
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const result = await productsService.getNewProducts(6);
+        if (result.success && result.products?.length > 0) {
+          setProducts(result.products);
+        } else {
+          console.log('Pas de nouveaux produits, utilisation fallback');
+          setProducts(fallbackProducts);
+        }
+      } catch (error) {
+        console.error('Erreur chargement nouveaux produits:', error);
+        setProducts(fallbackProducts);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadProducts();
+  }, []);
+
+  // Fallback products si l'API ne fonctionne pas
+  const fallbackProducts = [
     {
-      id: "collection-premium",
-      title: "Collection Premium", 
-      subtitle: "Élégance et qualité",
-      href: "/collections/premium",
-      gradient: "from-purple-800 to-purple-950"
+      id: "prod-1",
+      name: "Boston Classic", 
+      price: 129.99,
+      images: ["/images/products/boston.png"],
+      category: { name: "Mules" }
     },
     {
-      id: "edition-limitee",
-      title: "Édition Limitée",
-      subtitle: "Pièces exclusives", 
-      href: "/collections/edition-limitee",
-      gradient: "from-red-800 to-red-950"
+      id: "prod-2",
+      name: "Arizona Original",
+      price: 109.99,
+      images: ["/images/products/arizona.png"],
+      category: { name: "Sandales" }
     },
     {
-      id: "sport-elite",
-      title: "Sport Elite",
-      subtitle: "Performance et style",
-      href: "/collections/sport",
-      gradient: "from-blue-800 to-blue-950"
-    },
-    {
-      id: "casual-chic", 
-      title: "Casual Chic",
-      subtitle: "Le confort au quotidien",
-      href: "/collections/casual",
-      gradient: "from-green-800 to-green-950"
-    },
-    {
-      id: "business-pro",
-      title: "Business Pro",
-      subtitle: "Style professionnel",
-      href: "/collections/business",
-      gradient: "from-gray-800 to-gray-950"
+      id: "prod-3",
+      name: "Madrid Elegance",
+      price: 99.99,
+      images: ["/images/products/madrid.png"],
+      category: { name: "Mules" }
     }
   ];
 
-  // Auto-rotation - Timing optimisé pour l'attention client
+  const slides = products.length > 0 ? products : fallbackProducts;
+
+  // Auto-rotation
   useEffect(() => {
-    if (isPaused || isTransitioning) return;
+    if (isPaused || isTransitioning || loading) return;
     
     const timer = setInterval(() => {
       setIsTransitioning(true);
       setCurrentSlide(prev => (prev + 1) % slides.length);
-      
-      // Reset transition flag
       setTimeout(() => setIsTransitioning(false), 800);
-    }, 2800); // 2.8 secondes - assez rapide pour maintenir l'attention, assez long pour lire
+    }, 3000);
     
     return () => clearInterval(timer);
-  }, [isPaused, isTransitioning, slides.length]);
+  }, [isPaused, isTransitioning, slides.length, loading]);
 
   const goToSlide = useCallback((index) => {
     if (isTransitioning) return; // Empêche les clics rapides
@@ -133,6 +146,14 @@ const NewProductsSection = ({ data }) => {
       </div>
 
       {/* Slider Container */}
+      {loading ? (
+        <div className="flex justify-center items-center h-[70vh] bg-gray-50 dark:bg-slate-900/90">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Chargement des nouveaux produits...</p>
+          </div>
+        </div>
+      ) : (
       <div className="relative w-full overflow-hidden bg-gray-50 dark:bg-slate-900/90 transition-colors duration-300 py-4">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative h-[70vh] w-full">
@@ -144,8 +165,8 @@ const NewProductsSection = ({ data }) => {
                 className="absolute inset-0 w-full z-20"
                 style={getSlideStyle(index)}
               >
-                <Link to={slide.href || `/collections/${slide.id}`} className="block w-full h-full">
-                  <div className={`relative h-[70vh] overflow-hidden rounded-2xl bg-gradient-to-br ${slide.gradient}`}>
+                <Link to={slide.id.startsWith('prod') ? `/products/${slide.id}` : (slide.href || `/collections/${slide.id}`)} className="block w-full h-full">
+                  <div className={`relative h-[70vh] overflow-hidden rounded-2xl bg-gradient-to-br ${slide.gradient || 'from-gray-800 to-gray-950'}`}>
                     {/* Overlays */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                     <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
@@ -184,13 +205,13 @@ const NewProductsSection = ({ data }) => {
                       ))}
                     </div>
                     
-                    {/* Image de fond si présente */}
-                    {slide.image && (
+                    {/* Image de fond */}
+                    {(slide.images?.[0] || slide.image) && (
                       <div 
                         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                         style={{
-                          backgroundImage: `url(${slide.image})`,
-                          opacity: slide.imageOpacity || 0.4 // 40% par défaut, configurable
+                          backgroundImage: `url(${getImageUrl(slide.images?.[0]) || slide.image})`,
+                          opacity: slide.imageOpacity || 0.6
                         }}
                       ></div>
                     )}
@@ -202,10 +223,10 @@ const NewProductsSection = ({ data }) => {
                         style={getContentStyle(index)}
                       >
                         <h3 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-                          {slide.title}
+                          {slide.name || slide.title}
                         </h3>
                         <p className="text-gray-200 text-lg md:text-xl mb-8">
-                          {slide.subtitle}
+                          {slide.category?.name || slide.subtitle} • {slide.price ? `${slide.price}€` : ''}
                         </p>
                         <button 
                           className="px-8 py-3 bg-white text-black rounded-full text-lg font-medium hover:bg-gray-100 transition-colors duration-200 shadow-lg"
@@ -236,6 +257,7 @@ const NewProductsSection = ({ data }) => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

@@ -40,22 +40,22 @@ const getApiUrl = () => {
     hostname,
     protocol,
     env: process.env.NODE_ENV,
-    envUrl: process.env.REACT_APP_API_BASE_URL
+    envUrl: process.env.REACT_APP_API_URL
   });
   
   // Environnement variable prioritaire
-  if (process.env.REACT_APP_API_BASE_URL) {
-    return process.env.REACT_APP_API_BASE_URL;
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
   }
   
-  // Développement local
+  // Développement local - pointe vers l'API Express
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:8000';
+    return 'http://localhost:4000/api';
   }
   
   // Réseau local (mobile en dev)
   if (hostname.includes('192.168.') || hostname.includes('10.0.')) {
-    return `http://${hostname}:8000`;
+    return `http://${hostname}:4000/api`;
   }
   
   // Production
@@ -204,26 +204,27 @@ export const productsService = {
       }
       
       const queryString = params.toString();
-      const url = `${API_BASE_URL}/quick_products.php${queryString ? `?${queryString}` : ''}`;
+      const url = `${API_BASE_URL}/products${queryString ? `?${queryString}` : ''}`;
       
       console.log('🌐 URL de requête complète:', url);
       
       const data = await fetchWithTimeout(url);
       
-      if (data.success) {
+      if (data.products) {
         console.log(`✅ [PRODUCTS] ${data.products?.length || 0} produits récupérés`);
         return {
           success: true,
           products: data.products || [],
-          total: data.total || 0,
+          total: data.pagination?.total || data.products?.length || 0,
+          pagination: data.pagination || {},
           filters: data.filters || {}
         };
       } else {
-        console.error('❌ [PRODUCTS] Erreur API:', data.message);
+        console.error('❌ [PRODUCTS] Format de réponse inattendu:', data);
         return {
           success: false,
           products: [],
-          error: data.message || 'Erreur inconnue'
+          error: 'Format de réponse inattendu'
         };
       }
     } catch (error) {
@@ -245,16 +246,16 @@ export const productsService = {
         throw new Error('ID produit requis');
       }
       
-      const url = `${API_BASE_URL}/quick_products.php?id=${encodeURIComponent(productId)}`;
+      const url = `${API_BASE_URL}/products/${encodeURIComponent(productId)}`;
       console.log('🌐 URL produit:', url);
       
       const data = await fetchWithTimeout(url);
       
-      if (data.success && data.product) {
-        console.log('✅ [PRODUCT] Produit récupéré:', data.product.name);
+      if (data && data.id) {
+        console.log('✅ [PRODUCT] Produit récupéré:', data.name);
         return {
           success: true,
-          product: data.product
+          product: data
         };
       } else {
         console.error('❌ [PRODUCT] Produit non trouvé:', productId);
@@ -281,16 +282,16 @@ export const productsService = {
         throw new Error('Slug produit requis');
       }
       
-      const url = `${API_BASE_URL}/quick_products.php?slug=${encodeURIComponent(slug)}`;
+      const url = `${API_BASE_URL}/products/slug/${encodeURIComponent(slug)}`;
       console.log('🌐 URL produit par slug:', url);
       
       const data = await fetchWithTimeout(url);
       
-      if (data.success && data.product) {
-        console.log('✅ [PRODUCT-SLUG] Produit trouvé:', data.product.name);
+      if (data && data.id) {
+        console.log('✅ [PRODUCT-SLUG] Produit trouvé:', data.name);
         return {
           success: true,
-          product: data.product
+          product: data
         };
       } else {
         console.error('❌ [PRODUCT-SLUG] Produit non trouvé pour slug:', slug);
@@ -317,7 +318,7 @@ export const productsService = {
   // Récupérer les nouveaux produits
   async getNewProducts(limit = 8) {
     console.log('🆕 [NEW] Récupération des nouveaux produits, limite:', limit);
-    return this.getProducts({ limit, orderBy: 'created_at', order: 'desc' });
+    return this.getProducts({ limit, sortBy: 'createdAt', sortOrder: 'desc' });
   },
 
   // Recherche de produits
@@ -353,7 +354,7 @@ export const productsService = {
       console.log('🔧 [TEST] Test de connexion API...');
       const startTime = Date.now();
       
-      const response = await fetchWithTimeout(`${API_BASE_URL}/quick_products.php?test=1`, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/products?limit=1`, {
         method: 'GET'
       });
       

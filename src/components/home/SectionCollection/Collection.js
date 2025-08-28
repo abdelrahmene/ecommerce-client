@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { mockCollections } from './mockData';
 import { getHomeSections } from '../../../services/api/collectionsService';
+import { getImageUrl } from '../../../config/api';
 
 const CollectionCard = ({ collection, isActive, direction }) => {
   const variants = {
@@ -61,15 +62,20 @@ const CollectionCard = ({ collection, isActive, direction }) => {
           {/* Image de fond si disponible */}
           {collection.image && (
             <img
-              src={collection.image}
+              src={getImageUrl(collection.image)}
               alt={collection.title}
               className="absolute inset-0 w-full h-full object-cover"
               style={{ opacity: (collection.imageOpacity || 50) / 100 }}
               onError={(e) => {
-                console.log('❌ [IMAGE-ERROR]:', collection.image);
+                console.log('❌ [IMAGE-ERROR] URL originale:', collection.image);
+                console.log('❌ [IMAGE-ERROR] URL construite:', getImageUrl(collection.image));
                 e.target.style.display = 'none';
+                // Essayer une image de fallback
+                if (!e.target.src.includes('placeholder')) {
+                  e.target.src = '/images/placeholder-collection.jpg';
+                }
               }}
-              onLoad={() => console.log('✅ [IMAGE-LOADED]:', collection.image)}
+              onLoad={() => console.log('✅ [IMAGE-LOADED]:', getImageUrl(collection.image))}
             />
           )}
 
@@ -116,14 +122,35 @@ const Collection = ({ data }) => {
   const [collectionsData, setCollectionsData] = useState([]);
   const [loading, setLoading] = useState(true);
  // 🧪 DEBUG
-  console.log("🧪 [DEBUG] Props reçues dans <Collection>:", data);  
+ console.log("🧪 [DEBUG] Props reçues dans <Collection>:", data);
+ if (data?.content?.items) {
+    console.log("🧪 [DEBUG] Section collections items:", data.content.items.map(item => ({
+      id: item.id,
+      title: item.title,
+      image: item.image,
+      imageType: typeof item.image
+    })));
+  }
+  
+  // Vérifier et corriger les URLs d'images dans les collections de l'admin
+  const processCollectionImages = (collections) => {
+    return collections.map(collection => ({
+      ...collection,
+      image: collection.image ? getImageUrl(collection.image) : null,
+      // Log pour debug
+      _originalImage: collection.image,
+      _processedImage: collection.image ? getImageUrl(collection.image) : null
+    }));
+  };
   // Extraction des données de la section depuis l'admin
   const sectionTitle = data?.content?.title || 'Collections en vedette';
   const sectionSubtitle = data?.content?.subtitle || '';
   const sectionCollections = data?.content?.items || [];
   
-  // Utiliser les collections de l'admin si disponibles, sinon fallback sur collectionsData
-  const collectionsToShow = sectionCollections.length > 0 ? sectionCollections : collectionsData;
+  // Traiter les URLs d'images et utiliser les collections appropriées
+  const collectionsToShow = sectionCollections.length > 0 
+    ? processCollectionImages(sectionCollections)
+    : collectionsData;
   const [[activeIndex, direction], setActiveIndex] = useState([0, 0]);
 
   // Charger les données depuis l'API
@@ -139,8 +166,38 @@ const Collection = ({ data }) => {
         );
         
         if (collectionSection?.content?.items) {
-          setCollectionsData(collectionSection.content.items);
-          console.log('✅ [COLLECTION] Données chargées depuis la DB:', collectionSection.content.items.length, 'items');
+          // Traiter les images avant de sauvegarder
+          const processedItems = processCollectionImages(collectionSection.content.items);
+          setCollectionsData(processedItems);
+          console.log('✅ [COLLECTION] Données chargées depuis la DB:', processedItems.length, 'items');
+          console.log('✅ [COLLECTION] Images traitées:', processedItems.map(item => ({
+            id: item.id,
+            title: item.title,
+            originalImage: item._originalImage,
+            processedImage: item._processedImage
+          })));
+        } else {
+          // Fallback: charger les collections depuis l'API directement
+          const { collectionsService } = await import('../../../services/api/collectionsService');
+          const result = await collectionsService.getCollections();
+          if (result.success && result.collections.length > 0) {
+            // Adapter le format API vers le format attendu
+            const adaptedCollections = result.collections.map(collection => ({
+              id: collection.id,
+              title: collection.name,
+              subtitle: collection.description?.substring(0, 100) || '',
+              description: collection.description || 'Découvrez notre collection',
+              image: collection.image || collection.images?.[0]?.url || collection.heroImage,
+              imageOpacity: 70,
+              link: `/collections/${collection.slug || collection.id}`,
+              accent: 'from-blue-800 to-purple-950',
+              textColor: 'text-white',
+              buttonColor: 'bg-white text-black hover:bg-gray-100',
+              ctaText: 'Découvrir'
+            }));
+            setCollectionsData(adaptedCollections);
+            console.log('✅ [COLLECTION] Collections adaptées depuis API:', adaptedCollections.length);
+          }
         }
       } catch (error) {
         console.error('❌ [COLLECTION] Erreur chargement:', error);

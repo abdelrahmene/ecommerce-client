@@ -3,7 +3,7 @@
  * Service pour récupérer le contenu de la page d'accueil depuis l'API Backend
  * ✅ AVEC FALLBACK - Si l'API ne fonctionne pas, on retourne des données par défaut
  */
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store';
 
 // Logs de debug pour la variable 
 console.log(`🔧 DEBUG: API_BASE_URL = ${process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store/api'}`);
@@ -34,12 +34,19 @@ const FALLBACK_SECTIONS = [
     enabled: true,
     order: 3
   },
+  // Ajouter une section nouveau-produit avec les vraies collections
   {
-    id: 'trust',
-    type: 'trust_features',
-    title: 'Pourquoi nous choisir',
+    id: 'nouveau-produit',
+    type: 'nouveau-produit',
+    title: 'Nouveau Produit',
+    subtitle: 'Des pièces uniques pour tous les styles',
     enabled: true,
-    order: 4
+    order: 5,
+    content: {
+      title: 'Nouveau Produit',
+      subtitle: 'Des pièces uniques pour tous les styles',
+      slides: [] // Sera rempli dynamiquement depuis l'API
+    }
   }
 ];
 
