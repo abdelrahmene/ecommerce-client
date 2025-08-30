@@ -7,7 +7,8 @@ export const API_CONFIG = {
     CONTENT: '/api/content',
     HOME_SECTIONS: '/api/content/home-sections',
     PRODUCTS: '/api/products',
-    CATEGORIES: '/api/categories'
+    CATEGORIES: '/api/categories',
+    COLLECTIONS: '/api/collections'
   }
 }
 
@@ -134,5 +135,6 @@ export const apiConfig = {
 export const DEFAULT_IMAGES = {
   PRODUCT_PLACEHOLDER: '/images/placeholder-product.jpg',
   HERO_PLACEHOLDER: '/images/placeholder-hero.jpg',
+  COLLECTION_PLACEHOLDER: '/images/placeholder-collection.jpg',
   FALLBACK_IMAGE: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTAwQzE3Mi4zODYgMTAwIDE1MiAxMjAuMzg2IDE1MiAxNDhWMjUyQzE1MiAyNzkuNjE0IDE3Mi4zODYgMzAwIDIwMCAzMDBIMjAwQzIyNy42MTQgMzAwIDI0OCAyNzkuNjE0IDI0OCAyNTJWMTQ4QzI0OCAxMjAuMzg2IDIyNy42MTQgMTAwIDIwMCAxMDBIMjAwWiIgZmlsbD0iI0U1RTdFQiIvPgo8cGF0aCBkPSJNMjAwIDEzMEMxODguOTU0IDEzMCAxODAgMTM4Ljk1NCAxODAgMTUwQzE4MCAyMjAuNyAxOTQuMyAyMjAuNyAyMDkgMjIwLjdDMjIzLjcgMjIwLjcgMjM4IDE5Ny4zIDIzOCAxNThDMjM4IDE0MS45IDIyMy43IDEzMCAyMDAgMTMwWiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'
 }

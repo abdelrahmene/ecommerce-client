@@ -162,6 +162,7 @@ const ImageWithFallback = ({
       transition={transition}
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
+      style={{ objectFit: 'contain' }}
       {...props}
     />
   );

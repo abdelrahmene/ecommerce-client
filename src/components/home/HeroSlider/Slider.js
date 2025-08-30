@@ -244,6 +244,7 @@ const HeroSlider = ({ data }) => {
                   animate={{ opacity: 1, y: 0, rotateY: 0 }}
                   transition={{ delay: 0.6, duration: 0.8, type: "spring" }}
                 >
+                  {/* Template fidélité FIXE - dimensions obligatoires */}
                   <motion.div 
                     className="relative w-[320px] sm:w-[340px] md:w-[380px] lg:w-[420px] h-[200px] sm:h-[215px] md:h-[240px] lg:h-[265px] rounded-xl overflow-hidden flex flex-col bg-gradient-to-br from-blue-900 via-indigo-800 to-indigo-900 p-3 md:p-4 lg:p-5 border-2 border-indigo-400/30 shadow-[0_0_30px_rgba(79,70,229,0.5)]" 
                     whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(79,70,229,0.7)' }}
@@ -271,16 +272,15 @@ const HeroSlider = ({ data }) => {
                       </motion.div>
                     </div>
                     
-                    {/* Card Body */}
+                    {/* Card Body - Grille FIXE 6 cases */}
                     <motion.div 
                       className="flex-grow flex flex-col justify-center"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 1 }}
                     >
-                      {/* Stamp Grid */}
                       <div className="grid grid-cols-6 gap-2 w-full mb-4">
-                        {[...Array(currentSlide.stampCount)].map((_, index) => (
+                        {[...Array(6)].map((_, index) => (
                           <motion.div 
                             key={index} 
                             className="aspect-square rounded-md border-2 border-white/30 flex items-center justify-center bg-white/10 backdrop-blur-sm relative overflow-hidden"
@@ -288,33 +288,17 @@ const HeroSlider = ({ data }) => {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 1 + (index * 0.1), type: "spring" }}
                           >
-                            {/* Fond qui se remplit progressivement */}
                             <motion.div 
                               className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-indigo-600"
                               initial={{ y: "100%" }}
                               animate={{ y: "0%" }}
-                              transition={{ 
-                                delay: 1.5 + (index * 0.7), 
-                                duration: 0.7, 
-                                ease: "easeOut"
-                              }}
+                              transition={{ delay: 1.5 + (index * 0.7), duration: 0.7, ease: "easeOut" }}
                             />
-                            
-                            {/* Icône de tampon qui apparaît après le remplissage */}
                             <motion.div 
                               className="relative z-10 text-lg text-white"
                               initial={{ opacity: 0, scale: 0, rotateZ: -45 }}
-                              animate={{ 
-                                opacity: 1, 
-                                scale: 1,
-                                rotateZ: 0
-                              }}
-                              transition={{ 
-                                delay: 1.7 + (index * 0.7), 
-                                duration: 0.4, 
-                                type: "spring",
-                                damping: 10
-                              }}
+                              animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
+                              transition={{ delay: 1.7 + (index * 0.7), duration: 0.4, type: "spring", damping: 10 }}
                             >
                               <FaStamp />
                             </motion.div>
@@ -322,83 +306,27 @@ const HeroSlider = ({ data }) => {
                         ))}
                       </div>
                       
-                      {/* Card Message */}
+                      {/* Message fixe */}
                       <motion.div 
                         className="text-center text-white/90 text-sm font-medium mb-2"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 5.5, duration: 0.7 }}
                       >
-                        <motion.span 
-                          className="font-bold text-yellow-300"
-                          animate={{ textShadow: ['0 0 3px rgba(253,224,71,0.3)', '0 0 8px rgba(253,224,71,0.6)', '0 0 3px rgba(253,224,71,0.3)'] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: 5.5 }}
-                        >
-                          6 achetées
-                        </motion.span> <motion.span
-                          animate={{ scale: [1, 1.15, 1], color: ['rgb(234, 179, 8)', 'rgb(250, 204, 21)', 'rgb(234, 179, 8)'] }}
-                          transition={{ duration: 1.5, repeat: Infinity, delay: 5.5 }}
-                          className="font-bold"
-                        >=</motion.span> <motion.span
-                          className="font-bold text-green-300"
-                          animate={{ textShadow: ['0 0 3px rgba(134, 239, 172, 0.3)', '0 0 8px rgba(134, 239, 172, 0.6)', '0 0 3px rgba(134, 239, 172, 0.3)'] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: 6 }}
-                        >7ème gratuite!</motion.span>
-                        
-                        {/* Ligne d'état de progression qui se remplit */}
-                        <motion.div className="mt-2 w-full h-1 bg-white/20 rounded-full overflow-hidden">
-                          <motion.div 
-                            className="h-full bg-gradient-to-r from-blue-400 to-indigo-500"
-                            initial={{ width: 0 }}
-                            animate={{ width: "100%" }}
-                            transition={{ 
-                              delay: 1.5, 
-                              duration: 4.5, 
-                              ease: "easeInOut",
-                              times: [0, 0.2, 0.35, 0.5, 0.65, 0.8, 1],
-                              // Animation qui avance par étapes pour chaque tampon rempli
-                              ease: [0.34, 1.56, 0.64, 1]
-                            }}
-                          />
-                        </motion.div>
+                        <motion.span className="font-bold text-yellow-300">6 achetées</motion.span>
+                        <motion.span className="font-bold"> = </motion.span>
+                        <motion.span className="font-bold text-green-300">7ème gratuite!</motion.span>
                       </motion.div>
                     </motion.div>
                     
-                    {/* Card Footer */}
+                    {/* Footer */}
                     <div className="flex justify-between items-center pt-2 border-t border-white/20 text-white/80 text-xs">
                       <div>Valable pour toute la famille</div>
-                      <motion.div 
-                        className="flex items-center space-x-1"
-                        animate={{ opacity: [0.7, 1, 0.7] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
+                      <div className="flex items-center space-x-1">
                         <HiSparkles className="text-yellow-300" />
                         <span>Pas de date d'expiration</span>
-                      </motion.div>
+                      </div>
                     </div>
-                    
-                    {/* Floating particles */}
-                    {[...Array(8)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className="absolute w-1 h-1 rounded-full bg-white/60"
-                        style={{
-                          left: `${Math.random() * 100}%`,
-                          top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                          opacity: [0, 0.8, 0],
-                          scale: [0, 1.5, 0],
-                          left: `${Math.random() * 100}%`,
-                          top: `${Math.random() * 100}%`,
-                        }}
-                        transition={{
-                          duration: 3 + Math.random() * 3,
-                          repeat: Infinity,
-                          delay: Math.random() * 5,
-                        }}
-                      />
-                    ))}
                   </motion.div>
                 </motion.div>
               </div>
@@ -463,7 +391,7 @@ const HeroSlider = ({ data }) => {
                   <ImageWithFallback
                     imagePath={currentSlide.image}
                     alt={currentSlide.title}
-                    className="w-full h-auto max-h-[80vh] object-contain"
+                    className="w-full h-auto max-h-[70vh] object-contain drop-shadow-2xl"
                     animate={{ 
                       y: [0, -20, 0],
                       rotate: [0, -5, 5, 0]

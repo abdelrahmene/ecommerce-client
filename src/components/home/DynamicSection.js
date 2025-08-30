@@ -47,13 +47,14 @@ export const DynamicSection = ({ section }) => {
                 </p>
               )}
             </div>
-            <Categories />
+            <Categories data={section} />
           </div>
         </section>
       );
 
     case 'collection':
     case 'new-products':
+    case 'nouveau-produit':  // Support pour le type nouveau-produit
       return (
         <section className="w-full min-h-screen snap-start snap-always">
           <div className="h-full flex flex-col justify-center py-8 px-4">
@@ -64,6 +65,11 @@ export const DynamicSection = ({ section }) => {
                   <div className="absolute -bottom-2 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full shadow-sm"></div>
                 </h2>
               </div>
+              {section.subtitle && (
+                <p className="text-xl md:text-2xl font-medium text-gray-600 dark:text-slate-400 mb-2">
+                  {section.subtitle}
+                </p>
+              )}
               {section.description && (
                 <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-4 max-w-2xl mx-auto">
                   {section.description}
@@ -71,9 +77,7 @@ export const DynamicSection = ({ section }) => {
               )}
             </div>
             <SectionCollection 
-              data={{ 
-                collections: section.content?.collections || [] 
-              }} 
+              data={section}
             />
           </div>
         </section>
@@ -97,9 +101,7 @@ export const DynamicSection = ({ section }) => {
               )}
             </div>
             <SectionCollection 
-              data={{ 
-                collections: section.content?.collections || [] 
-              }} 
+              data={section}
             />
           </div>
         </section>

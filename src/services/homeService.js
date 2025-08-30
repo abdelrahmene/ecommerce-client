@@ -3,10 +3,10 @@
  * Service pour récupérer le contenu de la page d'accueil depuis l'API Backend
  * ✅ AVEC FALLBACK - Si l'API ne fonctionne pas, on retourne des données par défaut
  */
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
 // Logs de debug pour la variable 
-console.log(`🔧 DEBUG: API_BASE_URL = ${process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store/api'}`);
+console.log(`🔧 DEBUG: API_BASE_URL = ${process.env.REACT_APP_API_URL || 'http://localhost:4000'}`);
 
 console.log("🔧 DEBUG: API_BASE_URL final =", API_BASE_URL);
 
@@ -34,18 +34,18 @@ const FALLBACK_SECTIONS = [
     enabled: true,
     order: 3
   },
-  // Ajouter une section nouveau-produit avec les vraies collections
+  // Ajouter une section collection au lieu de nouveau-produit
   {
-    id: 'nouveau-produit',
-    type: 'nouveau-produit',
-    title: 'Nouveau Produit',
+    id: 'collections',
+    type: 'collection',
+    title: 'Nos Collections',
     subtitle: 'Des pièces uniques pour tous les styles',
     enabled: true,
-    order: 5,
+    order: 4,
     content: {
-      title: 'Nouveau Produit',
+      title: 'Nos Collections',
       subtitle: 'Des pièces uniques pour tous les styles',
-      slides: [] // Sera rempli dynamiquement depuis l'API
+      items: [] // Sera rempli dynamiquement depuis l'API
     }
   }
 ];
@@ -56,7 +56,7 @@ const FALLBACK_SECTIONS = [
  */
 export const getHomeSections = async () => {
   try {
-    const fullURL = `${API_BASE_URL}/content/home-sections`;
+    const fullURL = `${API_BASE_URL}/api/content/home-sections`;
     console.log('🌐 API: Récupération des sections depuis:', fullURL);
     console.log('🔧 DEBUG: API_BASE_URL =', API_BASE_URL);
     console.log('🔧 DEBUG: URL complète construite =', fullURL);
@@ -131,7 +131,7 @@ export const getHomeSections = async () => {
     console.warn('⚠️ API: Erreur de connexion, utilisation du fallback:', {
       message: error.message,
       name: error.name,
-      url: API_BASE_URL + '/content/home-sections'
+      url: API_BASE_URL + '/api/content/home-sections'
     });
     
     // En cas d'erreur réseau, timeout, etc. -> fallback

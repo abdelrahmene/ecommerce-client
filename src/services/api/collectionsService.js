@@ -5,41 +5,6 @@
  * @date 7 août 2025
  */
 
-export const getCollections = async () => {
-  const response = await fetch(`${getApiUrl()}/collections`);
-  if (!response.ok) throw new Error('Failed to fetch collections');
-  return response.json();
-};
-
-export const getCollection = async (id) => {
-  console.log('🔍 Fetching collection:', id);
-  const response = await fetch(`${getApiUrl()}/collections/${id}`);
-  
-  if (!response.ok) {
-    console.error('❌ Failed to fetch collection:', id);
-    throw new Error('Failed to fetch collection');
-  }
-  
-  const data = await response.json();
-  console.log('📦 Collection data:', data);
-  return data;
-};
-
-// Nouvelle méthode pour récupérer les collections d'une section
-export const getHomeSectionCollections = async (sectionId) => {
-  console.log('🔍 Fetching collections for section:', sectionId);
-  const response = await fetch(`${getApiUrl()}/content/home-section/${sectionId}/collections`);
-  
-  if (!response.ok) {
-    console.error('❌ Failed to fetch section collections:', sectionId);
-    throw new Error('Failed to fetch section collections');
-  }
-  
-  const data = await response.json();
-  console.log('📦 Section collections data:', data);
-  return data;
-};
-
 // Configuration API basée sur l'environnement
 const getApiUrl = () => {
   const hostname = window.location.hostname;
@@ -56,14 +21,14 @@ const getApiUrl = () => {
   }
 
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:4000/api';
+    return 'http://localhost:4000';
   }
 
   if (hostname.includes('192.168.') || hostname.includes('10.0.')) {
-    return `http://${hostname}:4000/api`;
+    return `http://${hostname}:4000`;
   }
 
-  return 'https://api.birkshoes.store/api';
+  return 'https://api.birkshoes.store';
 };
 
 const API_BASE_URL = getApiUrl();
@@ -153,7 +118,7 @@ export const collectionsService = {
       if (filters.active !== undefined) params.append('active', filters.active);
 
       const queryString = params.toString();
-      const url = `${API_BASE_URL}/collections${queryString ? `?${queryString}` : ''}`;
+      const url = `${API_BASE_URL}/api/collections${queryString ? `?${queryString}` : ''}`;
 
       const data = await fetchWithLogs(url);
 
@@ -192,7 +157,7 @@ export const collectionsService = {
     try {
       console.log('📁 [COLLECTION] Récupération par ID:', id);
 
-      const url = `${API_BASE_URL}/collections/${encodeURIComponent(id)}`;
+      const url = `${API_BASE_URL}/api/collections/${encodeURIComponent(id)}`;
       const data = await fetchWithLogs(url);
 
       if (data && data.id) {
@@ -221,7 +186,7 @@ export const collectionsService = {
 // Service pour récupérer les sections de collection depuis l'API Node.js
 export const getHomeSections = async () => {
   try {
-    const response = await fetchWithLogs(`${API_BASE_URL}/content/home-sections`);
+    const response = await fetchWithLogs(`${API_BASE_URL}/api/content/home-sections`);
 
     if (response && Array.isArray(response)) {
       const collectionSections = response.filter(section => section.type === 'collection');
@@ -234,4 +199,41 @@ export const getHomeSections = async () => {
     console.error('❌ [HOME-SECTIONS] Erreur:', error);
     return [];
   }
+};
+
+// Exports individuels pour compatibilité
+export const getCollections = async () => {
+  const result = await collectionsService.getCollections();
+  if (result.success) {
+    return result.collections;
+  } else {
+    throw new Error(result.error || 'Failed to fetch collections');
+  }
+};
+
+export const getCollection = async (id) => {
+  console.log('🔍 Fetching collection:', id);
+  const result = await collectionsService.getCollectionById(id);
+  if (result.success) {
+    console.log('📦 Collection data:', result.collection);
+    return result.collection;
+  } else {
+    console.error('❌ Failed to fetch collection:', id);
+    throw new Error(result.error || 'Failed to fetch collection');
+  }
+};
+
+// Nouvelle méthode pour récupérer les collections d'une section
+export const getHomeSectionCollections = async (sectionId) => {
+  console.log('🔍 Fetching collections for section:', sectionId);
+  const response = await fetch(`${API_BASE_URL}/api/content/home-section/${sectionId}/collections`);
+  
+  if (!response.ok) {
+    console.error('❌ Failed to fetch section collections:', sectionId);
+    throw new Error('Failed to fetch section collections');
+  }
+  
+  const data = await response.json();
+  console.log('📦 Section collections data:', data);
+  return data;
 };
