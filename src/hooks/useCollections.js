@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { mockCollections, mockProducts } from '../data/mockData';
+import { apiClient } from '../config/apiClient';
 
 export const useCollections = () => {
   const [data, setData] = useState({ collections: [], products: [] });
@@ -9,29 +9,26 @@ export const useCollections = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('🔧 Mock: Chargement des collections et produits...');
+        console.log('🔄 API: Chargement des collections et produits...');
         
-        // Simuler un délai réseau
-        await new Promise(resolve => setTimeout(resolve, 400));
+        // Récupérer les collections avec l'API
+        const collectionsResponse = await apiClient.get('/api/collections?include=category');
+        const collectionsData = collectionsResponse?.collections || [];
         
-        // Trier les collections par nom
-        const sortedCollections = [...mockCollections].sort((a, b) => a.name.localeCompare(b.name));
+        // Récupérer les produits actifs avec l'API
+        const productsResponse = await apiClient.get('/api/products?isActive=true');
+        const productsData = productsResponse?.products || [];
         
-        // Trier les produits par date de création (plus récents d'abord)
-        const sortedProducts = [...mockProducts]
-          .filter(product => product.active)
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
         setData({
-          collections: sortedCollections,
-          products: sortedProducts
+          collections: collectionsData,
+          products: productsData
         });
 
-        console.log('🔧 Mock: Collections chargées:', sortedCollections.length);
-        console.log('🔧 Mock: Produits chargés:', sortedProducts.length);
+        console.log('✅ API: Collections chargées:', collectionsData.length);
+        console.log('✅ API: Produits chargés:', productsData.length);
         setLoading(false);
       } catch (err) {
-        console.error('❌ Mock: Erreur lors du chargement:', err);
+        console.error('❌ API: Erreur lors du chargement:', err);
         setError(err.message || 'Erreur de chargement');
         setLoading(false);
       }
