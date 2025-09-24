@@ -128,7 +128,7 @@ const CollectionsPage = () => {
                 variants={itemVariants}
                 className="group"
               >
-                <Link to={`/collections/${collection.id}`} className="block h-full">
+                <Link to={`/collection/${collection.id}`} className="block h-full">
                   <motion.div 
                     className="group relative overflow-hidden rounded-xl bg-gradient-to-b from-gray-900 to-black border border-gray-800 shadow-xl h-full flex flex-col"
                     whileTap={{ scale: 0.98 }}

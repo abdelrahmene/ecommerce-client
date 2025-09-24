@@ -170,22 +170,30 @@ const CollectionPage = () => {
         
         console.log('📡 API Collections - Récupération de la collection:', collectionId);
         
-        const collections = await productService.getCollections();
-        const collection = collections.find(c => c.id === collectionId || c.slug === collectionId);
-        
-        if (!collection) {
-          console.error('❌ API Collections - Collection non trouvée:', collectionId);
-          setError('Collection not found');
+        try {
+          // D'abord essayer de récupérer directement par ID
+          const collection = await productService.getCollectionById(collectionId);
+          console.log('✅ API Collections - Collection récupérée directement par ID:', collection);
+          setCollectionData(collection);
           setLoading(false);
-          return;
+        } catch (directError) {
+          console.log('⚠️ API Collections - Échec récupération directe, tentative alternative');
+          
+          // Si échec, essayer en récupérant toutes les collections et en filtrant
+          const collections = await productService.getCollections();
+          const collection = collections.find(c => c.id === collectionId || c.slug === collectionId);
+          
+          if (!collection) {
+            console.error('❌ API Collections - Collection non trouvée:', collectionId);
+            setError('Collection not found');
+            setLoading(false);
+            return;
+          }
+          
+          console.log('✅ API Collections - Collection trouvée:', collection.name);
+          setCollectionData(collection);
+          setLoading(false);
         }
-        
-        console.log('✅ API Collections - Collection trouvée:', collection.name);
-        setCollectionData(collection);
-        setLoading(false);
-        
-        // NE PLUS appeler fetchProducts ici
-        // fetchProducts est maintenant appelé via un useEffect séparé
         
       } catch (err) {
         console.error('❌ API Collections - Erreur:', err);
@@ -219,17 +227,36 @@ const CollectionPage = () => {
       setProductsLoading(true);
       console.log('📡 API Products - Récupération des produits pour la collection:', collectionData.id);
       
-      const filters = {
-        collection: collectionData.id,
-        active: true,
-        limit: 20
-      };
+      // Utiliser la nouvelle méthode getProductsByCollection
+      const productsData = await productService.getProductsByCollection(collectionData.id);
       
-      const productsData = await productService.getProducts(filters);
+      // Vérifier le format des données reçues
+      console.log('✅ API Products - Données reçues:', productsData);
       
-      console.log('✅ API Products - Produits récupérés:', productsData.length);
-      setProducts(productsData);
-      setHasMore(productsData.length >= 20);
+      // S'assurer que products est toujours un tableau
+      if (Array.isArray(productsData)) {
+        setProducts(productsData);
+        setHasMore(productsData.length >= 20);
+        console.log('✅ API Products - Produits récupérés (tableau):', productsData.length);
+      } else if (typeof productsData === 'object' && productsData !== null) {
+        // Si c'est un objet, vérifier s'il contient un tableau
+        if (Array.isArray(productsData.products)) {
+          setProducts(productsData.products);
+          setHasMore(productsData.products.length >= 20);
+          console.log('✅ API Products - Produits récupérés (objet.products):', productsData.products.length);
+        } else {
+          // Si ce n'est pas un tableau, convertir en tableau vide
+          console.warn('⚠️ API Products - Format inattendu, conversion en tableau vide');
+          setProducts([]);
+          setHasMore(false);
+        }
+      } else {
+        // Autre cas, initialiser avec un tableau vide
+        console.warn('⚠️ API Products - Données nulles ou non reconnues, utilisation d\'un tableau vide');
+        setProducts([]);
+        setHasMore(false);
+      }
+      
       setProductsLoading(false);
       
     } catch (err) {
@@ -256,11 +283,17 @@ const CollectionPage = () => {
       
       const newProducts = await productService.getProducts(filters);
       
-      if (newProducts.length === 0) {
-        setHasMore(false);
+      // Vérifier que newProducts est un tableau
+      if (Array.isArray(newProducts)) {
+        if (newProducts.length === 0) {
+          setHasMore(false);
+        } else {
+          setProducts(prev => [...prev, ...newProducts]);
+          setHasMore(newProducts.length >= 12);
+        }
       } else {
-        setProducts(prev => [...prev, ...newProducts]);
-        setHasMore(newProducts.length >= 12);
+        console.warn('⚠️ Format de nouveaux produits non valide');
+        setHasMore(false);
       }
       
       setProductsLoading(false);
@@ -408,7 +441,7 @@ const CollectionPage = () => {
             className="text-xl md:text-3xl font-bold text-white relative"
           >
             <span className="inline-block">
-              <span className="relative z-10">{products.length} Produit{products.length !== 1 ? 's' : ''}</span>
+              <span className="relative z-10">{products?.length || 0} Produit{(products?.length || 0) !== 1 ? 's' : ''}</span>
               <motion.span 
                 className="absolute -bottom-1 left-0 h-1 bg-blue-600 w-full z-0" 
                 initial={{ width: 0 }}
@@ -432,9 +465,9 @@ const CollectionPage = () => {
         {/* Grille des produits avec animation de stagger améliorée */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
           <AnimatePresence>
-            {products.map((product, index) => (
+            {Array.isArray(products) && products.map((product, index) => (
               <motion.div
-                key={product.id}
+                key={product.id || index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
@@ -466,7 +499,7 @@ const CollectionPage = () => {
           )}
           
           {/* Message si pas de produits - design optimisé */}
-          {!productsLoading && products.length === 0 && (
+          {!productsLoading && Array.isArray(products) && products.length === 0 && (
             <motion.div 
               variants={fadeIn}
               initial="hidden"

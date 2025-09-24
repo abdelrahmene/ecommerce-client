@@ -1,13 +1,14 @@
 import { useState, useCallback, useEffect } from 'react';
 import { mockProducts } from '../data/mockData';
+import productService from '../services/productService';
 
-// Hook pour la recherche de produits - Mock
+// Hook pour la recherche de produits
 export function useProductSearch(query) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Simuler la recherche avec un délai
+  // Effectuer la recherche de produits
   useEffect(() => {
     if (!query || query.trim() === '') {
       setResults([]);
@@ -19,10 +20,23 @@ export function useProductSearch(query) {
         setLoading(true);
         setError(null);
         
-        // Simuler un délai réseau
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Essayer d'abord de récupérer depuis l'API réelle
+        try {
+          const searchResults = await productService.getProducts({ 
+            search: query,
+            limit: 10,
+            isActive: true
+          });
+          
+          console.log('✅ API Search: Recherche effectuée:', query, '->', searchResults.length, 'résultats');
+          setResults(searchResults);
+          setLoading(false);
+          return;
+        } catch (apiErr) {
+          console.warn('⚠️ Erreur API Search - Fallback sur mock:', apiErr);
+        }
         
-        // Recherche dans les données mock
+        // Fallback: Recherche dans les données mock
         const queryLower = query.toLowerCase();
         const searchResults = mockProducts
           .filter(product => 
@@ -56,13 +70,35 @@ export default function useProducts() {
   const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(true);
 
-  // Fonction pour charger les produits (première page) - Mock
+  // Fonction pour charger les produits (première page)
   const loadProducts = useCallback(async (itemsPerPage = 20, filters = {}) => {
     try {
       setLoading(true);
       setError(null);
       
-      // Simuler un délai réseau
+      // Essayer d'abord de récupérer depuis l'API réelle
+      try {
+        const apiFilters = {
+          limit: itemsPerPage,
+          offset: 0,
+          isActive: true,
+          ...filters
+        };
+        
+        const productsData = await productService.getProducts(apiFilters);
+        
+        console.log('✅ API: Produits chargés:', productsData.length);
+        
+        setProducts(productsData);
+        setHasMore(productsData.length >= itemsPerPage);
+        setLastDoc(itemsPerPage);
+        setLoading(false);
+        return;
+      } catch (apiErr) {
+        console.warn('⚠️ Erreur API - Fallback sur mock:', apiErr);
+      }
+      
+      // Fallback: Simuler un délai réseau
       await new Promise(resolve => setTimeout(resolve, 500));
       
       let filteredProducts = [...mockProducts];
@@ -117,21 +153,48 @@ export default function useProducts() {
       console.log('🔧 Mock: Produits chargés:', paginatedProducts.length, '/', filteredProducts.length);
       
     } catch (err) {
-      console.error('❌ Mock: Erreur lors du chargement des produits:', err);
+      console.error('❌ Erreur lors du chargement des produits:', err);
       setError('Impossible de charger les produits. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Fonction pour charger plus de produits (pagination) - Mock
+  // Fonction pour charger plus de produits (pagination)
   const loadMoreProducts = useCallback(async (itemsPerPage = 20, filters = {}) => {
     if (!hasMore || loading) return;
     
     try {
       setLoading(true);
       
-      // Simuler un délai réseau
+      // Essayer d'abord de récupérer depuis l'API réelle
+      try {
+        const apiFilters = {
+          limit: itemsPerPage,
+          offset: lastDoc || 0,
+          isActive: true,
+          ...filters
+        };
+        
+        const newProducts = await productService.getProducts(apiFilters);
+        
+        console.log('✅ API: Plus de produits chargés:', newProducts.length);
+        
+        if (newProducts.length > 0) {
+          setProducts(prevProducts => [...prevProducts, ...newProducts]);
+          setLastDoc((lastDoc || 0) + newProducts.length);
+          setHasMore(newProducts.length >= itemsPerPage);
+        } else {
+          setHasMore(false);
+        }
+        
+        setLoading(false);
+        return;
+      } catch (apiErr) {
+        console.warn('⚠️ Erreur API loadMoreProducts - Fallback sur mock:', apiErr);
+      }
+      
+      // Fallback: Simuler un délai réseau
       await new Promise(resolve => setTimeout(resolve, 400));
       
       let filteredProducts = [...mockProducts];
@@ -155,19 +218,34 @@ export default function useProducts() {
       console.log('🔧 Mock: Plus de produits chargés:', newProducts.length);
       
     } catch (err) {
-      console.error('❌ Mock: Erreur lors du chargement de produits supplémentaires:', err);
+      console.error('❌ Erreur lors du chargement de produits supplémentaires:', err);
       setError('Impossible de charger plus de produits. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
   }, [lastDoc, loading, hasMore]);
 
-  // Fonction pour obtenir un produit par son ID - Mock
+  // Fonction pour obtenir un produit par son ID
   const getProduct = useCallback(async (productId) => {
     try {
       setLoading(true);
       
-      // Simuler un délai réseau
+      // Essayer d'abord de récupérer depuis l'API réelle
+      try {
+        console.log('🔍 Tentative de récupération API du produit:', productId);
+        const product = await productService.getProductById(productId);
+        
+        if (product) {
+          console.log('✅ API: Produit trouvé:', productId);
+          return product;
+        } else {
+          console.log('⚠️ API: Produit non trouvé:', productId);
+        }
+      } catch (apiErr) {
+        console.warn('⚠️ Erreur API getProduct - Fallback sur mock:', apiErr);
+      }
+      
+      // Fallback: Simuler un délai réseau
       await new Promise(resolve => setTimeout(resolve, 300));
       
       const product = mockProducts.find(p => p.id === productId && p.active);
@@ -182,7 +260,7 @@ export default function useProducts() {
       return product;
       
     } catch (err) {
-      console.error('❌ Mock: Erreur lors de la récupération du produit:', err);
+      console.error('❌ Erreur lors de la récupération du produit:', err);
       setError('Impossible de récupérer les détails du produit');
       return null;
     } finally {
@@ -190,12 +268,30 @@ export default function useProducts() {
     }
   }, []);
 
-  // Fonction pour rechercher des produits - Mock
+  // Fonction pour rechercher des produits
   const searchProducts = useCallback(async (searchTerm, itemsPerPage = 20) => {
     try {
       setLoading(true);
       
-      // Simuler un délai réseau
+      // Essayer d'abord de récupérer depuis l'API réelle
+      try {
+        const productsData = await productService.getProducts({ 
+          search: searchTerm,
+          limit: itemsPerPage,
+          isActive: true
+        });
+        
+        console.log('✅ API: Recherche de produits:', searchTerm, '->', productsData.length);
+        
+        setProducts(productsData);
+        setHasMore(productsData.length >= itemsPerPage);
+        setLoading(false);
+        return productsData;
+      } catch (apiErr) {
+        console.warn('⚠️ Erreur API searchProducts - Fallback sur mock:', apiErr);
+      }
+      
+      // Fallback: Simuler un délai réseau
       await new Promise(resolve => setTimeout(resolve, 400));
       
       const searchTermLower = searchTerm.toLowerCase();
@@ -218,7 +314,7 @@ export default function useProducts() {
       return limitedResults;
       
     } catch (err) {
-      console.error('❌ Mock: Erreur lors de la recherche de produits:', err);
+      console.error('❌ Erreur lors de la recherche de produits:', err);
       setError('Impossible de rechercher des produits. Veuillez réessayer.');
       return [];
     } finally {
@@ -226,10 +322,35 @@ export default function useProducts() {
     }
   }, []);
 
-  // Fonction pour obtenir les produits similaires - Mock
+  // Fonction pour obtenir les produits similaires
   const getSimilarProducts = useCallback(async (productId, limit = 4) => {
     try {
-      // Simuler un délai réseau
+      // Essayer d'abord de récupérer depuis l'API réelle
+      try {
+        // Récupérer d'abord le produit actuel pour connaître sa catégorie
+        const currentProduct = await productService.getProductById(productId);
+        
+        if (currentProduct && currentProduct.categoryId) {
+          // Récupérer les produits de la même catégorie
+          const similarProducts = await productService.getProducts({
+            category: currentProduct.categoryId,
+            limit: limit + 1, // +1 pour exclure le produit actuel
+            isActive: true
+          });
+          
+          // Filtrer pour exclure le produit actuel
+          const filteredProducts = similarProducts.filter(p => p.id !== productId).slice(0, limit);
+          
+          if (filteredProducts.length > 0) {
+            console.log('✅ API: Produits similaires trouvés:', filteredProducts.length);
+            return filteredProducts;
+          }
+        }
+      } catch (apiErr) {
+        console.warn('⚠️ Erreur API getSimilarProducts - Fallback sur mock:', apiErr);
+      }
+      
+      // Fallback: Simuler un délai réseau
       await new Promise(resolve => setTimeout(resolve, 200));
       
       const currentProduct = mockProducts.find(p => p.id === productId);
@@ -258,7 +379,7 @@ export default function useProducts() {
       return result;
       
     } catch (err) {
-      console.error('❌ Mock: Erreur lors de la récupération des produits similaires:', err);
+      console.error('❌ Erreur lors de la récupération des produits similaires:', err);
       return [];
     }
   }, []);

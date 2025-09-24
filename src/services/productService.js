@@ -1,5 +1,5 @@
 // Service de produits et collections utilisant UNIQUEMENT l'API
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000';
 
 console.log('🔧 Service de produits API initialisé');
 
@@ -16,7 +16,8 @@ const productService = {
         }
       });
 
-      const url = `${API_BASE_URL}/products${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      const url = `${API_BASE_URL}/api/products${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      console.log('📡 URL API Products:', url);
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -25,7 +26,7 @@ const productService = {
       }
 
       const data = await response.json();
-      console.log('✅ API Products - Produits récupérés:', data);
+      console.log('✅ API Products - Produits récupérés:', data.length || 0);
       return data;
     } catch (error) {
       console.error('❌ API Products - Erreur de récupération:', error);
@@ -37,7 +38,7 @@ const productService = {
     console.log('📡 API Products - Récupération du produit:', id);
     
     try {
-      const response = await fetch(`${API_BASE_URL}/products/${id}`);
+      const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -57,7 +58,9 @@ const productService = {
     console.log('📡 API Collections - Récupération des collections');
     
     try {
-      const response = await fetch(`${API_BASE_URL}/collections`);
+      const response = await fetch(`${API_BASE_URL}/api/collections`);
+      console.log('📡 URL API Collections:', `${API_BASE_URL}/api/collections`);
+      console.log('ℹ️ Réponse API Collections status:', response.status, response.statusText);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -65,12 +68,39 @@ const productService = {
       }
 
       const data = await response.json();
-      console.log('✅ API Collections - Collections récupérées:', data);
+      console.log('✅ API Collections - Collections récupérées:', data.length || 0);
       return data;
     } catch (error) {
       console.error('❌ API Collections - Erreur de récupération:', error);
       throw error;
     }
+  },
+  
+  async getCollectionById(id) {
+    console.log('📡 API Collections - Récupération de la collection:', id);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/collections/${id}`);
+      console.log('📡 URL API Collection:', `${API_BASE_URL}/api/collections/${id}`);
+      console.log('ℹ️ Réponse API Collection status:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur de récupération de la collection');
+      }
+
+      const data = await response.json();
+      console.log('✅ API Collections - Collection récupérée:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ API Collections - Erreur de récupération de collection:', error);
+      throw error;
+    }
+  },
+  
+  async getProductsByCollection(collectionId) {
+    console.log('📡 API Products - Récupération des produits par collection:', collectionId);
+    return this.getProducts({ collection: collectionId, isActive: true });
   }
 };
 
