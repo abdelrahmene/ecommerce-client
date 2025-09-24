@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ArrowLeft, AlertTriangle, ShoppingBag, Star, Eye, Heart } from 'lucide-react';
 import productService from '../../services/productService';
+import imageService from '../../services/imageService';
 
 console.log('🔧 CollectionPage - Utilisation exclusive de l\'API');
 
@@ -58,11 +59,13 @@ const ProductCard = ({ product, index }) => {
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
           <img 
-            src={product.images && product.images.length > 0 
-              ? (typeof product.images[0] === 'string' 
-                ? product.images[0] 
-                : (product.images[0]?.url || '/placeholder.jpg')) 
-              : '/placeholder.jpg'} 
+            src={imageService.getImageUrl(
+              product.images && product.images.length > 0 
+                ? (typeof product.images[0] === 'string' 
+                  ? product.images[0] 
+                  : (product.images[0]?.url || '/placeholder.jpg'))
+                : '/placeholder.jpg'
+            )}
             alt={product.name} 
             className="h-full w-full object-cover"
             loading="lazy"
@@ -359,7 +362,7 @@ const CollectionPage = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-gray-900 z-10"></div>
           <img 
-            src={collectionData.image} 
+            src={imageService.getImageUrl(collectionData.image) || '/placeholder-collection.jpg'} 
             alt={collectionData.name} 
             className="w-full h-full object-cover"
           />
