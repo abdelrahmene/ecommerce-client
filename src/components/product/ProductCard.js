@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ShoppingCart, Heart, Eye, Tag } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishlistContext';
-import cloudinaryService from '../../services/cloudinary/cloudinary';
+import imageService from '../../services/imageService';
 
 const ProductCard = ({ product, index }) => {
   const { addToCart } = useCart();
@@ -130,7 +130,7 @@ const ProductCard = ({ product, index }) => {
                 <Link to={`/product/${product.id}`} onClick={(e) => e.stopPropagation()} className="block h-full w-full">
                   <img
                     src={product.images && product.images.length > 0 
-                      ? cloudinaryService.getOptimizedImageUrl(product.images[0], { width: 500 })
+                      ? imageService.getImageUrl(product.images[0])
                       : '/placeholder-product.jpg'}
                     alt={product.name}
                     className="h-full w-full object-cover"
