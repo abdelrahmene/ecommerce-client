@@ -1,27 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useSearchParams } from 'react-router-dom';
 
-// Custom hooks
 import { useMenCategories } from './hooks/useMenCategories';
 import { useMenCollections } from './hooks/useMenCollections';
 
-// Components
-import HeroSection from './components/HeroSection';
+import MenHeroSection from './components/MenHeroSection';
 import CategoryFilters from './components/CategoryFilters';
 import FilterPanel from './components/FilterPanel';
+import SubCategoryCard from './components/SubCategoryCard';
 import CollectionGrid from './components/CollectionGrid';
 
-/**
- * Page Homme qui affiche les collections et produits pour hommes
- * Elle utilise une architecture modulaire avec des composants séparés pour chaque partie
- */
 const MenPage = () => {
   const { theme } = useTheme();
+  const [searchParams] = useSearchParams();
+  const subcategoryFromUrl = searchParams.get('subcategory');
+  
   const [activeSubCategory, setActiveSubCategory] = useState('all');
   const [filtersOpen, setFiltersOpen] = useState(false);
   
-  // Récupérer les catégories pour homme
   const { 
     categories, 
     hommeCategory,
@@ -29,7 +27,6 @@ const MenPage = () => {
     loading: categoriesLoading 
   } = useMenCategories();
   
-  // Récupérer les collections et produits filtrés
   const { 
     filteredCollections, 
     filteredProducts, 
@@ -37,25 +34,29 @@ const MenPage = () => {
     error
   } = useMenCollections(hommeCategory, categories, activeSubCategory);
 
-  // Log pour debug (uniquement dans la console)
   useEffect(() => {
-    console.log('MenSubCategories actuelles:', menSubCategories);
-  }, [menSubCategories]);
+    if (subcategoryFromUrl && menSubCategories.length > 0) {
+      const matchingCategory = menSubCategories.find(cat => cat.slug === subcategoryFromUrl);
+      if (matchingCategory) {
+        setActiveSubCategory(matchingCategory.id);
+      }
+    }
+  }, [subcategoryFromUrl, menSubCategories]);
   
-  // État de chargement global
   const isLoading = categoriesLoading || collectionsLoading;
+
+  // Sous-catégories réelles (sauf 'all')
+  const realSubCategories = menSubCategories.filter(cat => cat.id !== 'all');
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900/90 transition-colors duration-300">
       <Helmet>
         <title>Collection Homme | Birk & Shoes</title>
-        <meta name="description" content="Découvrez notre collection de chaussures homme Birkenstock. Sandales, sabots et chaussures au design iconique et au confort inégalé." />
+        <meta name="description" content="Découvrez notre collection homme" />
       </Helmet>
       
-      {/* Hero Section avec Parallax et Animations */}
-      <HeroSection theme={theme} />
+      <MenHeroSection theme={theme} />
       
-      {/* Filtres de catégories */}
       <CategoryFilters 
         categories={menSubCategories}
         activeCategory={activeSubCategory}
@@ -64,19 +65,34 @@ const MenPage = () => {
         setFiltersOpen={setFiltersOpen}
       />
       
-      {/* Panneau de filtres avancés */}
       <FilterPanel 
         isOpen={filtersOpen} 
         onClose={() => setFiltersOpen(false)} 
       />
       
-      {/* Affichage des Collections Homme */}
       <div className="container mx-auto px-4 py-12">
-        <CollectionGrid 
-          collections={filteredCollections} 
-          loading={isLoading} 
-          error={error} 
-        />
+        {activeSubCategory === 'all' && realSubCategories.length > 0 ? (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Nos catégories</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {realSubCategories.map((subCat, index) => (
+                <SubCategoryCard
+                  key={subCat.id}
+                  subCategory={subCat}
+                  index={index}
+                  onClick={() => setActiveSubCategory(subCat.id)}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          // Afficher collections de la sous-catégorie sélectionnée
+          <CollectionGrid 
+            collections={filteredCollections} 
+            loading={isLoading} 
+            error={error} 
+          />
+        )}
       </div>
     </div>
   );

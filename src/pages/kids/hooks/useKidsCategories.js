@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
-export const useWomenCategories = () => {
+export const useKidsCategories = () => {
   const [categories, setCategories] = useState([]);
-  const [femmeCategory, setFemmeCategory] = useState(null);
-  const [womenSubCategories, setWomenSubCategories] = useState([]);
+  const [enfantCategory, setEnfantCategory] = useState(null);
+  const [kidsSubCategories, setKidsSubCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,21 +16,21 @@ export const useWomenCategories = () => {
       const data = await response.json();
 
       const allCategories = data.categories || [];
-
-      const femme = allCategories.find(cat => 
-        cat.slug === 'femmes' && !cat.parentId
+      
+      const enfant = allCategories.find(cat => 
+        cat.slug === 'enfant' && !cat.parentId
       );
 
-      if (femme) {
-        setFemmeCategory(femme);
-        const subCats = allCategories.filter(cat => cat.parentId === femme.id);
+      if (enfant) {
+        setEnfantCategory(enfant);
+        const subCats = allCategories.filter(cat => cat.parentId === enfant.id);
         
         const filters = [
           { id: 'all', name: 'Toutes les sous-catégories', slug: 'all' },
           ...subCats
         ];
 
-        setWomenSubCategories(filters);
+        setKidsSubCategories(filters);
       }
 
       setCategories(allCategories);
@@ -43,8 +43,8 @@ export const useWomenCategories = () => {
 
   return {
     categories,
-    femmeCategory,
-    womenSubCategories,
+    enfantCategory,
+    kidsSubCategories,
     loading
   };
 };

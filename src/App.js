@@ -32,6 +32,8 @@ import WishlistPage from './pages/account/WishlistPage';
 import AboutPage from './pages/about/AboutPage';
 import ContactPage from './pages/contact/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
+import CategoriesPage from './pages/CategoriesPage';
+import BostonPage from './pages/Boston/BostonPage';
 // import TestSection from './pages/TestSection';
 
 function App() {
@@ -51,12 +53,21 @@ function App() {
                 <Route path="/" element={<MainLayout />}>
                   {/* Public routes */}
                   <Route index element={<HomePage />} />
-                  {/* <Route path="test" element={<TestSection />} /> */}
                   <Route path="product/:id" element={<ProductPage />} />
-                  <Route path="men" element={<MenPage />} />
-                  <Route path="women" element={<WomenPage />} />
-                  <Route path="kids" element={<KidsPage />} />
-                  <Route path="new" element={<NewPage />} />
+                  
+                  {/* Routes FR principales */}
+                  <Route path="homme" element={<MenPage />} />
+                  <Route path="femme" element={<WomenPage />} />
+                  <Route path="enfant" element={<KidsPage />} />
+                  <Route path="nouveaute" element={<NewPage />} />
+                  <Route path="categories" element={<CategoriesPage />} />
+                  <Route path="category/boston" element={<BostonPage />} />
+                  
+                  {/* Legacy EN routes */}
+                  <Route path="men" element={<Navigate to="/homme" replace />} />
+                  <Route path="women" element={<Navigate to="/femme" replace />} />
+                  <Route path="kids" element={<Navigate to="/enfant" replace />} />
+                  <Route path="new" element={<Navigate to="/nouveaute" replace />} />
                   <Route path="product/:productId" element={<ProductPage />} />
                   <Route path="collections" element={<CollectionsPage />} />
                   <Route path="collection/:collectionId" element={<CollectionPage />} />

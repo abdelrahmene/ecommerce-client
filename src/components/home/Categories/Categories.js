@@ -74,12 +74,12 @@ const CategoryCard = ({ category, index, layout, animation }) => {
       initial={animation?.enabled ? "hidden" : "visible"}
       whileInView="visible"
       viewport={{ once: true, margin: '-50px' }}
-      whileHover={{ scale: 1.03 }}
+      whileHover={{ scale: 1.05, y: -10 }}
       className={`relative w-full ${aspectRatio}`}
     >
-      <Link to={category.link} className="block w-full h-full">
+      <Link to={category.link} className="block w-full h-full group">
         <div 
-          className="relative w-full h-full overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl"
+          className="relative w-full h-full overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl"
           style={{
             backgroundColor: category.style?.backgroundColor || '#3b82f6',
             borderRadius: `${category.style?.borderRadius || 12}px`
@@ -154,10 +154,16 @@ const CategoryCard = ({ category, index, layout, animation }) => {
             )}
           </div>
 
-          {/* Hover effect overlay */}
+          {/* Shine effect on hover */}
           <motion.div
-            className="absolute inset-0 bg-white/10 opacity-0 transition-opacity duration-300"
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)',
+              opacity: 0
+            }}
             whileHover={{ opacity: 1 }}
+            animate={{ x: ['-200%', '200%'] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
           />
         </div>
       </Link>
@@ -223,20 +229,11 @@ const Categories = ({ data }) => {
           </h2>
           
           {sectionSubtitle && (
-            <h3 
-              className="text-xl md:text-2xl font-medium mb-3"
+            <p 
+              className="text-base max-w-2xl mx-auto text-gray-600"
               style={{ color: style.subtitleColor || '#6b7280' }}
             >
               {sectionSubtitle}
-            </h3>
-          )}
-          
-          {sectionContent.description && (
-            <p 
-              className="text-base max-w-2xl mx-auto"
-              style={{ color: style.textColor || '#1f2937' }}
-            >
-              {sectionContent.description}
             </p>
           )}
         </div>
