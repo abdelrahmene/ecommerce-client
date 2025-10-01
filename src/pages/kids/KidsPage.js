@@ -61,6 +61,7 @@ const KidsPage = () => {
         setActiveCategory={setActiveSubCategory}
         filtersOpen={filtersOpen}
         setFiltersOpen={setFiltersOpen}
+        title="Nos modèles pour enfant"
       />
       
       <FilterPanel 

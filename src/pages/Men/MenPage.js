@@ -63,6 +63,7 @@ const MenPage = () => {
         setActiveCategory={setActiveSubCategory}
         filtersOpen={filtersOpen}
         setFiltersOpen={setFiltersOpen}
+        title="Nos modèles pour homme"
       />
       
       <FilterPanel 

@@ -70,7 +70,7 @@ const WomenHeroSection = ({ theme }) => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-5xl md:text-7xl font-black text-gray-900 dark:text-white mb-4 tracking-tight"
           >
-            ÉLÉGANCE <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600">MODERNE</span>
+            ÉLÉGANCE <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600">FÉMININE</span>
           </motion.h1>
           
           <motion.p

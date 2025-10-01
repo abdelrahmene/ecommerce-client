@@ -7,7 +7,8 @@ const CategoryFilters = ({
   activeCategory, 
   setActiveCategory, 
   filtersOpen, 
-  setFiltersOpen 
+  setFiltersOpen,
+  title = 'Nos modèles'
 }) => {
   return (
     <section className="py-12 md:py-16">
@@ -20,7 +21,7 @@ const CategoryFilters = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            Nos modèles pour homme
+            {title}
             <motion.div 
               className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full"
               initial={{ width: 0 }}

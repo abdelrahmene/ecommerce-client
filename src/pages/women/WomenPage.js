@@ -61,6 +61,7 @@ const WomenPage = () => {
         setActiveCategory={setActiveSubCategory}
         filtersOpen={filtersOpen}
         setFiltersOpen={setFiltersOpen}
+        title="Nos modèles pour femme"
       />
       
       <FilterPanel 
