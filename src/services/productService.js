@@ -1,7 +1,33 @@
+import { getImageUrl } from '../config/api';
+
 // Service de produits et collections utilisant UNIQUEMENT l'API
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
 console.log('🔧 Service de produits API initialisé');
+
+// 🔥 Fonction pour transformer les images d'un produit
+const transformProductImages = (product) => {
+  if (!product) return product;
+
+  // Transformer les images principales
+  if (product.images && Array.isArray(product.images)) {
+    product.images = product.images.map(img => {
+      if (typeof img === 'string') {
+        return getImageUrl(img);
+      } else if (img && img.url) {
+        return getImageUrl(img.url);
+      }
+      return img;
+    });
+  }
+
+  // Transformer l'image principale si elle existe
+  if (product.image && typeof product.image === 'string') {
+    product.image = getImageUrl(product.image);
+  }
+
+  return product;
+};
 
 const productService = {
   async getProducts(filters = {}) {
@@ -25,8 +51,14 @@ const productService = {
         throw new Error(errorData.message || 'Erreur de récupération des produits');
       }
 
-      const data = await response.json();
-      console.log('✅ API Products - Produits récupérés:', data.length || 0);
+      let data = await response.json();
+      
+      // 🔥 Transformer les URLs des images pour tous les produits
+      if (Array.isArray(data)) {
+        data = data.map(transformProductImages);
+      }
+      
+      console.log('✅ API Products - Produits récupérés et transformés:', data.length || 0);
       return data;
     } catch (error) {
       console.error('❌ API Products - Erreur de récupération:', error);
@@ -45,8 +77,12 @@ const productService = {
         throw new Error(errorData.message || 'Erreur de récupération du produit');
       }
 
-      const data = await response.json();
-      console.log('✅ API Products - Produit récupéré:', data);
+      let data = await response.json();
+      
+      // 🔥 Transformer les URLs des images
+      data = transformProductImages(data);
+      
+      console.log('✅ API Products - Produit récupéré et transformé:', data);
       return data;
     } catch (error) {
       console.error('❌ API Products - Erreur de récupération:', error);
@@ -89,7 +125,13 @@ const productService = {
         throw new Error(errorData.message || 'Erreur de récupération de la collection');
       }
 
-      const data = await response.json();
+      let data = await response.json();
+      
+      // 🔥 Transformer les images des produits dans la collection
+      if (data && data.products && Array.isArray(data.products)) {
+        data.products = data.products.map(transformProductImages);
+      }
+      
       console.log('✅ API Collections - Collection récupérée:', data);
       return data;
     } catch (error) {
