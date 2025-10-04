@@ -136,7 +136,7 @@ const CategoryCard = ({ category, index, layout, animation }) => {
             <motion.h3 
               className="text-lg md:text-xl font-bold tracking-wider"
               style={{ 
-                color: category.style?.textColor || '#ffffff' // Toujours blanc par défaut
+                color: category.style?.textColor || '#ffffff'
               }}
             >
               {category.name || category.title}
@@ -146,7 +146,7 @@ const CategoryCard = ({ category, index, layout, animation }) => {
               <motion.p 
                 className="text-sm mt-2 opacity-90"
                 style={{ 
-                  color: category.style?.textColor || '#ffffff' // Toujours blanc par défaut
+                  color: category.style?.textColor || '#ffffff'
                 }}
               >
                 {category.description}
@@ -172,40 +172,22 @@ const CategoryCard = ({ category, index, layout, animation }) => {
 };
 
 const Categories = ({ data }) => {
-  console.log('🔍 [CLIENT-CATEGORIES] Données section complète:', data);
-  console.log('🔍 [CLIENT-CATEGORIES] Type de données:', typeof data);
-
   // Extraction des données - UNIQUEMENT depuis l'API
   const sectionContent = data?.content || {};
-  const sectionTitle = sectionContent.title || 'Nos Catégories';
-  const sectionSubtitle = sectionContent.subtitle || '';
   const sectionCategories = sectionContent.categories || [];
   const layout = sectionContent.layout || { type: 'grid', columns: 3, gap: 24, mobileColumns: 1 };
   const style = sectionContent.style || {};
   const animation = sectionContent.animation || { enabled: true };
   
-  console.log('📊 [CLIENT-CATEGORIES] Titre:', sectionTitle);
-  console.log('📊 [CLIENT-CATEGORIES] Categories array:', sectionCategories);
-  console.log('📊 [CLIENT-CATEGORIES] Categories count:', sectionCategories.length);
-  console.log('📊 [CLIENT-CATEGORIES] Raw categories data:');
-  console.table(sectionCategories);
-  console.log('📊 [CLIENT-CATEGORIES] Layout:', layout);
-  
-  // Debug détaillé des catégories avec styles
-  if (sectionCategories.length > 0) {
-    sectionCategories.forEach((cat, index) => {
-      console.log(`📂 [CAT-${index}] ID: ${cat.id}, Name: ${cat.name}, Image: ${cat.image}, Active: ${cat.isActive}`);
-      console.log(`🎨 [STYLE-${index}] TextColor: ${cat.style?.textColor}, BackgroundColor: ${cat.style?.backgroundColor}`);
-      console.log(`🎭 [FULL-STYLE-${index}]:`, cat.style);
-    });
-  }
-  
-  // Utiliser uniquement les catégories de l'admin (pas de fallback)
+  // Utiliser uniquement les catégories de l'admin
   const categoriesToShow = sectionCategories && sectionCategories.length > 0 
     ? sectionCategories.filter(cat => cat.isActive !== false).sort((a, b) => (a.order || 0) - (b.order || 0))
-    : []; // Pas de fallback sur mockCategories
+    : [];
 
-  console.log('✅ [CLIENT-CATEGORIES] Categories à afficher:', categoriesToShow.length);
+  // Ne rien afficher si pas de catégories
+  if (categoriesToShow.length === 0) {
+    return null;
+  }
 
   return (
     <section 
@@ -219,78 +201,47 @@ const Categories = ({ data }) => {
       }}
     >
       <div className="max-w-7xl mx-auto">
-        {/* En-tête de section */}
-        <div className="text-center mb-8">
-          <h2 
-            className="text-3xl md:text-4xl font-bold mb-4"
-            style={{ color: style.titleColor || '#111827' }}
-          >
-            {sectionTitle}
-          </h2>
+        {/* Grille de catégories - Le titre est géré par la page d'accueil */}
+        <motion.div
+          className="grid"
+          style={{
+            gridTemplateColumns: `repeat(${layout.mobileColumns || 1}, 1fr)`,
+            gap: `${layout.gap || 24}px`
+          }}
+          variants={animation?.enabled ? {
+            visible: {
+              transition: {
+                staggerChildren: animation.stagger ? (animation.delay / 1000 || 0.15) : 0
+              }
+            }
+          } : {}}
+          initial={animation?.enabled ? "hidden" : "visible"}
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+        >
+          <style jsx>{`
+            @media (min-width: 768px) {
+              .grid {
+                grid-template-columns: repeat(${Math.min(layout.columns || 3, 2)}, 1fr) !important;
+              }
+            }
+            @media (min-width: 1024px) {
+              .grid {
+                grid-template-columns: repeat(${layout.columns || 3}, 1fr) !important;
+              }
+            }
+          `}</style>
           
-          {sectionSubtitle && (
-            <p 
-              className="text-base max-w-2xl mx-auto text-gray-600"
-              style={{ color: style.subtitleColor || '#6b7280' }}
-            >
-              {sectionSubtitle}
-            </p>
-          )}
-        </div>
-
-        {/* Grille de catégories */}
-        {categoriesToShow.length > 0 ? (
-          <motion.div
-            className="grid"
-            style={{
-              gridTemplateColumns: `repeat(${layout.mobileColumns || 1}, 1fr)`,
-              gap: `${layout.gap || 24}px`
-            }}
-            variants={animation?.enabled ? {
-              visible: {
-                transition: {
-                  staggerChildren: animation.stagger ? (animation.delay / 1000 || 0.15) : 0
-                }
-              }
-            } : {}}
-            initial={animation?.enabled ? "hidden" : "visible"}
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-          >
-            <style jsx>{`
-              @media (min-width: 768px) {
-                .grid {
-                  grid-template-columns: repeat(${Math.min(layout.columns || 3, 2)}, 1fr) !important;
-                }
-              }
-              @media (min-width: 1024px) {
-                .grid {
-                  grid-template-columns: repeat(${layout.columns || 3}, 1fr) !important;
-                }
-              }
-            `}</style>
-            
-            {categoriesToShow.map((category, index) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                index={index}
-                layout={layout}
-                animation={animation}
-              />
-            ))}
-          </motion.div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-            </div>
-            <p className="text-gray-500 text-lg font-medium">Configuration des catégories en cours...</p>
-            <p className="text-gray-400 text-sm">Les catégories apparaîtront dès qu'elles seront configurées dans l'admin</p>
-          </div>
-        )}
+          {categoriesToShow.map((category, index) => (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              index={index}
+              layout={layout}
+              animation={animation}
+            />
+          ))}
+        </motion.div>
       </div>
     </section>
   );
