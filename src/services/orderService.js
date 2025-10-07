@@ -1,5 +1,5 @@
 // Service de commandes utilisant UNIQUEMENT l'API
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.birkshoes.store/api';
+const API_BASE_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api`;
 
 console.log('🔧 Service de commandes API initialisé');
 
@@ -17,8 +17,9 @@ const orderService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erreur de création de commande');
+        const errorText = await response.text();
+        console.error('❌ Erreur serveur:', response.status, errorText);
+        throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();

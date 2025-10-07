@@ -12,7 +12,6 @@ export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   
-  // Load cart from localStorage on initial render
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -25,7 +24,6 @@ export function CartProvider({ children }) {
     }
   }, []);
   
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
@@ -36,7 +34,6 @@ export function CartProvider({ children }) {
   
   const addToCart = (product, quantity = 1, options = {}) => {
     setCartItems(prevItems => {
-      // Check if the product is already in the cart
       const existingItemIndex = prevItems.findIndex(
         item => item.id === product.id && 
         JSON.stringify(item.selectedOptions || {}) === JSON.stringify(options)
@@ -45,11 +42,9 @@ export function CartProvider({ children }) {
       let newItems;
       
       if (existingItemIndex >= 0) {
-        // Update quantity if product already exists
         newItems = [...prevItems];
         newItems[existingItemIndex].quantity += quantity;
       } else {
-        // Add new item if product doesn't exist in cart
         newItems = [
           ...prevItems, 
           { 
@@ -61,7 +56,7 @@ export function CartProvider({ children }) {
         ];
       }
       
-      toast.success(`${product.name} added to cart`);
+      toast.success(`${product.name} ajouté au panier`);
       return newItems;
     });
   };
@@ -69,7 +64,6 @@ export function CartProvider({ children }) {
   const updateCartItem = (itemId, updates, optionsKey = null) => {
     setCartItems(prevItems => 
       prevItems.map(item => {
-        // Match by ID and options if optionsKey is provided
         if (item.id === itemId && 
             (!optionsKey || JSON.stringify(item.selectedOptions) === optionsKey)) {
           return { ...item, ...updates };
@@ -82,17 +76,16 @@ export function CartProvider({ children }) {
   const removeFromCart = (itemId, optionsKey = null) => {
     setCartItems(prevItems => 
       prevItems.filter(item => {
-        // Remove only if ID matches and options match (if optionsKey provided)
         return item.id !== itemId || 
           (optionsKey && JSON.stringify(item.selectedOptions) !== optionsKey);
       })
     );
-    toast.success('Item removed from cart');
+    toast.success('Article retiré du panier');
   };
   
   const clearCart = () => {
     setCartItems([]);
-    toast.success('Cart cleared');
+    toast.success('Panier vidé');
   };
   
   const getCartTotal = () => {
@@ -106,51 +99,98 @@ export function CartProvider({ children }) {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
   
-  // Fonction pour traiter les commandes avec paiement à la livraison
   const processCashOnDeliveryOrder = async (orderData) => {
     try {
-      // Préparer les données de la commande pour Firebase
-      const firebaseOrderData = {
-        // Informations du produit
-        product: orderData.product,
+      console.log('📦 Traitement de la commande...');
+      
+      const yalidineInfo = orderData.yalidine || {};
+      const customerInfo = orderData.customer || {};
+      const shippingInfo = orderData.shipping || {};
+      const productInfo = orderData.product || {};
+      
+      // Validation avec les bons noms de propriétés
+      if (!yalidineInfo.toWilayaId || !yalidineInfo.toCommuneId) {
+        toast.error('Informations de livraison incomplètes');
+        return { success: false, error: 'Missing delivery information' };
+      }
+      
+      if (!customerInfo.firstName || !customerInfo.phone) {
+        toast.error('Informations client incomplètes');
+        return { success: false, error: 'Missing customer information' };
+      }
+      
+      if (!productInfo.id) {
+        toast.error('Produit manquant');
+        return { success: false, error: 'Missing product' };
+      }
+      
+      // Format pour l'API
+      const apiOrderData = {
+        items: [{
+          productId: productInfo.id,
+          productVariantId: productInfo.selectedVariant?.id || null,
+          quantity: productInfo.quantity || 1,
+        }],
         
-        // Informations de livraison
-        deliveryInfo: orderData.deliveryInfo,
+        // Yalidine delivery - utiliser toWilayaId au lieu de wilayaId
+        toWilayaId: yalidineInfo.toWilayaId,
+        toWilayaName: yalidineInfo.toWilayaName,
+        toCommuneId: yalidineInfo.toCommuneId,
+        toCommuneName: yalidineInfo.toCommuneName,
+        isStopDesk: false,
+        stopDeskId: null,
+        stopDeskName: null,
         
-        // Informations de paiement
-        paymentMethod: 'cash-on-delivery',
-        paymentStatus: 'pending',
+        // Fees
+        deliveryFee: shippingInfo.deliveryFee || 0,
+        shippingCost: shippingInfo.totalFee || shippingInfo.deliveryFee || 0,
+        freeShipping: false,
+        doInsurance: false,
+        declaredValue: productInfo.price * (productInfo.quantity || 1),
         
-        // Statut de la commande
-        status: 'pending',
-        statusHistory: [
-          {
-            status: 'pending',
-            timestamp: new Date().toISOString(),
-            note: 'Commande créée avec paiement à la livraison'
-          }
-        ],
+        // Parcel
+        parcelWeight: 1,
+        parcelLength: 30,
+        parcelWidth: 20,
+        parcelHeight: 10,
         
-        // Montant total
-        totalAmount: orderData.product.price * orderData.product.quantity,
+        // Payment
+        paymentMethod: 'COD',
+        shippingMethod: 'standard',
         
-        // Dates
-        orderDate: new Date().toISOString(),
+        // Notes
+        notes: customerInfo.notes || '',
+        internalNotes: `E-commerce - ${new Date().toLocaleString('fr-DZ')}`
       };
       
-      // Enregistrer la commande dans Firebase
-      console.log('Enregistrement de la commande dans Firebase:', firebaseOrderData);
-      const result = await createOrder(firebaseOrderData);
+      // Customer info
+      apiOrderData.customer = {
+        firstName: customerInfo.firstName,
+        lastName: customerInfo.lastName || '',
+        phone: customerInfo.phone,
+        email: customerInfo.email || `${customerInfo.phone}@temp.com`,
+        address: customerInfo.address || 'Non fournie',
+        wilaya: yalidineInfo.toWilayaName,
+        commune: yalidineInfo.toCommuneName
+      };
       
-      if (result.success) {
-        toast.success(`Commande #${result.orderId} enregistrée avec succès!`);
-        return result;
+      console.log('📡 Envoi à l\'API:', apiOrderData);
+      
+      const result = await createOrder(apiOrderData);
+      
+      console.log('✅ Réponse API:', result);
+      
+      if (result && result.id) {
+        toast.success(`Commande #${result.orderNumber} créée avec succès!`);
+        clearCart();
+        return { success: true, order: result };
       } else {
-        toast.error('Erreur lors de l\'enregistrement de la commande');
-        throw new Error(result.error || 'Erreur inconnue');
+        toast.error('Erreur lors de la création de la commande');
+        throw new Error('Format de réponse invalide');
       }
     } catch (error) {
-      console.error('Erreur lors du traitement de la commande:', error);
+      console.error('❌ Erreur:', error);
+      toast.error(`Erreur: ${error.message}`);
       return { success: false, error: error.message };
     }
   };
