@@ -66,7 +66,6 @@ const CategoryCard = ({ category, index, layout, animation }) => {
   };
 
   const variants = getAnimationVariants();
-  const aspectRatio = layout?.type === 'grid' ? 'aspect-[3/4]' : 'aspect-[4/3]';
 
   return (
     <motion.div
@@ -75,7 +74,7 @@ const CategoryCard = ({ category, index, layout, animation }) => {
       whileInView="visible"
       viewport={{ once: true, margin: '-50px' }}
       whileHover={{ scale: 1.05, y: -10 }}
-      className={`relative w-full ${aspectRatio}`}
+      className="relative w-full category-card-container"
     >
       <Link to={category.link} className="block w-full h-full group">
         <div 
@@ -91,7 +90,7 @@ const CategoryCard = ({ category, index, layout, animation }) => {
               <img
                 src={getImageUrl(category.image)}
                 alt={category.name || category.title}
-                className="absolute inset-0 w-full h-full transition-transform duration-300 hover:scale-105"
+                className="absolute inset-0 w-full h-full transition-transform duration-300 group-hover:scale-110"
                 style={{
                   objectFit: category.style?.imageFit || 'cover',
                   objectPosition: category.style?.imagePosition || 'center center',
@@ -103,13 +102,9 @@ const CategoryCard = ({ category, index, layout, animation }) => {
                 }}
               />
               
-              {/* Overlay */}
+              {/* Overlay gradient */}
               <div 
-                className="absolute inset-0"
-                style={{
-                  backgroundColor: category.style?.overlayColor || '#000000',
-                  opacity: (category.style?.overlayOpacity || 40) / 100
-                }}
+                className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"
               />
             </>
           )}
@@ -129,12 +124,9 @@ const CategoryCard = ({ category, index, layout, animation }) => {
           )}
 
           {/* Content */}
-          <div 
-            className="absolute inset-0 p-4 flex flex-col justify-center items-center"
-            style={{ textAlign: category.style?.textAlign || 'center' }}
-          >
+          <div className="absolute inset-0 p-4 flex flex-col justify-end items-start">
             <motion.h3 
-              className="text-lg md:text-xl font-bold tracking-wider"
+              className="text-xl md:text-2xl lg:text-3xl font-bold tracking-wide drop-shadow-lg"
               style={{ 
                 color: category.style?.textColor || '#ffffff'
               }}
@@ -144,7 +136,7 @@ const CategoryCard = ({ category, index, layout, animation }) => {
             
             {category.description && (
               <motion.p 
-                className="text-sm mt-2 opacity-90"
+                className="text-sm md:text-base mt-2 opacity-90 drop-shadow-md"
                 style={{ 
                   color: category.style?.textColor || '#ffffff'
                 }}
@@ -152,13 +144,24 @@ const CategoryCard = ({ category, index, layout, animation }) => {
                 {category.description}
               </motion.p>
             )}
+
+            {/* Arrow indicator */}
+            <motion.div
+              className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              initial={{ x: -10 }}
+              whileHover={{ x: 0 }}
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </motion.div>
           </div>
 
           {/* Shine effect on hover */}
           <motion.div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)',
+              background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)',
               opacity: 0
             }}
             whileHover={{ opacity: 1 }}
@@ -167,6 +170,27 @@ const CategoryCard = ({ category, index, layout, animation }) => {
           />
         </div>
       </Link>
+      
+      <style jsx>{`
+        .category-card-container {
+          aspect-ratio: 1 / 1;
+          min-height: 200px;
+        }
+
+        @media (min-width: 768px) {
+          .category-card-container {
+            aspect-ratio: 4 / 3;
+            min-height: 250px;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .category-card-container {
+            aspect-ratio: 3 / 4;
+            min-height: 300px;
+          }
+        }
+      `}</style>
     </motion.div>
   );
 };
@@ -175,7 +199,7 @@ const Categories = ({ data }) => {
   // Extraction des données - UNIQUEMENT depuis l'API
   const sectionContent = data?.content || {};
   const sectionCategories = sectionContent.categories || [];
-  const layout = sectionContent.layout || { type: 'grid', columns: 3, gap: 24, mobileColumns: 1 };
+  const layout = sectionContent.layout || { type: 'grid', columns: 3, gap: 24, mobileColumns: 2 };
   const style = sectionContent.style || {};
   const animation = sectionContent.animation || { enabled: true };
   
@@ -196,17 +220,17 @@ const Categories = ({ data }) => {
         backgroundColor: style.backgroundColor || '#f8fafc',
         paddingTop: `${style.padding?.top || 64}px`,
         paddingBottom: `${style.padding?.bottom || 64}px`,
-        paddingLeft: `${style.padding?.left || 32}px`,
-        paddingRight: `${style.padding?.right || 32}px`
+        paddingLeft: `${style.padding?.left || 16}px`,
+        paddingRight: `${style.padding?.right || 16}px`
       }}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Grille de catégories - Le titre est géré par la page d'accueil */}
+        {/* Grille de catégories */}
         <motion.div
-          className="grid"
+          className="categories-grid"
           style={{
-            gridTemplateColumns: `repeat(${layout.mobileColumns || 1}, 1fr)`,
-            gap: `${layout.gap || 24}px`
+            display: 'grid',
+            gap: `${layout.gap || 16}px`
           }}
           variants={animation?.enabled ? {
             visible: {
@@ -220,14 +244,19 @@ const Categories = ({ data }) => {
           viewport={{ once: true, margin: '-100px' }}
         >
           <style jsx>{`
+            .categories-grid {
+              grid-template-columns: repeat(${layout.mobileColumns || 2}, 1fr);
+            }
+            
             @media (min-width: 768px) {
-              .grid {
-                grid-template-columns: repeat(${Math.min(layout.columns || 3, 2)}, 1fr) !important;
+              .categories-grid {
+                grid-template-columns: repeat(${Math.min(layout.columns || 3, 2)}, 1fr);
               }
             }
+            
             @media (min-width: 1024px) {
-              .grid {
-                grid-template-columns: repeat(${layout.columns || 3}, 1fr) !important;
+              .categories-grid {
+                grid-template-columns: repeat(${layout.columns || 3}, 1fr);
               }
             }
           `}</style>
