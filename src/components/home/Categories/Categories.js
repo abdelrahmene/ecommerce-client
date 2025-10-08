@@ -223,12 +223,10 @@ const Categories = ({ data }) => {
       style={{ 
         backgroundColor: style.backgroundColor || '#f8fafc',
         paddingTop: `${style.padding?.top || 48}px`,
-        paddingBottom: `${style.padding?.bottom || 48}px`,
-        paddingLeft: `${style.padding?.left || 16}px`,
-        paddingRight: `${style.padding?.right || 16}px`
+        paddingBottom: `${style.padding?.bottom || 48}px`
       }}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4">
         <motion.div
           className="categories-grid"
           style={{
