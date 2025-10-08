@@ -219,20 +219,16 @@ const Categories = ({ data }) => {
 
   return (
     <section 
-      className="w-full transition-colors duration-300"
+      className="w-full transition-colors duration-300 overflow-x-hidden"
       style={{ 
         backgroundColor: style.backgroundColor || '#f8fafc',
         paddingTop: `${style.padding?.top || 48}px`,
         paddingBottom: `${style.padding?.bottom || 48}px`
       }}
     >
-      <div className="w-full px-3">
+      <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 max-w-7xl mx-auto box-border">
         <motion.div
-          className="categories-grid"
-          style={{
-            display: 'grid',
-            gap: `${Math.min(layout.gap || 12, 12)}px`
-          }}
+          className="categories-grid w-full"
           variants={animation?.enabled ? {
             visible: {
               transition: {
@@ -246,18 +242,28 @@ const Categories = ({ data }) => {
         >
           <style jsx>{`
             .categories-grid {
-              grid-template-columns: repeat(2, 1fr);
+              display: grid;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 8px;
+            }
+            
+            @media (min-width: 640px) {
+              .categories-grid {
+                gap: 12px;
+              }
             }
             
             @media (min-width: 768px) {
               .categories-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 16px;
               }
             }
             
             @media (min-width: 1024px) {
               .categories-grid {
-                grid-template-columns: repeat(${layout.columns || 3}, 1fr);
+                grid-template-columns: repeat(${layout.columns || 3}, minmax(0, 1fr));
+                gap: ${layout.gap || 16}px;
               }
             }
           `}</style>
