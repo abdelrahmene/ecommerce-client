@@ -226,12 +226,12 @@ const Categories = ({ data }) => {
         paddingBottom: `${style.padding?.bottom || 48}px`
       }}
     >
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="w-full px-3">
         <motion.div
           className="categories-grid"
           style={{
             display: 'grid',
-            gap: `${layout.gap || 16}px`
+            gap: `${Math.min(layout.gap || 12, 12)}px`
           }}
           variants={animation?.enabled ? {
             visible: {
