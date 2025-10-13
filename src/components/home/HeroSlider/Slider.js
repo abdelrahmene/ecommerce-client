@@ -172,7 +172,7 @@ const HeroSlider = ({ data }) => {
                 paginate(-1);
               }
             }}
-            className="absolute inset-0 flex items-center justify-between pointer-events-none"
+            className="absolute inset-0 pointer-events-none"
           >
             {currentSlide.isLoyaltyCard ? (
               // Loyalty Card Design - Super Badass
@@ -331,67 +331,20 @@ const HeroSlider = ({ data }) => {
                 </motion.div>
               </div>
             ) : (
-              // Regular Product Slides
-              <>
-                {/* Content */}
-                <div className="w-full lg:w-1/2 space-y-4 md:space-y-8 pointer-events-auto z-20">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className={`space-y-4 ${currentSlide.textColor}`}
-                  >
-                    <motion.div 
-                      className="inline-block px-4 py-1 rounded-full bg-white/20 backdrop-blur-sm"
-                      animate={{ scale: [1, 1.05, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      <h2 className="text-sm md:text-lg font-bold tracking-wider uppercase">
-                        {currentSlide.subtitle}
-                      </h2>
-                    </motion.div>
-                    
-                    <h1 className="text-5xl md:text-7xl font-black tracking-tight">
-                      {currentSlide.title}
-                    </h1>
-                    
-                    <p className="text-lg md:text-xl opacity-90 max-w-md">
-                      {currentSlide.description}
-                    </p>
-                    
-                    <div className="flex items-center space-x-6">
-                      <div className="flex flex-col">
-                        <span className="text-3xl md:text-4xl font-bold">
-                          {currentSlide.price} €
-                        </span>
-                        {currentSlide.oldPrice && (
-                          <span className="text-lg line-through opacity-70">
-                            {currentSlide.oldPrice} €
-                          </span>
-                        )}
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.98 }}
-                        className={`px-8 py-3 rounded-full text-lg font-bold transition-all ${currentSlide.buttonColor}`}
-                      >
-                        Découvrir
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                </div>
-
-                {/* Product Image */}
+              // Regular Product Slides - BADASS MOBILE LAYOUT
+              <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between pointer-events-auto">
+                
+                {/* IMAGE EN HAUT (Mobile) / À DROITE (Desktop) */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="absolute inset-0 lg:relative lg:w-1/2 flex items-center justify-center pointer-events-auto opacity-20 lg:opacity-100"
+                  className="w-full lg:w-1/2 h-[45%] lg:h-auto flex items-center justify-center lg:order-2 pt-16 lg:pt-0"
                 >
                   <ImageWithFallback
                     imagePath={currentSlide.image}
                     alt={currentSlide.title}
-                    className="w-full h-auto max-h-[60vh] lg:max-h-[70vh] object-contain drop-shadow-2xl"
+                    className="w-full h-full max-h-[400px] lg:max-h-[70vh] object-contain drop-shadow-2xl"
                     animate={{ 
                       y: [0, -20, 0],
                       rotate: [0, -5, 5, 0]
@@ -409,7 +362,100 @@ const HeroSlider = ({ data }) => {
                     }}
                   />
                 </motion.div>
-              </>
+
+                {/* CONTENU EN BAS (Mobile) / À GAUCHE (Desktop) */}
+                <div className="w-full lg:w-1/2 h-[55%] lg:h-auto flex items-end lg:items-center pb-16 lg:pb-0 lg:order-1">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className={`w-full space-y-3 md:space-y-6 ${currentSlide.textColor} px-2`}
+                  >
+                    {/* Badge subtitle avec effet BADASS */}
+                    <motion.div 
+                      className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-lg"
+                      animate={{ 
+                        scale: [1, 1.05, 1],
+                        boxShadow: [
+                          '0 4px 6px rgba(0,0,0,0.1)',
+                          '0 10px 20px rgba(0,0,0,0.2)',
+                          '0 4px 6px rgba(0,0,0,0.1)'
+                        ]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <h2 className="text-xs md:text-base font-bold tracking-wider uppercase">
+                        {currentSlide.subtitle}
+                      </h2>
+                    </motion.div>
+                    
+                    {/* Titre BADASS */}
+                    <motion.h1 
+                      className="text-3xl md:text-5xl lg:text-7xl font-black tracking-tight leading-tight"
+                      animate={{ 
+                        textShadow: [
+                          '0 2px 10px rgba(0,0,0,0.3)',
+                          '0 4px 20px rgba(0,0,0,0.5)',
+                          '0 2px 10px rgba(0,0,0,0.3)'
+                        ]
+                      }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    >
+                      {currentSlide.title}
+                    </motion.h1>
+                    
+                    {/* Description */}
+                    <p className="text-sm md:text-lg lg:text-xl opacity-90 max-w-md leading-relaxed">
+                      {currentSlide.description}
+                    </p>
+                    
+                    {/* Prix et CTA - Layout BADASS */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 pt-2">
+                      {/* Prix avec effet néon */}
+                      <motion.div 
+                        className="flex flex-col"
+                        animate={{
+                          textShadow: [
+                            '0 0 10px rgba(255,255,255,0.5)',
+                            '0 0 20px rgba(255,255,255,0.8)',
+                            '0 0 10px rgba(255,255,255,0.5)'
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <span className="text-3xl md:text-5xl font-black">
+                          {currentSlide.price} DA
+                        </span>
+                        {currentSlide.oldPrice && (
+                          <span className="text-base md:text-lg line-through opacity-70">
+                            {currentSlide.oldPrice} DA
+                          </span>
+                        )}
+                      </motion.div>
+                      
+                      {/* Bouton CTA BADASS */}
+                      <motion.button
+                        whileHover={{ 
+                          scale: 1.08,
+                          boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`px-6 md:px-8 py-2.5 md:py-3 rounded-full text-sm md:text-lg font-bold transition-all ${currentSlide.buttonColor} shadow-xl`}
+                        animate={{
+                          boxShadow: [
+                            '0 4px 15px rgba(0,0,0,0.2)',
+                            '0 8px 25px rgba(0,0,0,0.3)',
+                            '0 4px 15px rgba(0,0,0,0.2)'
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        Découvrir
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
             )}
           </motion.div>
         </AnimatePresence>
@@ -420,7 +466,7 @@ const HeroSlider = ({ data }) => {
 
         {/* Navigation Arrows */}
         <motion.button
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 w-14 h-14 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center backdrop-blur-sm transition-all border border-white/20 z-50"
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center backdrop-blur-sm transition-all border border-white/20 z-50"
           onClick={() => handleManualNavigation(-1)}
           whileHover={{ scale: 1.1, x: -5 }}
           whileTap={{ scale: 0.95 }}
@@ -430,7 +476,7 @@ const HeroSlider = ({ data }) => {
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-7 w-7 text-white"
+            className="h-6 w-6 md:h-7 md:w-7 text-white"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -449,7 +495,7 @@ const HeroSlider = ({ data }) => {
           />
         </motion.button>
         <motion.button
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 w-14 h-14 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center backdrop-blur-sm transition-all border border-white/20 z-50"
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center backdrop-blur-sm transition-all border border-white/20 z-50"
           onClick={() => handleManualNavigation(1)}
           whileHover={{ scale: 1.1, x: 5 }}
           whileTap={{ scale: 0.95 }}
@@ -459,7 +505,7 @@ const HeroSlider = ({ data }) => {
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-7 w-7 text-white"
+            className="h-6 w-6 md:h-7 md:w-7 text-white"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
