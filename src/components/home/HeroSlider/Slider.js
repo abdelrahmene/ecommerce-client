@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { mockSlides } from './mockData';
 import { FaStamp, FaMapMarkerAlt, FaPhone, FaFacebookF } from 'react-icons/fa';
 import { HiSparkles } from 'react-icons/hi';
-import ImageWithFallback from '../../common/ImageWithFallback';
+import { getImageUrl } from '../../../config/api';
 
 const HeroSlider = ({ data }) => {
   // Debug: Données reçues de l'API
@@ -341,8 +341,8 @@ const HeroSlider = ({ data }) => {
                   transition={{ delay: 0.2 }}
                   className="w-full lg:w-1/2 h-[45%] lg:h-auto flex items-center justify-center lg:order-2 pt-16 lg:pt-0"
                 >
-                  <ImageWithFallback
-                    imagePath={currentSlide.image}
+                  <motion.img
+                    src={getImageUrl(currentSlide.image)}
                     alt={currentSlide.title}
                     className="w-full h-full max-h-[400px] lg:max-h-[70vh] object-contain drop-shadow-2xl"
                     animate={{ 
@@ -354,12 +354,15 @@ const HeroSlider = ({ data }) => {
                       repeat: Infinity,
                       repeatType: "reverse"
                     }}
-                    onError={() => {
+                    onError={(e) => {
                       console.log('❌ Erreur chargement image du slider:', currentSlide.image);
+                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiNGM0Y0RjYiLz48cGF0aCBkPSJNMjAwIDE1MEMxODguOTU0IDE1MCAxODAgMTU4Ljk1NCAxODAgMTcwQzE4MCAyNDAuNyAxOTQuMyAyNDAuNyAyMDkgMjQwLjdDMjIzLjcgMjQwLjcgMjM4IDIxNy4zIDIzOCAxNzhDMjM4IDE2MS45IDIyMy43IDE1MCAyMDAgMTUwWiIgZmlsbD0iIzlDQTNBRiIvPjwvc3ZnPg==';
                     }}
                     onLoad={() => {
                       console.log('✅ Image du slider chargée avec succès:', currentSlide.image);
                     }}
+                    loading="eager"
+                    crossOrigin="anonymous"
                   />
                 </motion.div>
 

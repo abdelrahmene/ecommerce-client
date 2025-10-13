@@ -11,11 +11,21 @@ const NewProductsSection = ({ data }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Charger les nouveaux produits
+  // Utiliser les collections de data.content.items si disponibles, sinon charger les nouveaux produits
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoading(true);
+        
+        // Priorité 1: Utiliser les collections de la section si disponibles
+        if (data?.content?.items && data.content.items.length > 0) {
+          console.log('✅ Utilisation des collections de la section:', data.content.items.length);
+          setProducts(data.content.items);
+          setLoading(false);
+          return;
+        }
+        
+        // Priorité 2: Charger les nouveaux produits depuis l'API
         const result = await productsService.getNewProducts(6);
         if (result.success && result.products?.length > 0) {
           setProducts(result.products);
@@ -32,7 +42,7 @@ const NewProductsSection = ({ data }) => {
     };
     
     loadProducts();
-  }, []);
+  }, [data]);
 
   // Fallback products si l'API ne fonctionne pas
   const fallbackProducts = [
@@ -205,15 +215,33 @@ const NewProductsSection = ({ data }) => {
                       ))}
                     </div>
                     
-                    {/* Image de fond */}
+                    {/* Image de fond - Utiliser <img> au lieu de backgroundImage */}
                     {(slide.images?.[0] || slide.image) && (
-                      <div 
-                        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                      <motion.img
+                        src={getImageUrl(slide.images?.[0] || slide.image)}
+                        alt={slide.name || slide.title}
+                        className="absolute inset-0 w-full h-full object-cover"
                         style={{
-                          backgroundImage: `url(${getImageUrl(slide.images?.[0]) || slide.image})`,
-                          opacity: slide.imageOpacity || 0.6
+                          opacity: (slide.imageOpacity || 60) / 100
                         }}
-                      ></div>
+                        animate={{
+                          scale: [1, 1.05, 1]
+                        }}
+                        transition={{
+                          duration: 15,
+                          repeat: Infinity,
+                          repeatType: "reverse"
+                        }}
+                        onError={(e) => {
+                          console.log('❌ Erreur image NewProducts:', slide.image || slide.images?.[0]);
+                          e.target.style.display = 'none';
+                        }}
+                        onLoad={() => {
+                          console.log('✅ Image NewProducts chargée:', slide.image || slide.images?.[0]);
+                        }}
+                        loading="lazy"
+                        crossOrigin="anonymous"
+                      />
                     )}
                     
                     {/* Content */}
