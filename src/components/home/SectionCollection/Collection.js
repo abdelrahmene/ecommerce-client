@@ -43,7 +43,14 @@ const CollectionCard = ({ collection, isActive, direction }) => {
       exit="exit"
       className={`absolute inset-0 w-full ${isActive ? 'z-20' : 'z-10'}`}
     >
-      <Link to={collection.link} className="block w-full h-full">
+      {/* 🔥 DEBUG ULTRA DÉTAILLÉ: Vérifier le lien avant utilisation */}
+      {console.log('==== DEBUG COLLECTION CARD ====')}
+      {console.log('🔗 [CARD] Collection object:', JSON.stringify(collection, null, 2))}
+      {console.log('🔗 [CARD] Link value:', collection.link)}
+      {console.log('🔗 [CARD] Link type:', typeof collection.link)}
+      {console.log('================================')}
+      
+      <Link to={collection.link || '/'} className="block w-full h-full">
         <div className={`relative h-[70vh] overflow-hidden rounded-2xl bg-gradient-to-br ${collection.accent || 'from-purple-800 to-purple-950'}`}>
           {/* Overlay gradients for depth */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
@@ -147,18 +154,39 @@ const Collection = ({ data }) => {
   const sectionSubtitle = data?.content?.subtitle || '';
   const sectionCollections = data?.content?.items || [];
   
+  // 🔥 DEBUG COMPLET: Vérifier les liens
+  console.log('🔗 [COLLECTION-LINKS] DUMP COMPLET:');
+  console.log('  - Nombre de collections:', sectionCollections.length);
+  sectionCollections.forEach((item, index) => {
+    console.log(`  - Collection ${index + 1}:`, {
+      id: item.id,
+      collectionId: item.collectionId,
+      title: item.title,
+      link: item.link,
+      linkType: typeof item.link
+    });
+  });
+  console.log('  - Objet data complet:', JSON.stringify(data, null, 2));
+  
   // Traiter les URLs d'images et utiliser les collections appropriées
   const collectionsToShow = sectionCollections.length > 0 
     ? processCollectionImages(sectionCollections)
     : collectionsData;
+  
+  console.log('🎯 [COLLECTION] Collections finales à afficher:', collectionsToShow);
+  console.log('🎯 [COLLECTION] Source:', sectionCollections.length > 0 ? 'Props (data)' : 'State (collectionsData)');
   const [[activeIndex, direction], setActiveIndex] = useState([0, 0]);
 
   // Charger les données depuis l'API
   useEffect(() => {
+    console.log('🔄 [COLLECTION] useEffect déclenché');
+    console.log('📦 [COLLECTION] sectionCollections.length:', sectionCollections.length);
     const loadCollectionData = async () => {
       try {
+        console.log('⏳ [COLLECTION] Début du chargement API...');
         setLoading(true);
         const sections = await getHomeSections();
+        console.log('📡 [COLLECTION] Sections reçues:', sections);
         
         // Trouver la section collection correspondante
         const collectionSection = sections.find(section => 
@@ -168,6 +196,8 @@ const Collection = ({ data }) => {
         if (collectionSection?.content?.items) {
           // Traiter les images avant de sauvegarder
           const processedItems = processCollectionImages(collectionSection.content.items);
+          console.log('🔍 [COLLECTION] Items avant traitement:', collectionSection.content.items);
+          console.log('🔍 [COLLECTION] Items après traitement:', processedItems);
           setCollectionsData(processedItems);
           console.log('✅ [COLLECTION] Données chargées depuis la DB:', processedItems.length, 'items');
           console.log('✅ [COLLECTION] Images traitées:', processedItems.map(item => ({
@@ -189,7 +219,7 @@ const Collection = ({ data }) => {
               description: collection.description || 'Découvrez notre collection',
               image: collection.image || collection.images?.[0]?.url || collection.heroImage,
               imageOpacity: 70,
-              link: `/collections/${collection.slug || collection.id}`,
+              link: `/collection/${collection.id}`, // ✅ CORRECTION: singulier + ID
               accent: 'from-blue-800 to-purple-950',
               textColor: 'text-white',
               buttonColor: 'bg-white text-black hover:bg-gray-100',

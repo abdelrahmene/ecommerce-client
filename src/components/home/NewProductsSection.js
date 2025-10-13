@@ -165,7 +165,7 @@ const NewProductsSection = ({ data }) => {
                 className="absolute inset-0 w-full z-20"
                 style={getSlideStyle(index)}
               >
-                <Link to={slide.id.startsWith('prod') ? `/products/${slide.id}` : (slide.href || `/collections/${slide.id}`)} className="block w-full h-full">
+                <Link to={slide.link || (slide.id.startsWith('prod') ? `/product/${slide.id}` : `/collection/${slide.id}`)} className="block w-full h-full">
                   <div className={`relative h-[70vh] overflow-hidden rounded-2xl bg-gradient-to-br ${slide.gradient || 'from-gray-800 to-gray-950'}`}>
                     {/* Overlays */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
