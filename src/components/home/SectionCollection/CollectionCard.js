@@ -43,7 +43,7 @@ const CollectionCard = ({ collection, isActive }) => {
       />
       {/* Contenu */}
       <motion.div
-        className="relative h-full flex flex-col justify-end p-6 md:p-8 lg:p-10"
+        className="relative h-full flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -56,7 +56,7 @@ const CollectionCard = ({ collection, isActive }) => {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <motion.span 
-            className="inline-block px-4 py-1.5 rounded-full text-xs font-medium bg-white/10 backdrop-blur-sm text-white/90 uppercase tracking-wider"
+            className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs font-medium bg-white/10 backdrop-blur-sm text-white/90 uppercase tracking-wider"
             whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
           >
             Collection
@@ -70,13 +70,13 @@ const CollectionCard = ({ collection, isActive }) => {
           transition={{ duration: 0.8, delay: 0.4 }}
         >
           <motion.h3 
-            className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight"
+            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3 md:mb-4 tracking-tight"
             layout
           >
             {name}
           </motion.h3>
           <motion.p 
-            className="text-base md:text-lg text-gray-300 mb-8 leading-relaxed max-w-lg"
+            className="text-sm sm:text-base md:text-lg text-gray-300 mb-4 sm:mb-6 md:mb-8 leading-relaxed max-w-lg line-clamp-2 sm:line-clamp-3 md:line-clamp-none"
             layout
           >
             {description}
@@ -84,19 +84,19 @@ const CollectionCard = ({ collection, isActive }) => {
 
           {/* Bouton */}
           <motion.button
-            className="group/btn inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-gray-900 font-medium text-base hover:bg-opacity-90 transition-all duration-300"
+            className="group/btn inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 rounded-full bg-white text-gray-900 font-medium text-sm sm:text-base hover:bg-opacity-90 transition-all duration-300"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.98 }}
             layout
           >
             <motion.span 
-              className="mr-3"
+              className="mr-2 sm:mr-3"
               layout
             >
               Découvrir
             </motion.span>
             <motion.svg 
-              className="w-5 h-5 transform transition-transform duration-300" 
+              className="w-4 h-4 sm:w-5 sm:h-5 transform transition-transform duration-300" 
               fill="none" 
               viewBox="0 0 24 24" 
               stroke="currentColor"

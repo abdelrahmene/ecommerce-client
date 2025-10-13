@@ -172,7 +172,7 @@ const HeroSlider = ({ data }) => {
                 paginate(-1);
               }
             }}
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0"
           >
             {currentSlide.isLoyaltyCard ? (
               // Loyalty Card Design - Super Badass
@@ -332,42 +332,48 @@ const HeroSlider = ({ data }) => {
               </div>
             ) : (
               // Regular Product Slides - BADASS MOBILE LAYOUT
-              <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between pointer-events-auto">
+              <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between">
                 
                 {/* IMAGE EN HAUT (Mobile) / À DROITE (Desktop) */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="w-full lg:w-1/2 h-[45%] lg:h-auto flex items-center justify-center lg:order-2 pt-16 lg:pt-0"
+                  className="w-full lg:w-1/2 h-[40%] sm:h-[45%] lg:h-auto flex items-center justify-center lg:order-2 pt-20 sm:pt-16 lg:pt-0"
                 >
                   <motion.img
                     src={getImageUrl(currentSlide.image)}
                     alt={currentSlide.title}
-                    className="w-full h-full max-h-[400px] lg:max-h-[70vh] object-contain drop-shadow-2xl"
+                    className="w-auto h-auto max-w-full max-h-full object-contain drop-shadow-2xl"
+                    style={{ maxHeight: 'min(400px, 35vh)' }}
                     animate={{ 
-                      y: [0, -20, 0],
-                      rotate: [0, -5, 5, 0]
+                      y: [0, -10, 0],
+                      rotate: [0, -2, 2, 0]
                     }}
                     transition={{ 
-                      duration: 8,
+                      duration: 6,
                       repeat: Infinity,
                       repeatType: "reverse"
                     }}
                     onError={(e) => {
-                      console.log('❌ Erreur chargement image du slider:', currentSlide.image);
+                      console.log('❌ [HERO-MOBILE] Erreur chargement image du slider:', currentSlide.image);
+                      console.log('❌ [HERO-MOBILE] URL construite:', getImageUrl(currentSlide.image));
+                      console.log('❌ [HERO-MOBILE] Type d\'erreur:', e.type);
+                      console.log('❌ [HERO-MOBILE] Target src:', e.target.src);
                       e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiNGM0Y0RjYiLz48cGF0aCBkPSJNMjAwIDE1MEMxODguOTU0IDE1MCAxODAgMTU4Ljk1NCAxODAgMTcwQzE4MCAyNDAuNyAxOTQuMyAyNDAuNyAyMDkgMjQwLjdDMjIzLjcgMjQwLjcgMjM4IDIxNy4zIDIzOCAxNzhDMjM4IDE2MS45IDIyMy43IDE1MCAyMDAgMTUwWiIgZmlsbD0iIzlDQTNBRiIvPjwvc3ZnPg==';
                     }}
-                    onLoad={() => {
-                      console.log('✅ Image du slider chargée avec succès:', currentSlide.image);
+                    onLoad={(e) => {
+                      console.log('✅ [HERO-MOBILE] Image du slider chargée avec succès:', currentSlide.image);
+                      console.log('✅ [HERO-MOBILE] URL utilisée:', getImageUrl(currentSlide.image));
+                      console.log('✅ [HERO-MOBILE] Dimensions image:', e.target.naturalWidth, 'x', e.target.naturalHeight);
                     }}
-                    loading="eager"
+                    loading="lazy"
                     crossOrigin="anonymous"
                   />
                 </motion.div>
 
                 {/* CONTENU EN BAS (Mobile) / À GAUCHE (Desktop) */}
-                <div className="w-full lg:w-1/2 h-[55%] lg:h-auto flex items-end lg:items-center pb-16 lg:pb-0 lg:order-1">
+                <div className="w-full lg:w-1/2 h-[60%] sm:h-[55%] lg:h-auto flex items-end lg:items-center pb-20 sm:pb-16 lg:pb-0 lg:order-1">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
