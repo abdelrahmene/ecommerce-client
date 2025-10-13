@@ -16,12 +16,24 @@ const CollectionCard = ({ collection, isActive }) => {
       }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <motion.div
-        className="absolute inset-0 bg-center bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${imageUrl})` }}
+      <motion.img
+        src={imageUrl}
+        alt={name}
+        className="absolute inset-0 w-full h-full object-cover"
         initial={{ scale: 1.2 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
+        onError={(e) => {
+          console.log('❌ Erreur image Collection:', imageUrl);
+          // Remplacer par une image placeholder SVG
+          e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSI2MDAiIGZpbGw9InVybCgjZ3JhZCkiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM2NjY7c3RvcC1vcGFjaXR5OjEiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNDQ0O3N0b3Atb3BhY2l0eToxIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxnIG9wYWNpdHk9IjAuMyI+PHBhdGggZD0iTTQwMCAyMDBDMzg4LjQgMjAwIDM4MCAyMDguNCAzODAgMjIwVjM4MEMzODAgMzkxLjYgMzg4LjQgNDAwIDQwMCA0MDBDNDExLjYgNDAwIDQyMCAzOTEuNiA0MjAgMzgwVjIyMEM0MjAgMjA4LjQgNDExLjYgMjAwIDQwMCAyMDBaIiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjQwMCIgY3k9IjE2MCIgcj0iMzAiIGZpbGw9IndoaXRlIi8+PC9nPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBvcGFjaXR5PSIwLjYiPkltYWdlIG5vbiBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg==';
+          e.target.style.display = 'block';
+        }}
+        onLoad={() => {
+          console.log('✅ Image Collection chargée:', imageUrl);
+        }}
+        loading="lazy"
+        crossOrigin="anonymous"
       />
       <motion.div 
         className="absolute inset-0 bg-black/20"
