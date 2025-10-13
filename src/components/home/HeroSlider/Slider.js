@@ -334,7 +334,7 @@ const HeroSlider = ({ data }) => {
               // Regular Product Slides
               <>
                 {/* Content */}
-                <div className="w-full lg:w-1/2 space-y-8 pointer-events-auto">
+                <div className="w-full lg:w-1/2 space-y-4 md:space-y-8 pointer-events-auto z-20">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -386,12 +386,12 @@ const HeroSlider = ({ data }) => {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="hidden lg:block w-1/2 relative pointer-events-auto"
+                  className="absolute inset-0 lg:relative lg:w-1/2 flex items-center justify-center pointer-events-auto opacity-20 lg:opacity-100"
                 >
                   <ImageWithFallback
                     imagePath={currentSlide.image}
                     alt={currentSlide.title}
-                    className="w-full h-auto max-h-[70vh] object-contain drop-shadow-2xl"
+                    className="w-full h-auto max-h-[60vh] lg:max-h-[70vh] object-contain drop-shadow-2xl"
                     animate={{ 
                       y: [0, -20, 0],
                       rotate: [0, -5, 5, 0]
