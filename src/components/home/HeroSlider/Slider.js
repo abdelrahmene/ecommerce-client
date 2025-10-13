@@ -344,7 +344,8 @@ const HeroSlider = ({ data }) => {
                   <motion.img
                     src={getImageUrl(currentSlide.image)}
                     alt={currentSlide.title}
-                    className="w-full h-full object-cover object-center drop-shadow-2xl"
+                    className="w-auto h-auto max-w-full max-h-full object-contain drop-shadow-2xl"
+                    style={{ maxHeight: 'min(500px, 50vh)' }}
                     animate={{ 
                       y: [0, -10, 0],
                       rotate: [0, -2, 2, 0]
@@ -355,11 +356,16 @@ const HeroSlider = ({ data }) => {
                       repeatType: "reverse"
                     }}
                     onError={(e) => {
-                      console.log('❌ [HERO-MOBILE] Erreur chargement image du slider:', currentSlide.image);
-                      console.log('❌ [HERO-MOBILE] URL construite:', getImageUrl(currentSlide.image));
-                      console.log('❌ [HERO-MOBILE] Type d\'erreur:', e.type);
-                      console.log('❌ [HERO-MOBILE] Target src:', e.target.src);
-                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiNGM0Y0RjYiLz48cGF0aCBkPSJNMjAwIDE1MEMxODguOTU0IDE1MCAxODAgMTU4Ljk1NCAxODAgMTcwQzE4MCAyNDAuNyAxOTQuMyAyNDAuNyAyMDkgMjQwLjdDMjIzLjcgMjQwLjcgMjM4IDIxNy4zIDIzOCAxNzhDMjM4IDE2MS45IDIyMy43IDE1MCAyMDAgMTUwWiIgZmlsbD0iIzlDQTNBRiIvPjwvc3ZnPg==';
+                      console.error('❌ [HERO-IMAGE] Erreur chargement image:', {
+                        path: currentSlide.image,
+                        url: getImageUrl(currentSlide.image),
+                        errorType: e.type,
+                        targetSrc: e.target.src,
+                        naturalWidth: e.target.naturalWidth,
+                        naturalHeight: e.target.naturalHeight
+                      });
+                      // NE PAS mettre de placeholder - laisser l'image par défaut du navigateur
+                      // pour diagnostiquer le problème
                     }}
                     onLoad={(e) => {
                       console.log('✅ [HERO-MOBILE] Image du slider chargée avec succès:', currentSlide.image);
