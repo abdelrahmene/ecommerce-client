@@ -344,8 +344,7 @@ const HeroSlider = ({ data }) => {
                   <motion.img
                     src={getImageUrl(currentSlide.image)}
                     alt={currentSlide.title}
-                    className="w-auto h-auto max-w-full max-h-full object-contain drop-shadow-2xl"
-                    style={{ maxHeight: 'min(400px, 35vh)' }}
+                    className="w-full h-full object-cover object-center drop-shadow-2xl"
                     animate={{ 
                       y: [0, -10, 0],
                       rotate: [0, -2, 2, 0]
