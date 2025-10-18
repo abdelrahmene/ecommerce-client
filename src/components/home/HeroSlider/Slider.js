@@ -7,23 +7,60 @@ import { getImageUrl } from '../../../config/api';
 
 const HeroSlider = ({ data }) => {
   // Debug: Données reçues de l'API
-  console.log('📊 HeroSlider - Données reçues:', data);
-  console.log('📊 HeroSlider - Content:', data?.content);
-  console.log('📊 HeroSlider - Content Type:', data?.content?.type);
-  console.log('📊 HeroSlider - Slides:', data?.content?.slides);
+  console.log('📊 [HERO] Données reçues de la section:', data);
   
-  // Extraction des données de la section depuis l'admin
-  const sectionTitle = data?.content?.title || '';
-  const sectionSubtitle = data?.content?.subtitle || '';
-  const sectionImages = data?.content?.images || [];
-  const apiSlides = data?.content?.slides || [];
+  // Extraction des données depuis l'API
+  // L'API retourne: { id, type, title, description, content, isVisible, order }
+  // content devrait être déjà parsé par l'API (objet), mais on gère aussi le cas string
+  let heroContent = {};
+  let apiSlides = [];
+  let sliderConfig = {};
+  let loyaltyCard = {};
+  
+  if (data?.content) {
+    console.log('📊 [HERO] Type de content:', typeof data.content);
+    
+    // Si content est une string JSON, le parser
+    if (typeof data.content === 'string') {
+      try {
+        heroContent = JSON.parse(data.content);
+        console.log('✅ [HERO] Content parsé depuis string:', heroContent);
+      } catch (e) {
+        console.error('❌ [HERO] Erreur parsing content JSON:', e);
+        console.error('❌ [HERO] Content string reçu:', data.content);
+      }
+    } else if (typeof data.content === 'object' && data.content !== null) {
+      // Si content est déjà un objet (cas normal avec l'API)
+      heroContent = data.content;
+      console.log('✅ [HERO] Content déjà parsé (objet):', heroContent);
+    }
+    
+    // Extraire les slides depuis le content parsé
+    apiSlides = heroContent.slides || [];
+    sliderConfig = heroContent.sliderConfig || {};
+    loyaltyCard = heroContent.loyaltyCard || {};
+    
+    console.log('🎯 [HERO] Slides extraites:', apiSlides.length, 'slides');
+    console.log('🎯 [HERO] Premier slide:', apiSlides[0]);
+    console.log('🎯 [HERO] Configuration slider:', sliderConfig);
+    console.log('🎯 [HERO] Carte fidélité:', loyaltyCard);
+  } else {
+    console.warn('⚠️ [HERO] Aucun content dans les données de la section');
+  }
   
   // Utiliser les slides de l'API si disponibles, sinon utiliser les mockSlides
   const slides = (apiSlides && apiSlides.length > 0) ? apiSlides : mockSlides;
   
-  console.log('🎯 HeroSlider - Slides finaux utilisés:', slides);
-  console.log('🎯 HeroSlider - Source des slides:', (apiSlides && apiSlides.length > 0) ? 'API' : 'Mock');
-  console.log('🎯 HeroSlider - Nombre total de slides:', slides.length);
+  console.log('🎯 [HERO] Slides finaux utilisés:', slides);
+  console.log('🎯 [HERO] Source des slides:', (apiSlides && apiSlides.length > 0) ? 'API' : 'Mock');
+  console.log('🎯 [HERO] Nombre total de slides:', slides.length);
+  
+  // Si on utilise les slides mockées, logger un avertissement
+  if (slides === mockSlides) {
+    console.warn('⚠️ [HERO] ATTENTION: Utilisation des slides mockées ! Vérifiez que l\'API retourne bien les slides.');
+  } else {
+    console.log('✅ [HERO] SUCCÈS: Utilisation des slides de l\'API !');
+  }
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -118,7 +155,7 @@ const HeroSlider = ({ data }) => {
   
   // Sécurité: Vérifier que nous avons des slides et une slide courante
   if (!slides || slides.length === 0 || !currentSlide) {
-    console.log('⚠️ HeroSlider - Aucune slide disponible');
+    console.log('⚠️ [HERO] Aucune slide disponible');
     return (
       <div className="relative w-full h-screen overflow-hidden flex items-center justify-center">
         <div className="text-center">
@@ -134,7 +171,7 @@ const HeroSlider = ({ data }) => {
     );
   }
   
-  console.log('🏁 HeroSlider - Slide courante:', currentSlide);
+  console.log(`🏁 [HERO] Slide courante (index ${currentIndex}):`, currentSlide);
 
   return (
     <div className="relative w-full h-screen overflow-hidden">

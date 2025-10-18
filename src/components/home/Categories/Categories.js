@@ -80,25 +80,28 @@ const CategoryCard = ({ category, index, layout, animation }) => {
             borderRadius: `${category.style?.borderRadius || 16}px`
           }}
         >
-          {/* Image de fond */}
+          {/* Image de fond - FORMAT CARRÉ */}
           {category.image && (
             <>
-              <img
-                src={getImageUrl(category.image)}
-                alt={category.name || category.title}
-                className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-110"
-                style={{
-                  objectFit: 'cover',
-                  objectPosition: category.style?.imagePosition || 'center center'
-                }}
-                onError={(e) => {
-                  console.log('❌ [CATEGORIES] Image error:', category.image)
-                  e.target.style.display = 'none';
-                }}
-              />
+              <div className="absolute inset-0 overflow-hidden">
+                <img
+                  src={getImageUrl(category.image)}
+                  alt={category.name || category.title}
+                  className="w-full h-full transition-transform duration-700 group-hover:scale-110"
+                  style={{
+                    objectFit: 'cover',
+                    objectPosition: 'center center'
+                  }}
+                  onError={(e) => {
+                    console.log('❌ [CATEGORIES] Image error:', category.image)
+                    e.target.style.display = 'none';
+                  }}
+                  onLoad={() => console.log('✅ [CATEGORIES] Image chargée:', category.image)}
+                />
+              </div>
               
-              {/* Overlay gradient puissant */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80" />
+              {/* Overlay gradient puissant pour lisibilité */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
             </>
           )}
 
@@ -182,19 +185,26 @@ const CategoryCard = ({ category, index, layout, animation }) => {
       
       <style jsx>{`
         .category-card-container {
-          aspect-ratio: 3 / 4;
-          min-height: 280px;
+          aspect-ratio: 1 / 1;
+          width: 100%;
+          min-height: 200px;
+        }
+
+        @media (min-width: 640px) {
+          .category-card-container {
+            min-height: 250px;
+          }
         }
 
         @media (min-width: 768px) {
           .category-card-container {
-            min-height: 320px;
+            min-height: 300px;
           }
         }
 
         @media (min-width: 1024px) {
           .category-card-container {
-            min-height: 380px;
+            min-height: 350px;
           }
         }
       `}</style>
