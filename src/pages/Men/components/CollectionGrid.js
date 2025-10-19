@@ -41,12 +41,12 @@ const CollectionGrid = ({ collections, loading, error }) => {
               to={`/collection/${collection.id}`}
               className="group block overflow-hidden rounded-xl shadow-lg transform transition-all duration-300 hover:-translate-y-2"
             >
-              <div className="aspect-[3/2] relative overflow-hidden">
+              <div className="aspect-[3/2] relative overflow-hidden bg-gray-900">
                 {collection.image && (
                   <img 
                     src={getImageUrl(collection.image)} 
                     alt={collection.name} 
-                    className="w-full h-full object-contain transform transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
