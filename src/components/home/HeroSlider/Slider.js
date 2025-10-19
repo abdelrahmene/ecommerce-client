@@ -4,6 +4,8 @@ import { mockSlides } from './mockData';
 import { FaStamp, FaMapMarkerAlt, FaPhone, FaFacebookF } from 'react-icons/fa';
 import { HiSparkles } from 'react-icons/hi';
 import { getImageUrl } from '../../../config/api';
+import { useNavigate } from 'react-router-dom';
+import LoyaltyModal from '../../loyalty/LoyaltyModal';
 
 const HeroSlider = ({ data }) => {
   // Debug: Données reçues de l'API
@@ -64,6 +66,8 @@ const HeroSlider = ({ data }) => {
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [showLoyaltyModal, setShowLoyaltyModal] = useState(false);
+  const navigate = useNavigate();
 
   const [isPaused, setIsPaused] = useState(false);
   const [autoplayEnabled, setAutoplayEnabled] = useState(true);
@@ -89,6 +93,21 @@ const HeroSlider = ({ data }) => {
   const swipeConfidenceThreshold = 10000;
   const swipePower = (offset, velocity) => {
     return Math.abs(offset) * velocity;
+  };
+
+  // Gérer le clic sur le bouton
+  const handleButtonClick = (slide) => {
+    if (slide.isLoyaltyCard) {
+      // Ouvrir le modal de fidélité
+      setShowLoyaltyModal(true);
+    } else if (slide.buttonLink) {
+      // Naviguer vers le lien
+      if (slide.buttonLink.startsWith('http')) {
+        window.open(slide.buttonLink, '_blank');
+      } else {
+        navigate(slide.buttonLink);
+      }
+    }
   };
 
   // Fonction pour naviguer d'un slide à l'autre
@@ -263,13 +282,16 @@ const HeroSlider = ({ data }) => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.8 }}
                     >
-                      <motion.div
-                        className="text-white text-lg font-bold bg-gradient-to-r from-indigo-200/20 to-indigo-400/20 backdrop-blur-sm px-6 py-3 rounded-lg border border-white/10"
+                      <motion.button
+                        onClick={() => handleButtonClick(currentSlide)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="text-white text-lg font-bold bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 px-8 py-3 rounded-lg transition-all shadow-xl"
                         animate={{ boxShadow: ['0 0 5px rgba(255,255,255,0.2)', '0 0 15px rgba(255,255,255,0.4)', '0 0 5px rgba(255,255,255,0.2)'] }}
                         transition={{ duration: 3, repeat: Infinity }}
                       >
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-indigo-100">Programme exclusif</span>
-                      </motion.div>
+                        S'inscrire maintenant
+                      </motion.button>
                     </motion.div>
                   </motion.div>
                 </motion.div>
@@ -486,6 +508,7 @@ const HeroSlider = ({ data }) => {
                       
                       {/* Bouton CTA BADASS */}
                       <motion.button
+                        onClick={() => handleButtonClick(currentSlide)}
                         whileHover={{ 
                           scale: 1.08,
                           boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
@@ -612,6 +635,12 @@ const HeroSlider = ({ data }) => {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Modal de fidélité */}
+      <LoyaltyModal 
+        isOpen={showLoyaltyModal} 
+        onClose={() => setShowLoyaltyModal(false)} 
+      />
     </div>
   );
 };
