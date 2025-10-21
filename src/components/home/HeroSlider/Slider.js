@@ -457,14 +457,14 @@ const HeroSlider = ({ data }) => {
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <h2 className="text-xs md:text-base font-bold tracking-wider uppercase">
+                      <h2 className={`text-xs md:text-base font-bold tracking-wider uppercase ${currentSlide.subtitleColor || currentSlide.textColor}`}>
                         {currentSlide.subtitle}
                       </h2>
                     </motion.div>
                     
                     {/* Titre BADASS */}
                     <motion.h1 
-                      className="text-3xl md:text-5xl lg:text-7xl font-black tracking-tight leading-tight"
+                      className={`text-3xl md:text-5xl lg:text-7xl font-black tracking-tight leading-tight ${currentSlide.titleColor || currentSlide.textColor}`}
                       animate={{ 
                         textShadow: [
                           '0 2px 10px rgba(0,0,0,0.3)',
@@ -478,7 +478,7 @@ const HeroSlider = ({ data }) => {
                     </motion.h1>
                     
                     {/* Description */}
-                    <p className="text-sm md:text-lg lg:text-xl opacity-90 max-w-md leading-relaxed">
+                    <p className={`text-sm md:text-lg lg:text-xl opacity-90 max-w-md leading-relaxed ${currentSlide.descriptionColor || currentSlide.textColor}`}>
                       {currentSlide.description}
                     </p>
                     
@@ -496,12 +496,12 @@ const HeroSlider = ({ data }) => {
                         }}
                         transition={{ duration: 2, repeat: Infinity }}
                       >
-                        <span className="text-3xl md:text-5xl font-black">
-                          {currentSlide.price} DA
+                        <span className={`text-3xl md:text-5xl font-black ${currentSlide.priceColor || currentSlide.textColor}`}>
+                          {currentSlide.price}
                         </span>
                         {currentSlide.oldPrice && (
-                          <span className="text-base md:text-lg line-through opacity-70">
-                            {currentSlide.oldPrice} DA
+                          <span className={`text-base md:text-lg line-through opacity-70 ${currentSlide.priceColor || currentSlide.textColor}`}>
+                            {currentSlide.oldPrice}
                           </span>
                         )}
                       </motion.div>
