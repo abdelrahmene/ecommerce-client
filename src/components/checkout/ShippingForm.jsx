@@ -237,7 +237,9 @@ const ShippingForm = ({
           {fees && (
             <DeliveryFeesSummary 
               fees={fees} 
-              commune={formData.communeName} 
+              commune={formData.communeName}
+              product={product}
+              quantity={quantity}
             />
           )}
 

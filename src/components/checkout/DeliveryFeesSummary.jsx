@@ -1,9 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Truck, DollarSign, Clock, Shield, Package } from 'lucide-react';
+import { Truck, Clock, Shield, Package, ShoppingBag } from 'lucide-react';
 
-const DeliveryFeesSummary = ({ fees, commune }) => {
+const DeliveryFeesSummary = ({ fees, commune, product, quantity }) => {
   if (!fees) return null;
+
+  // Calculer le total produit
+  const productTotal = (product?.price || 0) * (quantity || 1);
+  
+  // Total général (Produit + Livraison seulement, sans frais COD)
+  const grandTotal = productTotal + fees.deliveryFee;
 
   return (
     <motion.div
@@ -16,11 +22,24 @@ const DeliveryFeesSummary = ({ fees, commune }) => {
           <Truck size={20} className="text-white" />
         </div>
         <h4 className="text-lg font-bold text-gray-900 dark:text-white">
-          Détails de livraison
+          Récapitulatif de commande
         </h4>
       </div>
 
       <div className="space-y-3">
+        {/* Prix du produit */}
+        <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg">
+          <div className="flex items-center">
+            <ShoppingBag size={16} className="text-indigo-500 mr-2" />
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Produit ({quantity} × {(product?.price || 0).toFixed(2)} DA)
+            </span>
+          </div>
+          <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+            {productTotal.toFixed(2)} DA
+          </span>
+        </div>
+
         {/* Frais de livraison */}
         <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg">
           <div className="flex items-center">
@@ -28,7 +47,7 @@ const DeliveryFeesSummary = ({ fees, commune }) => {
             <span className="text-sm text-gray-700 dark:text-gray-300">Frais de livraison</span>
           </div>
           <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-            {fees.deliveryFee} DA
+            {fees.deliveryFee.toFixed(2)} DA
           </span>
         </div>
 
@@ -43,37 +62,11 @@ const DeliveryFeesSummary = ({ fees, commune }) => {
           </span>
         </div>
 
-        {/* Frais COD */}
-        {fees.codFee > 0 && (
-          <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg">
-            <div className="flex items-center">
-              <DollarSign size={16} className="text-amber-500 mr-2" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Frais COD</span>
-            </div>
-            <span className="text-sm font-semibold text-gray-900 dark:text-white">
-              {fees.codFee} DA
-            </span>
-          </div>
-        )}
-
-        {/* Assurance */}
-        {fees.insuranceFee > 0 && (
-          <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg">
-            <div className="flex items-center">
-              <Shield size={16} className="text-purple-500 mr-2" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Assurance</span>
-            </div>
-            <span className="text-sm font-semibold text-gray-900 dark:text-white">
-              {fees.insuranceFee} DA
-            </span>
-          </div>
-        )}
-
-        {/* Total */}
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg mt-3">
-          <span className="text-base font-bold text-white">Total Livraison</span>
-          <span className="text-xl font-bold text-white">
-            {fees.totalFee} DA
+        {/* Total général */}
+        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg mt-3">
+          <span className="text-base font-bold text-white">Total à payer</span>
+          <span className="text-2xl font-bold text-white">
+            {grandTotal.toFixed(2)} DA
           </span>
         </div>
       </div>
