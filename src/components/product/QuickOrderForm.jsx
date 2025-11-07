@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import locationService from '../../services/locationService';
+import axios from 'axios';
+import { AlertCircle, Gift } from 'lucide-react';
+import { FaStamp } from 'react-icons/fa';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -21,13 +26,13 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
   const [loadingCommunes, setLoadingCommunes] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loyaltyInfo, setLoyaltyInfo] = useState(null);
+  const [checkingLoyalty, setCheckingLoyalty] = useState(false);
 
-  // Charger les wilayas au montage du composant
   useEffect(() => {
     loadWilayas();
   }, []);
 
-  // Charger les communes quand une wilaya est sélectionnée
   useEffect(() => {
     if (selectedLocation.wilaya) {
       loadCommunes(selectedLocation.wilaya.id);
@@ -63,13 +68,66 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
     }
   };
 
+  const checkLoyaltyStatus = async (phone) => {
+    const cleanPhone = phone.replace(/\s/g, '');
+    console.log('🔍 [LOYALTY] Vérification pour:', cleanPhone, 'Longueur:', cleanPhone.length);
+    
+    if (!phone || cleanPhone.length < 10) {
+      console.log('❌ [LOYALTY] Téléphone trop court');
+      setLoyaltyInfo(null);
+      return;
+    }
+
+    setCheckingLoyalty(true);
+    console.log('⏳ [LOYALTY] Appel API...');
+    
+    try {
+      const url = `${API_BASE_URL}/api/loyalty/check/${cleanPhone}`;
+      console.log('📡 [LOYALTY] URL:', url);
+      
+      const response = await axios.get(url);
+      console.log('✅ [LOYALTY] Réponse:', response.data);
+      
+      if (response.data.exists) {
+        console.log('🎊 [LOYALTY] Client inscrit trouvé!', response.data.card);
+        setLoyaltyInfo(response.data.card);
+      } else {
+        console.log('ℹ️ [LOYALTY] Client non inscrit');
+        setLoyaltyInfo(null);
+      }
+    } catch (error) {
+      console.error('❌ [LOYALTY] Erreur:', error);
+      console.error('❌ [LOYALTY] Message:', error.message);
+      if (error.response) {
+        console.error('❌ [LOYALTY] Response data:', error.response.data);
+        console.error('❌ [LOYALTY] Response status:', error.response.status);
+      }
+      setLoyaltyInfo(null);
+    } finally {
+      setCheckingLoyalty(false);
+      console.log('✅ [LOYALTY] Fin vérification');
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Supprimer l'erreur du champ modifié
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
+    }
+
+    if (name === 'phone') {
+      const cleanPhone = value.replace(/\s/g, '');
+      console.log('📱 [INPUT] Téléphone changé:', value, '| Clean:', cleanPhone, '| Longueur:', cleanPhone.length);
+      
+      if (cleanPhone.length === 10) {
+        console.log('✅ [INPUT] 10 chiffres atteints, vérification loyalty...');
+        checkLoyaltyStatus(cleanPhone);
+      } else if (loyaltyInfo) {
+        console.log('🔄 [INPUT] Reset loyalty info');
+        setLoyaltyInfo(null);
+      }
     }
   };
 
@@ -107,7 +165,6 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
     if (!selectedLocation.commune) newErrors.commune = 'Sélectionnez une commune';
     if (!formData.address.trim()) newErrors.address = 'L\'adresse est requise';
 
-    // Vérifier si la livraison est possible
     if (selectedLocation.commune && !selectedLocation.commune.is_deliverable) {
       newErrors.commune = 'Livraison non disponible dans cette commune';
     }
@@ -119,7 +176,6 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
   const getDeliveryPrice = () => {
     if (!selectedLocation.commune) return 0;
     
-    // Calcul basé sur la zone ou delivery_time_parcel
     if (selectedLocation.commune.zone) {
       switch (selectedLocation.commune.zone) {
         case 1: return 400;
@@ -130,7 +186,6 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
       }
     }
     
-    // Fallback basé sur delivery_time_parcel
     const deliveryTime = selectedLocation.commune.delivery_time_parcel || 10;
     if (deliveryTime <= 5) return 400;
     if (deliveryTime <= 10) return 500;
@@ -208,7 +263,6 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 rounded-t-xl">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -226,9 +280,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
           </p>
         </div>
 
-        {/* Content */}
         <div className="p-6">
-          {/* Résumé du produit */}
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-3">📦 Votre produit</h3>
             <div className="flex items-center space-x-4">
@@ -261,9 +313,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
             )}
           </div>
 
-          {/* Formulaire */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Informations personnelles */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -302,26 +352,69 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
               </div>
             </div>
 
-            {/* Téléphone */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 📱 Téléphone *
               </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="0555 12 34 56"
-                disabled={isSubmitting}
-              />
+              <div className="relative">
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    errors.phone ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="0555 12 34 56"
+                  disabled={isSubmitting}
+                />
+                {checkingLoyalty && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                  </div>
+                )}
+              </div>
               {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+
+              {loyaltyInfo && (
+                <div className="mt-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-300 dark:border-blue-600 rounded-lg animate-fadeIn">
+                  <div className="flex items-start space-x-3">
+                    <Gift className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-1">
+                        🎊 Membre Fidélité !
+                      </h4>
+                      <p className="text-sm text-blue-800 dark:text-blue-300 mb-2">
+                        Ce numéro est inscrit chez nous
+                      </p>
+                      <div className="bg-white/70 dark:bg-black/20 rounded-lg p-3 space-y-1">
+                        <p className="text-blue-900 dark:text-blue-200 font-semibold">
+                          {loyaltyInfo.firstName} {loyaltyInfo.lastName}
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <FaStamp className="text-yellow-500" />
+                          <p className="text-gray-900 dark:text-white font-bold">
+                            {loyaltyInfo.stampCount} / 6 commandes
+                          </p>
+                        </div>
+                        {loyaltyInfo.stampCount >= 6 && (
+                          <p className="text-green-600 dark:text-green-400 text-sm font-medium mt-2 flex items-center space-x-1">
+                            <Gift className="w-4 h-4" />
+                            <span>Paire gratuite disponible !</span>
+                          </p>
+                        )}
+                        {loyaltyInfo.stampCount < 6 && (
+                          <p className="text-gray-600 dark:text-gray-400 text-xs mt-2">
+                            Encore {6 - loyaltyInfo.stampCount} commande{6 - loyaltyInfo.stampCount > 1 ? 's' : ''} pour votre paire gratuite
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Sélection wilaya */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 📍 Wilaya *
@@ -344,7 +437,6 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
               {errors.wilaya && <p className="mt-1 text-sm text-red-600">{errors.wilaya}</p>}
             </div>
 
-            {/* Sélection commune */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 🏘️ Commune *
@@ -381,7 +473,6 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
               )}
             </div>
 
-            {/* Adresse */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 🏠 Adresse complète *
@@ -400,7 +491,6 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
               {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
             </div>
 
-            {/* Note optionnelle */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 📝 Note (optionnel)
@@ -416,7 +506,6 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
               />
             </div>
 
-            {/* Informations de livraison */}
             {selectedLocation.commune && (
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
                 <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
@@ -435,21 +524,18 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
               </div>
             )}
 
-            {/* Erreur de soumission */}
             {errors.submit && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
                 <p className="text-red-600 dark:text-red-400 text-sm">{errors.submit}</p>
               </div>
             )}
 
-            {/* Erreur générale */}
             {errors.general && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
                 <p className="text-red-600 dark:text-red-400 text-sm">{errors.general}</p>
               </div>
             )}
 
-            {/* Boutons */}
             <div className="flex space-x-4 pt-4">
               <button
                 type="button"
@@ -482,7 +568,6 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
             </div>
           </form>
 
-          {/* Informations légales */}
           <div className="mt-6 text-xs text-gray-500 dark:text-gray-400 text-center space-y-1">
             <p>💳 Paiement à la livraison disponible</p>
             <p>📦 Livraison sous 24-48h dans les zones couvertes</p>

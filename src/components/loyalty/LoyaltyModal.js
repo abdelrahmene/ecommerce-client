@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, CheckCircle, Gift } from 'lucide-react';
+import { X, Loader2, CheckCircle, Gift, AlertCircle } from 'lucide-react';
 import { FaStamp } from 'react-icons/fa';
 import { HiSparkles } from 'react-icons/hi';
 import axios from 'axios';
@@ -15,12 +15,41 @@ const LoyaltyModal = ({ isOpen, onClose }) => {
     email: ''
   });
   const [loading, setLoading] = useState(false);
+  const [checkingPhone, setCheckingPhone] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-  const [cardInfo, setCardInfo] = useState(null);
+  const [alreadyRegistered, setAlreadyRegistered] = useState(null);
+
+  // Vérifier si le numéro existe déjà quand l'utilisateur entre son téléphone
+  const checkPhoneExists = async (phone) => {
+    if (!phone || phone.length < 10) return;
+    
+    setCheckingPhone(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/loyalty/check/${phone}`);
+      
+      if (response.data.exists) {
+        setAlreadyRegistered(response.data.card);
+        setError('');
+      } else {
+        setAlreadyRegistered(null);
+      }
+    } catch (err) {
+      console.error('Erreur vérification numéro:', err);
+    } finally {
+      setCheckingPhone(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Si déjà inscrit, bloquer la soumission
+    if (alreadyRegistered) {
+      setError('Ce numéro est déjà inscrit au programme !');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -28,12 +57,12 @@ const LoyaltyModal = ({ isOpen, onClose }) => {
       const response = await axios.post(`${API_BASE_URL}/api/loyalty/register`, formData);
       
       setSuccess(true);
-      setCardInfo(response.data.card);
       
       setTimeout(() => {
         onClose();
         setSuccess(false);
         setFormData({ firstName: '', lastName: '', phone: '', email: '' });
+        setAlreadyRegistered(null);
       }, 3000);
     } catch (err) {
       setError(err.response?.data?.error || 'Une erreur est survenue');
@@ -43,10 +72,18 @@ const LoyaltyModal = ({ isOpen, onClose }) => {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
+
+    // Vérifier le téléphone en temps réel
+    if (name === 'phone' && value.length === 10) {
+      checkPhoneExists(value);
+    } else if (name === 'phone' && alreadyRegistered) {
+      setAlreadyRegistered(null);
+    }
   };
 
   if (!isOpen) return null;
@@ -128,7 +165,8 @@ const LoyaltyModal = ({ isOpen, onClose }) => {
                   value={formData.firstName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+                  disabled={alreadyRegistered}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Votre prénom"
                 />
               </div>
@@ -144,7 +182,8 @@ const LoyaltyModal = ({ isOpen, onClose }) => {
                   value={formData.lastName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+                  disabled={alreadyRegistered}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Votre nom"
                 />
               </div>
@@ -154,16 +193,58 @@ const LoyaltyModal = ({ isOpen, onClose }) => {
                 <label className="block text-sm font-medium text-blue-200 mb-1">
                   Téléphone *
                 </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-                  placeholder="0554 625 100"
-                />
+                <div className="relative">
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+                    placeholder="0554 625 100"
+                  />
+                  {checkingPhone && (
+                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400 animate-spin" />
+                  )}
+                </div>
               </div>
+
+              {/* Message si déjà inscrit */}
+              {alreadyRegistered && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-4 bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border-2 border-yellow-400/50 rounded-lg"
+                >
+                  <div className="flex items-start space-x-3">
+                    <AlertCircle className="w-6 h-6 text-yellow-300 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-yellow-200 mb-1">
+                        🎯 Déjà inscrit !
+                      </h4>
+                      <p className="text-sm text-yellow-100 mb-2">
+                        Vous êtes déjà membre du programme fidélité
+                      </p>
+                      <div className="bg-black/20 rounded-lg p-3 space-y-1">
+                        <p className="text-yellow-200 font-semibold">
+                          {alreadyRegistered.firstName} {alreadyRegistered.lastName}
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <FaStamp className="text-yellow-400" />
+                          <p className="text-white font-bold text-lg">
+                            {alreadyRegistered.stampCount} / 6 commandes
+                          </p>
+                        </div>
+                        {alreadyRegistered.stampCount >= 6 && (
+                          <p className="text-green-300 text-sm font-medium mt-2">
+                            🎁 Vous avez droit à une paire gratuite !
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Email (optionnel) */}
               <div>
@@ -175,7 +256,8 @@ const LoyaltyModal = ({ isOpen, onClose }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
+                  disabled={alreadyRegistered}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="votre@email.com"
                 />
               </div>
@@ -194,15 +276,24 @@ const LoyaltyModal = ({ isOpen, onClose }) => {
               {/* Submit Button */}
               <motion.button
                 type="submit"
-                disabled={loading}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-bold rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                disabled={loading || alreadyRegistered}
+                whileHover={!loading && !alreadyRegistered ? { scale: 1.02 } : {}}
+                whileTap={!loading && !alreadyRegistered ? { scale: 0.98 } : {}}
+                className={`w-full py-3 rounded-lg font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${
+                  alreadyRegistered 
+                    ? 'bg-gray-600 cursor-not-allowed opacity-50'
+                    : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 hover:from-yellow-500 hover:to-orange-600'
+                } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
                     Inscription...
+                  </>
+                ) : alreadyRegistered ? (
+                  <>
+                    <AlertCircle className="w-5 h-5" />
+                    Déjà inscrit
                   </>
                 ) : (
                   <>

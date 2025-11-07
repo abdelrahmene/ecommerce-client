@@ -15,6 +15,21 @@
   .bg-loyalty-card {
     background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #312e81 100%);
   }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 /* Custom font imports - Fonts modernes et dynamiques pour l'été */
