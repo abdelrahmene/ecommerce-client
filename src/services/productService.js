@@ -140,9 +140,9 @@ const productService = {
     }
   },
   
-  async getProductsByCollection(collectionId) {
-    console.log('📡 API Products - Récupération des produits par collection:', collectionId);
-    return this.getProducts({ collection: collectionId, isActive: true });
+  async getProductsByCollection(collectionId, limit = 100) {
+    console.log('📡 API Products - Récupération des produits par collection:', collectionId, 'limit:', limit);
+    return this.getProducts({ collection: collectionId, isActive: true, limit });
   }
 };
 
