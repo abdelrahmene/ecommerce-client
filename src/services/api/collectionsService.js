@@ -24,7 +24,7 @@ const cache = {
   collections: null,
   collectionsTimestamp: null,
   collectionById: {},
-  CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
+  CACHE_DURATION: 30 * 1000, // 30 secondes (réduit de 5 min pour voir les changements rapidement)
 
   set(key, value) {
     if (key === 'collections') {
@@ -123,10 +123,17 @@ export const collectionsService = {
         collections = data;
       }
 
+      // 🎯 Trier les collections par displayOrder (du champ admin)
+      collections = collections.sort((a, b) => {
+        const orderA = a.displayOrder !== undefined ? a.displayOrder : Infinity;
+        const orderB = b.displayOrder !== undefined ? b.displayOrder : Infinity;
+        return orderA - orderB;
+      });
+
       // Mettre en cache
       cache.set('collections', collections);
 
-      console.log(`✅ [COLLECTIONS] ${collections.length} collections récupérées`);
+      console.log(`✅ [COLLECTIONS] ${collections.length} collections récupérées (triées par displayOrder)`);
       return { success: true, collections };
 
     } catch (error) {
