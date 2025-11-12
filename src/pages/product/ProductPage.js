@@ -128,7 +128,7 @@ const ProductPage = () => {
   });
 
   // Utiliser le hook useProducts pour récupérer les données du produit
-  const { getProduct } = useProducts();
+  const { getProduct, getSimilarProducts } = useProducts();
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -233,6 +233,19 @@ const ProductPage = () => {
               processedSizes = testProduct.sizes;
             }
             
+            // Charger les produits similaires depuis la catégorie
+            let relatedProducts = [];
+            if (productData.categoryId) {
+              try {
+                const similar = await getSimilarProducts(id, 4);
+                relatedProducts = similar || [];
+                console.log('✅ Produits similaires chargés:', relatedProducts.length);
+              } catch (err) {
+                console.warn('⚠️ Erreur chargement produits similaires:', err);
+                relatedProducts = [];
+              }
+            }
+            
             // Traitement des données du produit
             // Fusionner avec les données de test pour les champs manquants
             const processedProduct = {
@@ -244,7 +257,7 @@ const ProductPage = () => {
               sizes: processedSizes,
               specifications: productData.specifications || testProduct.specifications,
               features: productData.features || testProduct.features,
-              relatedProducts: productData.relatedProducts || testProduct.relatedProducts
+              relatedProducts: relatedProducts.length > 0 ? relatedProducts : testProduct.relatedProducts
             };
             
             setProduct(processedProduct);
