@@ -353,7 +353,7 @@ const ProductPage = () => {
     <>
       <Helmet>
         <title>{product.name} | Notre Boutique</title>
-        <meta name="description" content={product.description.substring(0, 160)} />
+        <meta name="description" content={product.description ? product.description.substring(0, 160) : ''} />
       </Helmet>
 
       {/* Notification d'ajout au panier */}
