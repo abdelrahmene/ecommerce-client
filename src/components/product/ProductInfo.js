@@ -33,8 +33,9 @@ const ProductInfo = ({
   // Extraire les pointures disponibles depuis les variants
   useEffect(() => {
     if (product?.variants && product.variants.length > 0) {
+      // 🔥 NE PAS filtrer par stock ici - inclure toutes les variantes
+      // Le stock peut être 0 pour le produit global mais > 0 pour certaines variantes
       const sizesWithStock = product.variants
-        .filter(variant => variant.stock > 0) // Seulement variants en stock
         .map(variant => {
           const options = typeof variant.options === 'string' 
             ? JSON.parse(variant.options) 
@@ -43,7 +44,7 @@ const ProductInfo = ({
           return {
             value: options.size || options.pointure,
             available: variant.stock > 0,
-            stock: variant.stock,
+            stock: variant.stock || 0,
             variantId: variant.id
           };
         })
