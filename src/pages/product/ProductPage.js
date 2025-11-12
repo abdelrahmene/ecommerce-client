@@ -142,6 +142,11 @@ const ProductPage = () => {
           
           if (productData) {
             console.log('Données du produit récupérées:', productData);
+            console.log('🔍 VARIANTS disponibles?', productData.variants ? productData.variants.length : 'NONE');
+            if (productData.variants && productData.variants.length > 0) {
+              console.log('📦 Premier variant:', productData.variants[0]);
+              console.log('📦 Options du premier variant:', productData.variants[0].options);
+            }
             
             // Préparer les données de couleurs avec images
             let processedColors = [];

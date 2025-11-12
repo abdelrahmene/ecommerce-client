@@ -37,12 +37,30 @@ const ProductInfo = ({
       // Le stock peut être 0 pour le produit global mais > 0 pour certaines variantes
       const sizesWithStock = product.variants
         .map(variant => {
-          const options = typeof variant.options === 'string' 
-            ? JSON.parse(variant.options) 
-            : variant.options;
+          let options = {};
+          
+          // Parser les options de manière robuste
+          if (variant.options) {
+            if (typeof variant.options === 'string') {
+              // Essayer de parser comme JSON
+              try {
+                options = JSON.parse(variant.options);
+              } catch (e) {
+                // Si c'est du PowerShell notation (@{...}), extraire la valeur du SKU
+                console.warn('⚠️ Options non parsables:', variant.options, 'Utilisation du SKU:', variant.sku);
+                // Fallback: utiliser le SKU comme pointure
+                options = { size: variant.sku, pointure: variant.sku };
+              }
+            } else if (typeof variant.options === 'object') {
+              options = variant.options;
+            }
+          }
+          
+          // Fallback ultime: utiliser le SKU si aucune option
+          const size = options.size || options.pointure || variant.sku;
           
           return {
-            value: options.size || options.pointure,
+            value: size,
             available: variant.stock > 0,
             stock: variant.stock || 0,
             variantId: variant.id
@@ -183,8 +201,8 @@ const ProductInfo = ({
         </div>
       )}
       
-      {/* Sélection de taille - Afficher seulement les pointures disponibles */}
-      {availableSizes.length > 0 && (
+      {/* Sélection de taille - Afficher toutes les pointures */}
+      {product?.variants && product.variants.length > 0 && (
         <div className="mt-8">
           <div className="flex items-center justify-between">
             <motion.h3 
@@ -197,7 +215,7 @@ const ProductInfo = ({
               Pointures Disponibles
             </motion.h3>
             <span className="text-xs text-gray-500">
-              {availableSizes.length} pointure{availableSizes.length > 1 ? 's' : ''} en stock
+              {availableSizes.filter(s => s.available).length} pointure{availableSizes.filter(s => s.available).length > 1 ? 's' : ''} en stock
             </span>
           </div>
           
@@ -205,17 +223,27 @@ const ProductInfo = ({
             {availableSizes.map((size) => (
               <motion.button
                 key={`size-${size.value}`}
-                onClick={() => setSelectedSize(size)}
-                whileHover={{ scale: 1.08, y: -3 }}
-                whileTap={{ scale: 0.95 }}
+                onClick={() => size.available && setSelectedSize(size)}
+                disabled={!size.available}
+                whileHover={size.available ? { scale: 1.08, y: -3 } : {}}
+                whileTap={size.available ? { scale: 0.95 } : {}}
                 className={`relative h-12 w-12 flex items-center justify-center rounded-lg font-bold transition-all duration-300 ${
-                  selectedSize?.value === size.value
+                  !size.available
+                    ? 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-600 cursor-not-allowed opacity-60'
+                    : selectedSize?.value === size.value
                     ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
                     : 'bg-gray-100 text-gray-900 hover:shadow-md dark:bg-gray-800 dark:text-gray-300'
                 }`}
               >
                 {size.value}
-                {size.stock <= 3 && (
+                {!size.available && (
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </span>
+                )}
+                {size.available && size.stock <= 3 && (
                   <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full"></span>
                 )}
                 {selectedSize?.value === size.value && (
@@ -238,7 +266,7 @@ const ProductInfo = ({
               <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">
                 Pointure: {selectedSize.value}
               </div>
-              {selectedSize.stock <= 3 && (
+              {selectedSize.stock <= 3 && selectedSize.stock > 0 && (
                 <span className="text-xs text-orange-600 font-medium">
                   Plus que {selectedSize.stock} en stock !
                 </span>
