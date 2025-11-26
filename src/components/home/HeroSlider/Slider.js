@@ -193,7 +193,7 @@ const HeroSlider = ({ data }) => {
   console.log(`🏁 [HERO] Slide courante (index ${currentIndex}):`, currentSlide);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-full md:h-screen overflow-hidden">
       {/* Background Gradient */}
       <motion.div
         className={`absolute inset-0 bg-gradient-to-tr ${currentSlide.accent} opacity-90`}
