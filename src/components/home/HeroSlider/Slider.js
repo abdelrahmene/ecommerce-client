@@ -398,13 +398,13 @@ const HeroSlider = ({ data }) => {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="w-full lg:w-1/2 h-[40%] sm:h-[45%] lg:h-auto flex items-center justify-center lg:order-2 pt-20 sm:pt-16 lg:pt-0"
+                  className="w-full lg:w-1/2 h-[35%] sm:h-[40%] lg:h-auto flex items-center justify-center lg:order-2 pt-14 sm:pt-12 lg:pt-0"
                 >
                   <motion.img
                     src={getImageUrl(currentSlide.image)}
                     alt={currentSlide.title}
                     className="w-auto h-auto max-w-full max-h-full object-contain drop-shadow-2xl"
-                    style={{ maxHeight: 'min(500px, 50vh)' }}
+                    style={{ maxHeight: 'min(400px, 45vh)' }}
                     animate={{ 
                       y: [0, -10, 0],
                       rotate: [0, -2, 2, 0]
@@ -437,12 +437,12 @@ const HeroSlider = ({ data }) => {
                 </motion.div>
 
                 {/* CONTENU EN BAS (Mobile) / À GAUCHE (Desktop) */}
-                <div className="w-full lg:w-1/2 h-[60%] sm:h-[55%] lg:h-auto flex items-end lg:items-center pb-20 sm:pb-16 lg:pb-0 lg:order-1">
+                <div className="w-full lg:w-1/2 h-[65%] sm:h-[60%] lg:h-auto flex items-end lg:items-center pb-14 sm:pb-12 lg:pb-0 lg:order-1">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className={`w-full space-y-3 md:space-y-6 ${currentSlide.textColor} px-2`}
+                    className={`w-full space-y-2 md:space-y-4 ${currentSlide.textColor} px-2`}
                   >
                     {/* Badge subtitle avec effet BADASS */}
                     <motion.div 

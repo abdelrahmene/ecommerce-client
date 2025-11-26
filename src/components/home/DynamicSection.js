@@ -14,15 +14,15 @@ export const DynamicSection = ({ section }) => {
   switch (section.type) {
     case 'hero':
       return (
-        <section className="w-full h-[85vh] md:h-screen snap-start snap-always">
+        <section className="w-full h-[65vh] md:h-screen snap-start snap-always">
           <HeroSlider data={section} />
         </section>
       );
 
     case 'categories':
       return (
-        <section className="w-full snap-start snap-always py-12">
-          <div className="text-center mb-8">
+        <section className="w-full snap-start snap-always py-4 md:py-6">
+          <div className="text-center mb-3 md:mb-4">
             <div className="relative inline-block">
               <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3 drop-shadow-sm">
                 {section.title || 'Nos Catégories'}
@@ -30,7 +30,7 @@ export const DynamicSection = ({ section }) => {
               </h2>
             </div>
             {section.description && (
-              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-4 max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-3 max-w-2xl mx-auto">
                 {section.description}
               </p>
             )}
@@ -43,8 +43,8 @@ export const DynamicSection = ({ section }) => {
     case 'new-products':
     case 'nouveau-produit':
       return (
-        <section className="w-full snap-start snap-always py-12">
-          <div className="text-center mb-8">
+        <section className="w-full snap-start snap-always py-4 md:py-6">
+          <div className="text-center mb-3 md:mb-4">
             <div className="relative inline-block">
               <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3 drop-shadow-sm">
                 {section.title || 'Nouveau Produit'}
@@ -57,7 +57,7 @@ export const DynamicSection = ({ section }) => {
               </p>
             )}
             {section.description && (
-              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-4 max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-3 max-w-2xl mx-auto">
                 {section.description}
               </p>
             )}
@@ -68,8 +68,8 @@ export const DynamicSection = ({ section }) => {
 
     case 'featured_products':
       return (
-        <section className="w-full snap-start snap-always py-12">
-          <div className="text-center mb-8">
+        <section className="w-full snap-start snap-always py-4 md:py-6">
+          <div className="text-center mb-3 md:mb-4">
             <div className="relative inline-block">
               <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3 drop-shadow-sm">
                 {section.title || 'Produits en Vedette'}
@@ -77,7 +77,7 @@ export const DynamicSection = ({ section }) => {
               </h2>
             </div>
             {section.description && (
-              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-4 max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-3 max-w-2xl mx-auto">
                 {section.description}
               </p>
             )}
@@ -90,7 +90,7 @@ export const DynamicSection = ({ section }) => {
     case 'advantages':
     case 'trust-features':
       return (
-        <section className="w-full snap-start snap-always py-12">
+        <section className="w-full snap-start snap-always py-4 md:py-6">
           <TrustFeatures />
         </section>
       );

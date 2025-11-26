@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, MessageSquare, ShoppingCart, AlertCircle, Truck } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useMetaPixel } from '../../contexts/MetaPixelContext';
 import PersonalInfoForm from './PersonalInfoForm';
 import YalidineSelector from './YalidineSelector';
 import DeliveryFeesSummary from './DeliveryFeesSummary';
@@ -13,6 +14,7 @@ const ShippingForm = ({
   selectedColor, 
   onSubmitSuccess 
 }) => {
+  const { trackInitiateCheckout } = useMetaPixel();
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
@@ -124,6 +126,9 @@ const ShippingForm = ({
           toCommuneName: formData.communeName
         }
       };
+
+      // 📍 Tracker InitiateCheckout Meta Pixel
+      trackInitiateCheckout([orderData.product], orderData.product.price * orderData.product.quantity);
 
       // Callback vers le parent
       if (onSubmitSuccess) {

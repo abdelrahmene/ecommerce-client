@@ -6,6 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import { ChevronRight, Check } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCart } from '../../contexts/CartContext';
+import { useMetaPixel } from '../../contexts/MetaPixelContext';
 import useProducts from '../../hooks/useProducts';
 import { toast } from 'react-hot-toast';
 
@@ -107,6 +108,7 @@ const ProductPage = () => {
   const { id } = useParams();
   const { isDarkMode } = useTheme();
   const { addToCart, openCart } = useCart();
+  const { trackViewContent, trackInitiateCheckout } = useMetaPixel();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -264,6 +266,9 @@ const ProductPage = () => {
             setSelectedColor(processedColors[0]);
             setSelectedSize(processedProduct.sizes.find(size => size.available));
             setLoading(false);
+            
+            // 📍 Tracker ViewContent Meta Pixel
+            trackViewContent(processedProduct);
             return;
           }
         } catch (firebaseErr) {

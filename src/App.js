@@ -10,6 +10,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { WishlistProvider } from './contexts/WishlistContext';
+import { MetaPixelProvider } from './contexts/MetaPixelContext';
 
 // Pages
 import HomePage from './pages/home/HomePage';
@@ -49,6 +50,7 @@ function App() {
           <CartProvider>
             <WishlistProvider>
               <ThemeProvider>
+                <MetaPixelProvider>
                 <Routes>
                 <Route path="/" element={<MainLayout />}>
                   {/* Public routes */}
@@ -93,6 +95,7 @@ function App() {
                   <Route path="*" element={<Navigate to="/404" replace />} />
                 </Route>
               </Routes>
+                </MetaPixelProvider>
                 </ThemeProvider>
             </WishlistProvider>
           </CartProvider>
