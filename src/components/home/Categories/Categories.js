@@ -68,7 +68,7 @@ const CategoryCard = ({ category, index, layout, animation }) => {
       initial={animation?.enabled ? "hidden" : "visible"}
       whileInView="visible"
       viewport={{ once: true, margin: '-50px' }}
-      className="relative w-full category-card-container"
+      className="relative w-full h-72"
     >
       <Link to={category.link} className="block w-full h-full group">
         <motion.div 
@@ -183,12 +183,7 @@ const CategoryCard = ({ category, index, layout, animation }) => {
         </motion.div>
       </Link>
       
-      <style jsx>{`
-        .category-card-container {
-          width: 100%;
-          height: 288px;
-        }
-      `}</style>
+
     </motion.div>
   );
 };
@@ -218,8 +213,6 @@ const Categories = ({ data }) => {
       }}
     >
       <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 box-border">
-        {/* Container interne avec limitation max-w-4xl comme Collections */}
-        <div className="w-full max-w-4xl mx-auto">
         <motion.div
           className="categories-grid w-full"
           variants={animation?.enabled ? {
@@ -271,7 +264,6 @@ const Categories = ({ data }) => {
             />
           ))}
         </motion.div>
-        </div>
       </div>
     </section>
   );
