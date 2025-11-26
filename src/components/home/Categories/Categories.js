@@ -187,24 +187,24 @@ const CategoryCard = ({ category, index, layout, animation }) => {
         .category-card-container {
           aspect-ratio: 1 / 1;
           width: 100%;
-          max-height: 400px;
+          max-height: 280px;
         }
 
         @media (min-width: 640px) {
           .category-card-container {
-            max-height: 450px;
+            max-height: 320px;
           }
         }
 
         @media (min-width: 768px) {
           .category-card-container {
-            max-height: 500px;
+            max-height: 360px;
           }
         }
 
         @media (min-width: 1024px) {
           .category-card-container {
-            max-height: 550px;
+            max-height: 400px;
           }
         }
       `}</style>
@@ -236,7 +236,7 @@ const Categories = ({ data }) => {
         paddingBottom: `${style.padding?.bottom || 48}px`
       }}
     >
-      <div className="w-full px-4 md:px-6 lg:px-8 max-w-4xl mx-auto box-border">
+      <div className="w-full px-4 md:px-6 lg:px-8 max-w-2xl mx-auto box-border">
         <motion.div
           className="categories-grid w-full"
           variants={animation?.enabled ? {
