@@ -187,25 +187,6 @@ const CategoryCard = ({ category, index, layout, animation }) => {
         .category-card-container {
           aspect-ratio: 1 / 1;
           width: 100%;
-          max-height: 280px;
-        }
-
-        @media (min-width: 640px) {
-          .category-card-container {
-            max-height: 320px;
-          }
-        }
-
-        @media (min-width: 768px) {
-          .category-card-container {
-            max-height: 360px;
-          }
-        }
-
-        @media (min-width: 1024px) {
-          .category-card-container {
-            max-height: 400px;
-          }
         }
       `}</style>
     </motion.div>
