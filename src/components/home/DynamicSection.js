@@ -43,7 +43,7 @@ export const DynamicSection = ({ section }) => {
     case 'new-products':
     case 'nouveau-produit':
       return (
-        <section className="w-full snap-start snap-always py-4 md:py-6">
+        <section className="w-full snap-start snap-always py-6 md:py-8 mt-4">
           <div className="text-center mb-3 md:mb-4">
             <div className="relative inline-block">
               <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3 drop-shadow-sm">

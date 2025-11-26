@@ -398,7 +398,7 @@ const HeroSlider = ({ data }) => {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="w-full lg:w-1/2 h-[40%] sm:h-[42%] lg:h-auto flex items-center justify-center lg:order-2 pt-12 sm:pt-10 lg:pt-0"
+                  className="w-full lg:w-1/2 h-[38%] sm:h-[40%] lg:h-auto flex items-center justify-center lg:order-2 pt-10 sm:pt-8 lg:pt-0"
                 >
                   <motion.img
                     src={getImageUrl(currentSlide.image)}
@@ -437,7 +437,7 @@ const HeroSlider = ({ data }) => {
                 </motion.div>
 
                 {/* CONTENU EN BAS (Mobile) / À GAUCHE (Desktop) */}
-                <div className="w-full lg:w-1/2 h-[60%] sm:h-[58%] lg:h-auto flex items-end lg:items-center pb-10 sm:pb-8 lg:pb-0 lg:order-1">
+                <div className="w-full lg:w-1/2 h-[62%] sm:h-[60%] lg:h-auto flex items-center justify-center lg:items-center pb-6 sm:pb-8 lg:pb-0 lg:order-1">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
