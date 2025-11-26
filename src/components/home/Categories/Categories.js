@@ -185,8 +185,8 @@ const CategoryCard = ({ category, index, layout, animation }) => {
       
       <style jsx>{`
         .category-card-container {
-          aspect-ratio: 1 / 1;
           width: 100%;
+          height: 288px;
         }
       `}</style>
     </motion.div>
