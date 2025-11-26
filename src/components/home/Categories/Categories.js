@@ -236,7 +236,9 @@ const Categories = ({ data }) => {
         paddingBottom: `${style.padding?.bottom || 48}px`
       }}
     >
-      <div className="w-full px-4 md:px-6 lg:px-8 max-w-2xl mx-auto box-border">
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 box-border">
+        {/* Container interne avec limitation max-w-4xl comme Collections */}
+        <div className="w-full max-w-4xl mx-auto">
         <motion.div
           className="categories-grid w-full"
           variants={animation?.enabled ? {
@@ -288,6 +290,7 @@ const Categories = ({ data }) => {
             />
           ))}
         </motion.div>
+        </div>
       </div>
     </section>
   );
