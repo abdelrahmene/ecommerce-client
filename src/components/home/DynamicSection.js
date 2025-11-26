@@ -21,16 +21,16 @@ export const DynamicSection = ({ section }) => {
 
     case 'categories':
       return (
-        <section className="w-full snap-start snap-always py-6 md:py-8 mt-2">
-          <div className="text-center mb-3 md:mb-4">
+        <section className="w-full snap-start snap-always py-3 md:py-6 mt-1">
+          <div className="text-center mb-2 md:mb-3">
             <div className="relative inline-block">
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3 drop-shadow-sm">
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2 drop-shadow-sm">
                 {section.title || 'Nos Catégories'}
                 <div className="absolute -bottom-2 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full shadow-sm"></div>
               </h2>
             </div>
             {section.description && (
-              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-3 max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-2 max-w-2xl mx-auto">
                 {section.description}
               </p>
             )}
@@ -43,21 +43,21 @@ export const DynamicSection = ({ section }) => {
     case 'new-products':
     case 'nouveau-produit':
       return (
-        <section className="w-full snap-start snap-always py-6 md:py-8 mt-4">
-          <div className="text-center mb-3 md:mb-4">
+        <section className="w-full snap-start snap-always py-3 md:py-6 mt-1">
+          <div className="text-center mb-2 md:mb-3">
             <div className="relative inline-block">
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3 drop-shadow-sm">
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2 drop-shadow-sm">
                 {section.title || 'Nouveau Produit'}
                 <div className="absolute -bottom-2 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full shadow-sm"></div>
               </h2>
             </div>
             {section.subtitle && (
-              <p className="text-xl md:text-2xl font-medium text-gray-600 dark:text-slate-400 mb-2">
+              <p className="text-xl md:text-2xl font-medium text-gray-600 dark:text-slate-400 mb-1">
                 {section.subtitle}
               </p>
             )}
             {section.description && (
-              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-3 max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-2 max-w-2xl mx-auto">
                 {section.description}
               </p>
             )}
@@ -68,16 +68,16 @@ export const DynamicSection = ({ section }) => {
 
     case 'featured_products':
       return (
-        <section className="w-full snap-start snap-always py-4 md:py-6">
-          <div className="text-center mb-3 md:mb-4">
+        <section className="w-full snap-start snap-always py-3 md:py-6">
+          <div className="text-center mb-2 md:mb-3">
             <div className="relative inline-block">
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3 drop-shadow-sm">
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2 drop-shadow-sm">
                 {section.title || 'Produits en Vedette'}
                 <div className="absolute -bottom-2 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full shadow-sm"></div>
               </h2>
             </div>
             {section.description && (
-              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-3 max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-gray-700 dark:text-slate-300 font-medium mt-2 max-w-2xl mx-auto">
                 {section.description}
               </p>
             )}
@@ -90,7 +90,7 @@ export const DynamicSection = ({ section }) => {
     case 'advantages':
     case 'trust-features':
       return (
-        <section className="w-full snap-start snap-always py-4 md:py-6">
+        <section className="w-full snap-start snap-always py-3 md:py-6">
           <TrustFeatures />
         </section>
       );

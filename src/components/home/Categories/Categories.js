@@ -253,27 +253,27 @@ const Categories = ({ data }) => {
           <style jsx>{`
             .categories-grid {
               display: grid;
-              grid-template-columns: repeat(2, minmax(0, 1fr));
-              gap: 8px;
+              grid-template-columns: repeat(1, minmax(0, 1fr));
+              gap: 12px;
             }
             
             @media (min-width: 640px) {
               .categories-grid {
-                gap: 12px;
+                gap: 16px;
               }
             }
             
             @media (min-width: 768px) {
               .categories-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 16px;
+                gap: 20px;
               }
             }
             
             @media (min-width: 1024px) {
               .categories-grid {
                 grid-template-columns: repeat(${layout.columns || 3}, minmax(0, 1fr));
-                gap: ${layout.gap || 16}px;
+                gap: ${layout.gap || 24}px;
               }
             }
           `}</style>
