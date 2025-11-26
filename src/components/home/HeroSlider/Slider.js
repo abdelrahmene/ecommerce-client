@@ -398,7 +398,7 @@ const HeroSlider = ({ data }) => {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="w-full lg:w-1/2 h-[35%] sm:h-[40%] lg:h-auto flex items-center justify-center lg:order-2 pt-14 sm:pt-12 lg:pt-0"
+                  className="w-full lg:w-1/2 h-[40%] sm:h-[42%] lg:h-auto flex items-center justify-center lg:order-2 pt-12 sm:pt-10 lg:pt-0"
                 >
                   <motion.img
                     src={getImageUrl(currentSlide.image)}
@@ -437,16 +437,16 @@ const HeroSlider = ({ data }) => {
                 </motion.div>
 
                 {/* CONTENU EN BAS (Mobile) / À GAUCHE (Desktop) */}
-                <div className="w-full lg:w-1/2 h-[65%] sm:h-[60%] lg:h-auto flex items-end lg:items-center pb-14 sm:pb-12 lg:pb-0 lg:order-1">
+                <div className="w-full lg:w-1/2 h-[60%] sm:h-[58%] lg:h-auto flex items-end lg:items-center pb-10 sm:pb-8 lg:pb-0 lg:order-1">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className={`w-full space-y-2 md:space-y-4 ${currentSlide.textColor} px-2`}
+                    className={`w-full space-y-1.5 md:space-y-3 ${currentSlide.textColor} px-3`}
                   >
                     {/* Badge subtitle avec effet BADASS */}
                     <motion.div 
-                      className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-lg"
+                      className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-lg"
                       animate={{ 
                         scale: [1, 1.05, 1],
                         boxShadow: [
@@ -457,14 +457,14 @@ const HeroSlider = ({ data }) => {
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <h2 className={`text-xs md:text-base font-bold tracking-wider uppercase ${currentSlide.subtitleColor || currentSlide.textColor}`}>
+                      <h2 className={`text-[10px] md:text-sm font-bold tracking-wider uppercase ${currentSlide.subtitleColor || currentSlide.textColor}`}>
                         {currentSlide.subtitle}
                       </h2>
                     </motion.div>
                     
                     {/* Titre BADASS */}
                     <motion.h1 
-                      className={`text-3xl md:text-5xl lg:text-7xl font-black tracking-tight leading-tight ${currentSlide.titleColor || currentSlide.textColor}`}
+                      className={`text-2xl md:text-4xl lg:text-6xl font-black tracking-tight leading-tight ${currentSlide.titleColor || currentSlide.textColor}`}
                       animate={{ 
                         textShadow: [
                           '0 2px 10px rgba(0,0,0,0.3)',
@@ -478,12 +478,12 @@ const HeroSlider = ({ data }) => {
                     </motion.h1>
                     
                     {/* Description */}
-                    <p className={`text-sm md:text-lg lg:text-xl opacity-90 max-w-md leading-relaxed ${currentSlide.descriptionColor || currentSlide.textColor}`}>
+                    <p className={`text-xs md:text-base lg:text-lg opacity-90 max-w-md leading-snug ${currentSlide.descriptionColor || currentSlide.textColor}`}>
                       {currentSlide.description}
                     </p>
                     
                     {/* Prix et CTA - Layout BADASS */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 pt-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 pt-1">
                       {/* Prix avec effet néon */}
                       <motion.div 
                         className="flex flex-col"
@@ -496,11 +496,11 @@ const HeroSlider = ({ data }) => {
                         }}
                         transition={{ duration: 2, repeat: Infinity }}
                       >
-                        <span className={`text-3xl md:text-5xl font-black ${currentSlide.priceColor || currentSlide.textColor}`}>
+                        <span className={`text-2xl md:text-4xl font-black ${currentSlide.priceColor || currentSlide.textColor}`}>
                           {currentSlide.price}
                         </span>
                         {currentSlide.oldPrice && (
-                          <span className={`text-base md:text-lg line-through opacity-70 ${currentSlide.priceColor || currentSlide.textColor}`}>
+                          <span className={`text-sm md:text-base line-through opacity-70 ${currentSlide.priceColor || currentSlide.textColor}`}>
                             {currentSlide.oldPrice}
                           </span>
                         )}
@@ -514,7 +514,7 @@ const HeroSlider = ({ data }) => {
                           boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
                         }}
                         whileTap={{ scale: 0.95 }}
-                        className={`px-6 md:px-8 py-2.5 md:py-3 rounded-full text-sm md:text-lg font-bold transition-all ${currentSlide.buttonColor} shadow-xl`}
+                        className={`px-5 md:px-7 py-2 md:py-2.5 rounded-full text-xs md:text-base font-bold transition-all ${currentSlide.buttonColor} shadow-xl`}
                         animate={{
                           boxShadow: [
                             '0 4px 15px rgba(0,0,0,0.2)',
@@ -602,7 +602,7 @@ const HeroSlider = ({ data }) => {
         
         {/* Store Info Footer - Fixed at bottom */}
         <motion.div 
-          className="absolute bottom-2 md:bottom-3 left-0 right-0 z-10 flex justify-center"
+          className="absolute bottom-4 md:bottom-6 left-0 right-0 z-10 flex justify-center"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 }}
