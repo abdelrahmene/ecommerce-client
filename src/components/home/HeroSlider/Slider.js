@@ -246,15 +246,13 @@ const HeroSlider = ({ data }) => {
                     className="space-y-4"
                   >
                     <motion.div
-                      className="flex items-center justify-center lg:justify-start space-x-2"
+                      className="flex items-center justify-center lg:justify-start"
                       animate={{ y: [0, -5, 0] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     >
-                      <HiSparkles className="text-yellow-400 text-2xl" />
                       <h2 className="text-lg md:text-xl font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 to-white">
                         {currentSlide.subtitle}
                       </h2>
-                      <HiSparkles className="text-yellow-400 text-2xl" />
                     </motion.div>
 
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-black drop-shadow-glow tracking-tight">
@@ -375,20 +373,20 @@ const HeroSlider = ({ data }) => {
               </div>
             ) : (
               // Regular Product Slides - SIMPLE & MINIMAL DESIGN
-              <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between">
+              <div className="w-full h-full flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between">
 
                 {/* IMAGE - Centered on Mobile, Right on Desktop */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="w-full lg:w-1/2 h-[45%] lg:h-auto flex items-center justify-center lg:order-2 pt-0 lg:pt-0"
+                  className="w-full lg:w-1/2 h-[35%] lg:h-auto flex items-end justify-center lg:items-center lg:order-2 pb-8 lg:pb-0"
                 >
                   <img
                     src={getImageUrl(currentSlide.image)}
                     alt={currentSlide.title}
                     className="w-auto h-auto max-w-full max-h-full object-contain"
-                    style={{ maxHeight: 'min(350px, 40vh)' }}
+                    style={{ maxHeight: 'min(250px, 30vh)' }}
                     onError={(e) => {
                       console.error('❌ Image loading error:', currentSlide.image);
                     }}
@@ -398,7 +396,7 @@ const HeroSlider = ({ data }) => {
                 </motion.div>
 
                 {/* CONTENT - Bottom on Mobile, Left on Desktop */}
-                <div className="w-full lg:w-1/2 h-[55%] lg:h-auto flex items-center justify-center lg:items-center pb-20 lg:pb-0 lg:order-1">
+                <div className="w-full lg:w-1/2 h-[65%] lg:h-auto flex items-center justify-center lg:items-center pt-24 lg:pt-0 lg:order-1">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
