@@ -308,9 +308,25 @@ const HeroSlider = ({ data }) => {
                     animate={{ y: [0, -8, 0], rotateZ: [0, 1, 0, -1, 0] }}
                     transition={{ duration: 6, repeat: Infinity, repeatType: "reverse" }}
                   >
-                    {/* Card Header - Simplified */}
-                    <div className="mb-2">
-                      {/* Header removed for cleaner design */}
+                    {/* Card Header */}
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center space-x-2">
+                        <motion.div
+                          className="text-blue-200"
+                          animate={{ rotate: [0, 15, 0, -15, 0] }}
+                          transition={{ duration: 5, repeat: Infinity }}
+                        >
+                          <FaStamp className="text-2xl" />
+                        </motion.div>
+                        <div className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">Birk&Shoes</div>
+                      </div>
+                      <motion.div
+                        className="text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r from-rose-500 to-red-600 text-white uppercase"
+                        animate={{ scale: [1, 1.1, 1], opacity: [0.9, 1, 0.9] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        Exclusif
+                      </motion.div>
                     </div>
 
                     {/* Card Body - Grille FIXE 6 cases */}
@@ -401,7 +417,7 @@ const HeroSlider = ({ data }) => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className={`w-full space-y-3 md:space-y-4 ${currentSlide.textColor} px-6 text-center lg:text-left`}
+                    className={`w-full space-y-2 md:space-y-3 ${currentSlide.textColor} px-6 text-center lg:text-left`}
                   >
                     {/* Subtitle - Stylish badge with sparkles like loyalty card */}
                     {currentSlide.subtitle && (
@@ -420,7 +436,7 @@ const HeroSlider = ({ data }) => {
                     )}
 
                     {/* Title - Badass style with gradient and glow */}
-                    <h1 className={`text-4xl md:text-6xl lg:text-7xl font-black drop-shadow-glow tracking-tight ${currentSlide.titleColor || currentSlide.textColor}`}>
+                    <h1 className={`text-3xl md:text-5xl lg:text-7xl font-black drop-shadow-glow tracking-tight ${currentSlide.titleColor || currentSlide.textColor}`}>
                       <motion.span
                         className="bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-100"
                         initial={{ opacity: 0 }}
@@ -434,7 +450,7 @@ const HeroSlider = ({ data }) => {
                     {/* Description - Elegant with animation */}
                     {currentSlide.description && (
                       <motion.p
-                        className={`text-base md:text-xl opacity-90 max-w-lg mx-auto lg:mx-0 font-medium ${currentSlide.descriptionColor || currentSlide.textColor}`}
+                        className={`text-sm md:text-base opacity-90 max-w-lg mx-auto lg:mx-0 font-medium ${currentSlide.descriptionColor || currentSlide.textColor}`}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
@@ -443,8 +459,8 @@ const HeroSlider = ({ data }) => {
                       </motion.p>
                     )}
 
-                    {/* Price and CTA - Simple layout */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                    {/* Price and CTA - Compact layout */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1">
                       {/* Price */}
                       {currentSlide.price && (
                         <div className="flex flex-col items-center sm:items-start">
