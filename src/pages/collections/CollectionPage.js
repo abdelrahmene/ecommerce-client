@@ -135,7 +135,7 @@ const ProductCard = ({ product, index }) => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
       >
-        <div className="bg-blue-600 hover:bg-blue-500 p-2 rounded-full shadow-lg">
+        <div className="bg-black hover:bg-gray-800 p-2 rounded-full shadow-lg">
           <Eye size={16} className="text-white" />
         </div>
       </motion.div>

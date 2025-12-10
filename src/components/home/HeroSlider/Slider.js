@@ -10,7 +10,7 @@ import LoyaltyModal from '../../loyalty/LoyaltyModal';
 const HeroSlider = ({ data }) => {
   // Debug: Données reçues de l'API
   console.log('📊 [HERO] Données reçues de la section:', data);
-  
+
   // Extraction des données depuis l'API
   // L'API retourne: { id, type, title, description, content, isVisible, order }
   // content devrait être déjà parsé par l'API (objet), mais on gère aussi le cas string
@@ -18,10 +18,10 @@ const HeroSlider = ({ data }) => {
   let apiSlides = [];
   let sliderConfig = {};
   let loyaltyCard = {};
-  
+
   if (data?.content) {
     console.log('📊 [HERO] Type de content:', typeof data.content);
-    
+
     // Si content est une string JSON, le parser
     if (typeof data.content === 'string') {
       try {
@@ -36,12 +36,12 @@ const HeroSlider = ({ data }) => {
       heroContent = data.content;
       console.log('✅ [HERO] Content déjà parsé (objet):', heroContent);
     }
-    
+
     // Extraire les slides depuis le content parsé
     apiSlides = heroContent.slides || [];
     sliderConfig = heroContent.sliderConfig || {};
     loyaltyCard = heroContent.loyaltyCard || {};
-    
+
     console.log('🎯 [HERO] Slides extraites:', apiSlides.length, 'slides');
     console.log('🎯 [HERO] Premier slide:', apiSlides[0]);
     console.log('🎯 [HERO] Configuration slider:', sliderConfig);
@@ -49,21 +49,21 @@ const HeroSlider = ({ data }) => {
   } else {
     console.warn('⚠️ [HERO] Aucun content dans les données de la section');
   }
-  
+
   // Utiliser les slides de l'API si disponibles, sinon utiliser les mockSlides
   const slides = (apiSlides && apiSlides.length > 0) ? apiSlides : mockSlides;
-  
+
   console.log('🎯 [HERO] Slides finaux utilisés:', slides);
   console.log('🎯 [HERO] Source des slides:', (apiSlides && apiSlides.length > 0) ? 'API' : 'Mock');
   console.log('🎯 [HERO] Nombre total de slides:', slides.length);
-  
+
   // Si on utilise les slides mockées, logger un avertissement
   if (slides === mockSlides) {
     console.warn('⚠️ [HERO] ATTENTION: Utilisation des slides mockées ! Vérifiez que l\'API retourne bien les slides.');
   } else {
     console.log('✅ [HERO] SUCCÈS: Utilisation des slides de l\'API !');
   }
-  
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [showLoyaltyModal, setShowLoyaltyModal] = useState(false);
@@ -130,37 +130,37 @@ const HeroSlider = ({ data }) => {
   // Gérer le défilement automatique avec possibilité de pause
   useEffect(() => {
     if (!autoplayEnabled) return;
-    
+
     if (isPaused) {
       if (autoplayTimerRef.current) {
         clearInterval(autoplayTimerRef.current);
         autoplayTimerRef.current = null;
       }
-      
+
       // Reprendre le défilement automatique après 10 secondes d'inactivité
       const resumeTimer = setTimeout(() => {
         setIsPaused(false);
       }, 10000);
-      
+
       return () => clearTimeout(resumeTimer);
     } else {
       // Déterminer le délai en fonction du type de slide
       // Donner plus de temps pour la carte de fidélité pour que l'animation se termine
       const isLoyaltyCard = slides[currentIndex]?.isLoyaltyCard;
       const slideDelay = isLoyaltyCard ? 12000 : 4000; // 12 secondes pour la carte de fidélité, 4 secondes pour les autres
-      
+
       console.log(`Délai pour la slide ${currentIndex}: ${slideDelay}ms (${isLoyaltyCard ? 'Carte de fidélité' : 'Slide normale'})`);
-      
+
       // Nettoyer l'intervalle précédent avant d'en créer un nouveau
       if (autoplayTimerRef.current) {
         clearInterval(autoplayTimerRef.current);
       }
-      
+
       // Utiliser setTimeout au lieu de setInterval pour mieux contrôler le timing
       autoplayTimerRef.current = setTimeout(() => {
         paginate(1);
       }, slideDelay);
-      
+
       return () => {
         if (autoplayTimerRef.current) {
           clearTimeout(autoplayTimerRef.current);
@@ -171,7 +171,7 @@ const HeroSlider = ({ data }) => {
   }, [paginate, isPaused, autoplayEnabled, currentIndex]); // Ajouter currentIndex comme dépendance
 
   const currentSlide = slides[currentIndex];
-  
+
   // Sécurité: Vérifier que nous avons des slides et une slide courante
   if (!slides || slides.length === 0 || !currentSlide) {
     console.log('⚠️ [HERO] Aucune slide disponible');
@@ -189,7 +189,7 @@ const HeroSlider = ({ data }) => {
       </div>
     );
   }
-  
+
   console.log(`🏁 [HERO] Slide courante (index ${currentIndex}):`, currentSlide);
 
   return (
@@ -245,7 +245,7 @@ const HeroSlider = ({ data }) => {
                     transition={{ delay: 0.4, duration: 0.6 }}
                     className="space-y-4"
                   >
-                    <motion.div 
+                    <motion.div
                       className="flex items-center justify-center lg:justify-start space-x-2"
                       animate={{ y: [0, -5, 0] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
@@ -256,7 +256,7 @@ const HeroSlider = ({ data }) => {
                       </h2>
                       <HiSparkles className="text-yellow-400 text-2xl" />
                     </motion.div>
-                    
+
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-black drop-shadow-glow tracking-tight">
                       <motion.span
                         animate={{ scale: [1, 1.05, 1], textShadow: ['0 0 5px rgba(255,255,255,0.5)', '0 0 20px rgba(255,255,255,0.8)', '0 0 5px rgba(255,255,255,0.5)'] }}
@@ -266,8 +266,8 @@ const HeroSlider = ({ data }) => {
                         {currentSlide.title}
                       </motion.span>
                     </h1>
-                    
-                    <motion.p 
+
+                    <motion.p
                       className="text-lg md:text-xl opacity-90 max-w-lg mx-auto lg:mx-0 font-medium"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -275,8 +275,8 @@ const HeroSlider = ({ data }) => {
                     >
                       {currentSlide.description}
                     </motion.p>
-                    
-                    <motion.div 
+
+                    <motion.div
                       className="flex flex-col md:flex-row items-center justify-center lg:justify-start space-y-4 md:space-y-0 md:space-x-6 mt-6"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -295,17 +295,17 @@ const HeroSlider = ({ data }) => {
                     </motion.div>
                   </motion.div>
                 </motion.div>
-                
+
                 {/* Loyalty Card */}
-                <motion.div 
+                <motion.div
                   className="w-full lg:w-1/2 flex items-center justify-center mt-0 mb-0 md:mt-0 lg:mt-0 z-10 pointer-events-auto"
                   initial={{ opacity: 0, y: 40, rotateY: 90 }}
                   animate={{ opacity: 1, y: 0, rotateY: 0 }}
                   transition={{ delay: 0.6, duration: 0.8, type: "spring" }}
                 >
                   {/* Template fidélité FIXE - dimensions obligatoires */}
-                  <motion.div 
-                    className="relative w-[320px] sm:w-[340px] md:w-[380px] lg:w-[420px] h-[200px] sm:h-[215px] md:h-[240px] lg:h-[265px] rounded-xl overflow-hidden flex flex-col bg-gradient-to-br from-blue-900 via-indigo-800 to-indigo-900 p-3 md:p-4 lg:p-5 border-2 border-indigo-400/30 shadow-[0_0_30px_rgba(79,70,229,0.5)]" 
+                  <motion.div
+                    className="relative w-[320px] sm:w-[340px] md:w-[380px] lg:w-[420px] h-[200px] sm:h-[215px] md:h-[240px] lg:h-[265px] rounded-xl overflow-hidden flex flex-col bg-gradient-to-br from-blue-900 via-indigo-800 to-indigo-900 p-3 md:p-4 lg:p-5 border-2 border-indigo-400/30 shadow-[0_0_30px_rgba(79,70,229,0.5)]"
                     whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(79,70,229,0.7)' }}
                     animate={{ y: [0, -8, 0], rotateZ: [0, 1, 0, -1, 0] }}
                     transition={{ duration: 6, repeat: Infinity, repeatType: "reverse" }}
@@ -322,7 +322,7 @@ const HeroSlider = ({ data }) => {
                         </motion.div>
                         <div className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">Birk&Shoes</div>
                       </div>
-                      <motion.div 
+                      <motion.div
                         className="text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r from-rose-500 to-red-600 text-white uppercase"
                         animate={{ scale: [1, 1.1, 1], opacity: [0.9, 1, 0.9] }}
                         transition={{ duration: 2, repeat: Infinity }}
@@ -330,9 +330,9 @@ const HeroSlider = ({ data }) => {
                         Exclusif
                       </motion.div>
                     </div>
-                    
+
                     {/* Card Body - Grille FIXE 6 cases */}
-                    <motion.div 
+                    <motion.div
                       className="flex-grow flex flex-col justify-center"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -340,20 +340,20 @@ const HeroSlider = ({ data }) => {
                     >
                       <div className="grid grid-cols-6 gap-2 w-full mb-4">
                         {[...Array(6)].map((_, index) => (
-                          <motion.div 
-                            key={index} 
+                          <motion.div
+                            key={index}
                             className="aspect-square rounded-md border-2 border-white/30 flex items-center justify-center bg-white/10 backdrop-blur-sm relative overflow-hidden"
                             initial={{ opacity: 0, scale: 0 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 1 + (index * 0.1), type: "spring" }}
                           >
-                            <motion.div 
+                            <motion.div
                               className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-indigo-600"
                               initial={{ y: "100%" }}
                               animate={{ y: "0%" }}
                               transition={{ delay: 1.5 + (index * 0.7), duration: 0.7, ease: "easeOut" }}
                             />
-                            <motion.div 
+                            <motion.div
                               className="relative z-10 text-lg text-white"
                               initial={{ opacity: 0, scale: 0, rotateZ: -45 }}
                               animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
@@ -364,9 +364,9 @@ const HeroSlider = ({ data }) => {
                           </motion.div>
                         ))}
                       </div>
-                      
+
                       {/* Message fixe */}
-                      <motion.div 
+                      <motion.div
                         className="text-center text-white/90 text-sm font-medium mb-2"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -377,7 +377,7 @@ const HeroSlider = ({ data }) => {
                         <motion.span className="font-bold text-green-300">7ème gratuite!</motion.span>
                       </motion.div>
                     </motion.div>
-                    
+
                     {/* Footer */}
                     <div className="flex justify-between items-center pt-2 border-t border-white/20 text-white/80 text-xs">
                       <div>Valable pour toute la famille</div>
@@ -390,142 +390,81 @@ const HeroSlider = ({ data }) => {
                 </motion.div>
               </div>
             ) : (
-              // Regular Product Slides - BADASS MOBILE LAYOUT
+              // Regular Product Slides - SIMPLE & MINIMAL DESIGN
               <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                
-                {/* IMAGE EN HAUT (Mobile) / À DROITE (Desktop) */}
+
+                {/* IMAGE - Top on Mobile, Right on Desktop */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="w-full lg:w-1/2 h-[38%] sm:h-[40%] lg:h-auto flex items-center justify-center lg:order-2 pt-10 sm:pt-8 lg:pt-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="w-full lg:w-1/2 h-[45%] lg:h-auto flex items-center justify-center lg:order-2 pt-16 lg:pt-0"
                 >
-                  <motion.img
+                  <img
                     src={getImageUrl(currentSlide.image)}
                     alt={currentSlide.title}
-                    className="w-auto h-auto max-w-full max-h-full object-contain drop-shadow-2xl"
-                    style={{ maxHeight: 'min(400px, 45vh)' }}
-                    animate={{ 
-                      y: [0, -10, 0],
-                      rotate: [0, -2, 2, 0]
-                    }}
-                    transition={{ 
-                      duration: 6,
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }}
+                    className="w-auto h-auto max-w-full max-h-full object-contain"
+                    style={{ maxHeight: 'min(350px, 40vh)' }}
                     onError={(e) => {
-                      console.error('❌ [HERO-IMAGE] Erreur chargement image:', {
-                        path: currentSlide.image,
-                        url: getImageUrl(currentSlide.image),
-                        errorType: e.type,
-                        targetSrc: e.target.src,
-                        naturalWidth: e.target.naturalWidth,
-                        naturalHeight: e.target.naturalHeight
-                      });
-                      // NE PAS mettre de placeholder - laisser l'image par défaut du navigateur
-                      // pour diagnostiquer le problème
-                    }}
-                    onLoad={(e) => {
-                      console.log('✅ [HERO-MOBILE] Image du slider chargée avec succès:', currentSlide.image);
-                      console.log('✅ [HERO-MOBILE] URL utilisée:', getImageUrl(currentSlide.image));
-                      console.log('✅ [HERO-MOBILE] Dimensions image:', e.target.naturalWidth, 'x', e.target.naturalHeight);
+                      console.error('❌ Image loading error:', currentSlide.image);
                     }}
                     loading="lazy"
                     crossOrigin="anonymous"
                   />
                 </motion.div>
 
-                {/* CONTENU EN BAS (Mobile) / À GAUCHE (Desktop) */}
-                <div className="w-full lg:w-1/2 h-[62%] sm:h-[60%] lg:h-auto flex items-center justify-center lg:items-center pb-6 sm:pb-8 lg:pb-0 lg:order-1">
+                {/* CONTENT - Bottom on Mobile, Left on Desktop */}
+                <div className="w-full lg:w-1/2 h-[55%] lg:h-auto flex items-center justify-center lg:items-center pb-20 lg:pb-0 lg:order-1">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className={`w-full space-y-1.5 md:space-y-3 ${currentSlide.textColor} px-3`}
+                    transition={{ duration: 0.5 }}
+                    className={`w-full space-y-3 md:space-y-4 ${currentSlide.textColor} px-6 text-center lg:text-left`}
                   >
-                    {/* Badge subtitle avec effet BADASS */}
-                    <motion.div 
-                      className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-lg"
-                      animate={{ 
-                        scale: [1, 1.05, 1],
-                        boxShadow: [
-                          '0 4px 6px rgba(0,0,0,0.1)',
-                          '0 10px 20px rgba(0,0,0,0.2)',
-                          '0 4px 6px rgba(0,0,0,0.1)'
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      <h2 className={`text-[10px] md:text-sm font-bold tracking-wider uppercase ${currentSlide.subtitleColor || currentSlide.textColor}`}>
-                        {currentSlide.subtitle}
-                      </h2>
-                    </motion.div>
-                    
-                    {/* Titre BADASS */}
-                    <motion.h1 
-                      className={`text-2xl md:text-4xl lg:text-6xl font-black tracking-tight leading-tight ${currentSlide.titleColor || currentSlide.textColor}`}
-                      animate={{ 
-                        textShadow: [
-                          '0 2px 10px rgba(0,0,0,0.3)',
-                          '0 4px 20px rgba(0,0,0,0.5)',
-                          '0 2px 10px rgba(0,0,0,0.3)'
-                        ]
-                      }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    >
+                    {/* Subtitle - Simple badge */}
+                    {currentSlide.subtitle && (
+                      <div className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm">
+                        <h2 className={`text-xs md:text-sm font-semibold uppercase ${currentSlide.subtitleColor || currentSlide.textColor}`}>
+                          {currentSlide.subtitle}
+                        </h2>
+                      </div>
+                    )}
+
+                    {/* Title - Clean and simple */}
+                    <h1 className={`text-3xl md:text-5xl lg:text-6xl font-bold ${currentSlide.titleColor || currentSlide.textColor}`}>
                       {currentSlide.title}
-                    </motion.h1>
-                    
-                    {/* Description */}
-                    <p className={`text-xs md:text-base lg:text-lg opacity-90 max-w-md leading-snug ${currentSlide.descriptionColor || currentSlide.textColor}`}>
-                      {currentSlide.description}
-                    </p>
-                    
-                    {/* Prix et CTA - Layout BADASS */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 pt-1">
-                      {/* Prix avec effet néon */}
-                      <motion.div 
-                        className="flex flex-col"
-                        animate={{
-                          textShadow: [
-                            '0 0 10px rgba(255,255,255,0.5)',
-                            '0 0 20px rgba(255,255,255,0.8)',
-                            '0 0 10px rgba(255,255,255,0.5)'
-                          ]
-                        }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        <span className={`text-2xl md:text-4xl font-black ${currentSlide.priceColor || currentSlide.textColor}`}>
-                          {currentSlide.price}
-                        </span>
-                        {currentSlide.oldPrice && (
-                          <span className={`text-sm md:text-base line-through opacity-70 ${currentSlide.priceColor || currentSlide.textColor}`}>
-                            {currentSlide.oldPrice}
+                    </h1>
+
+                    {/* Description - Optional */}
+                    {currentSlide.description && (
+                      <p className={`text-sm md:text-base opacity-90 max-w-md mx-auto lg:mx-0 ${currentSlide.descriptionColor || currentSlide.textColor}`}>
+                        {currentSlide.description}
+                      </p>
+                    )}
+
+                    {/* Price and CTA - Simple layout */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                      {/* Price */}
+                      {currentSlide.price && (
+                        <div className="flex flex-col items-center sm:items-start">
+                          <span className={`text-3xl md:text-4xl font-bold ${currentSlide.priceColor || currentSlide.textColor}`}>
+                            {currentSlide.price}
                           </span>
-                        )}
-                      </motion.div>
-                      
-                      {/* Bouton CTA BADASS */}
-                      <motion.button
+                          {currentSlide.oldPrice && (
+                            <span className={`text-sm md:text-base line-through opacity-60 ${currentSlide.priceColor || currentSlide.textColor}`}>
+                              {currentSlide.oldPrice}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* CTA Button - Simple */}
+                      <button
                         onClick={() => handleButtonClick(currentSlide)}
-                        whileHover={{ 
-                          scale: 1.08,
-                          boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`px-5 md:px-7 py-2 md:py-2.5 rounded-full text-xs md:text-base font-bold transition-all ${currentSlide.buttonColor} shadow-xl`}
-                        animate={{
-                          boxShadow: [
-                            '0 4px 15px rgba(0,0,0,0.2)',
-                            '0 8px 25px rgba(0,0,0,0.3)',
-                            '0 4px 15px rgba(0,0,0,0.2)'
-                          ]
-                        }}
-                        transition={{ duration: 2, repeat: Infinity }}
+                        className={`px-6 md:px-8 py-2.5 md:py-3 rounded-full text-sm md:text-base font-semibold transition-transform hover:scale-105 ${currentSlide.buttonColor} shadow-lg`}
                       >
                         Découvrir
-                      </motion.button>
+                      </button>
                     </div>
                   </motion.div>
                 </div>
@@ -533,7 +472,7 @@ const HeroSlider = ({ data }) => {
             )}
           </motion.div>
         </AnimatePresence>
-        
+
 
 
 
@@ -562,7 +501,7 @@ const HeroSlider = ({ data }) => {
               d="M15 19l-7-7 7-7"
             />
           </svg>
-          <motion.div 
+          <motion.div
             className="absolute inset-0 rounded-full border border-white/40"
             animate={{ scale: [1, 1.1, 1], opacity: [0.7, 0.3, 0.7] }}
             transition={{ duration: 1.5, repeat: Infinity }}
@@ -591,23 +530,23 @@ const HeroSlider = ({ data }) => {
               d="M9 5l7 7-7 7"
             />
           </svg>
-          <motion.div 
+          <motion.div
             className="absolute inset-0 rounded-full border border-white/40"
             animate={{ scale: [1, 1.1, 1], opacity: [0.7, 0.3, 0.7] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           />
         </motion.button>
-        
 
-        
+
+
         {/* Store Info Footer - Fixed at bottom */}
-        <motion.div 
+        <motion.div
           className="absolute bottom-4 md:bottom-6 left-0 right-0 z-10 flex justify-center"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 }}
         >
-          <motion.div 
+          <motion.div
             className="flex items-center space-x-3 md:space-x-6 px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/80 text-[10px] md:text-xs"
             whileHover={{ backgroundColor: 'rgba(0,0,0,0.6)', borderColor: 'rgba(255,255,255,0.2)' }}
           >
@@ -622,7 +561,7 @@ const HeroSlider = ({ data }) => {
               <span className="sm:hidden">+213(0)...</span>
             </div>
             <div className="h-2 w-px bg-white/20" />
-            <motion.a 
+            <motion.a
               href="https://fb.com/Birk.Algerie"
               target="_blank"
               rel="noopener noreferrer"
@@ -637,9 +576,9 @@ const HeroSlider = ({ data }) => {
       </div>
 
       {/* Modal de fidélité */}
-      <LoyaltyModal 
-        isOpen={showLoyaltyModal} 
-        onClose={() => setShowLoyaltyModal(false)} 
+      <LoyaltyModal
+        isOpen={showLoyaltyModal}
+        onClose={() => setShowLoyaltyModal(false)}
       />
     </div>
   );
