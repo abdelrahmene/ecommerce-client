@@ -9,28 +9,28 @@ import imageService from '../../services/imageService';
 const ProductCard = ({ product, index }) => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  
+
   // Check if product is in wishlist
   const inWishlist = isInWishlist(product.id);
-  
+
   // Check if product has a discount
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price;
-  
+
   // Calculate discount percentage if there's a discount
-  const discountPercentage = hasDiscount 
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) 
+  const discountPercentage = hasDiscount
+    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
-  
+
   // Check if product is new (added in the last 7 days)
   const isNew = product.createdAt && (new Date() - new Date(product.createdAt)) / (1000 * 60 * 60 * 24) <= 7;
-  
+
   // Animation variants for the card
   const cardVariants = {
-    hidden: { 
+    hidden: {
       opacity: 0,
-      y: 20 
+      y: 20
     },
-    visible: { 
+    visible: {
       opacity: 1,
       y: 0,
       transition: {
@@ -47,7 +47,7 @@ const ProductCard = ({ product, index }) => {
       }
     }
   };
-  
+
   // Animation variants for image
   const imageVariants = {
     hover: {
@@ -58,12 +58,12 @@ const ProductCard = ({ product, index }) => {
       }
     }
   };
-  
+
   // Animation variants for the action buttons
   const buttonVariants = {
     hidden: { opacity: 0, y: 10 },
-    hover: { 
-      opacity: 1, 
+    hover: {
+      opacity: 1,
       y: 0,
       transition: {
         duration: 0.2,
@@ -71,19 +71,19 @@ const ProductCard = ({ product, index }) => {
       }
     }
   };
-  
+
   // Handler for adding product to cart
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // If product has variants, navigate to product page instead
     if (product.variants && product.variants.length > 0) {
       // Navigate programmatically to product page
       window.location.href = `/product/${product.id}`;
       return;
     }
-    
+
     // Add to cart with default quantity 1
     addToCart({
       id: product.id,
@@ -94,12 +94,12 @@ const ProductCard = ({ product, index }) => {
       stockQuantity: product.stockQuantity
     });
   };
-  
+
   // Handler for toggling wishlist
   const handleWishlistToggle = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (inWishlist) {
       removeFromWishlist(product.id);
     } else {
@@ -111,7 +111,7 @@ const ProductCard = ({ product, index }) => {
       });
     }
   };
-  
+
   return (
     <motion.div
       className="group"
@@ -120,7 +120,7 @@ const ProductCard = ({ product, index }) => {
       animate="visible"
       whileHover="hover"
     >
-      <div className="bg-white dark:bg-secondary-900 rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300 h-full flex flex-col overflow-hidden">
+      <div className="h-full flex flex-col overflow-hidden">
         {/* Product image with badges */}
         <div className="relative pt-[100%] overflow-hidden">
           {/* Image principale avec lien vers le produit */}
@@ -129,7 +129,7 @@ const ProductCard = ({ product, index }) => {
               <motion.div className="h-full w-full" variants={imageVariants}>
                 <Link to={`/product/${product.id}`} onClick={(e) => e.stopPropagation()} className="block h-full w-full">
                   <img
-                    src={product.images && product.images.length > 0 
+                    src={product.images && product.images.length > 0
                       ? imageService.getImageUrl(product.images[0])
                       : '/placeholder-product.jpg'}
                     alt={product.name}
@@ -139,7 +139,7 @@ const ProductCard = ({ product, index }) => {
                 </Link>
               </motion.div>
             </div>
-            
+
             {/* Status badges */}
             <div className="absolute top-2 left-2 flex flex-col gap-2">
               {hasDiscount && (
@@ -148,35 +148,34 @@ const ProductCard = ({ product, index }) => {
                   -{discountPercentage}%
                 </div>
               )}
-              
+
               {isNew && (
                 <div className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-md">
                   Nouveau
                 </div>
               )}
-              
+
               {(product.stockQuantity === 0 || product.status === 'out_of_stock') && (
                 <div className="bg-gray-700 text-white text-xs font-medium px-2 py-1 rounded-md">
                   Rupture
                 </div>
               )}
             </div>
-            
+
             {/* Quick action buttons */}
             <div className="absolute bottom-2 right-2 flex flex-col gap-2">
               <motion.button
                 onClick={handleWishlistToggle}
                 variants={buttonVariants}
-                className={`p-2 rounded-full shadow-md ${
-                  inWishlist 
-                    ? 'bg-red-500 text-white' 
-                    : 'bg-white dark:bg-secondary-800 text-gray-700 dark:text-gray-200'
-                }`}
+                className={`p-2 rounded-full shadow-md ${inWishlist
+                  ? 'bg-red-500 text-white'
+                  : 'bg-white dark:bg-secondary-800 text-gray-700 dark:text-gray-200'
+                  }`}
                 aria-label={inWishlist ? "Retirer des favoris" : "Ajouter aux favoris"}
               >
                 <Heart size={16} fill={inWishlist ? "white" : "none"} />
               </motion.button>
-              
+
               <motion.button
                 onClick={handleAddToCart}
                 variants={buttonVariants}
@@ -186,10 +185,10 @@ const ProductCard = ({ product, index }) => {
               >
                 <ShoppingCart size={16} />
               </motion.button>
-              
+
               <motion.div variants={buttonVariants}>
-                <Link 
-                  to={`/product/${product.id}`} 
+                <Link
+                  to={`/product/${product.id}`}
                   className="p-2 rounded-full shadow-md bg-white dark:bg-secondary-800 text-gray-700 dark:text-gray-200 inline-flex"
                   aria-label="Voir le produit"
                   onClick={(e) => e.stopPropagation()}
@@ -200,19 +199,19 @@ const ProductCard = ({ product, index }) => {
             </div>
           </div>
         </div>
-        
+
         {/* Product info */}
         <div className="p-4 flex flex-col flex-grow">
           <div className="flex-grow">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1 line-clamp-2">
+            <h3 className="text-lg font-medium text-black mb-1 line-clamp-2">
               <Link to={`/product/${product.id}`} className="block hover:text-primary-600 dark:hover:text-primary-400 transition-colors" onClick={(e) => e.stopPropagation()}>
                 {product.name}
               </Link>
             </h3>
-            
+
             {product.collection && (
               <div className="text-sm text-gray-500 dark:text-gray-400 mb-2 inline-block">
-                <Link 
+                <Link
                   to={`/collections/${product.collection.id}`}
                   className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   onClick={(e) => e.stopPropagation()}
@@ -221,20 +220,20 @@ const ProductCard = ({ product, index }) => {
                 </Link>
               </div>
             )}
-            
+
             <div className="mt-auto">
               <div className="flex items-end gap-2">
-                <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                <span className="text-lg font-semibold text-black">
                   {product.price.toLocaleString('fr-DZ')} DA
                 </span>
-                
+
                 {hasDiscount && (
                   <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
                     {product.compareAtPrice.toLocaleString('fr-DZ')} DA
                   </span>
                 )}
               </div>
-              
+
               {product.variants && product.variants.length > 0 && (
                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Plusieurs options disponibles

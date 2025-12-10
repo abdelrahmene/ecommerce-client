@@ -92,13 +92,9 @@
   }
   
   body {
-    @apply bg-zinc-50 text-gray-900 dark:bg-secondary-950 dark:text-gray-100 transition-colors duration-300;
+    @apply bg-white text-gray-900 transition-colors duration-300;
     overflow-x: hidden; /* Évite les débordements horizontaux sur mobile */
     font-family: 'Poppins', 'Inter', sans-serif;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABOSURBVGhD7c6xCQAgDAVRR3H/ld3AFkHIg+v+KwIAAICv1NqUmZXZlzz3TA+1Qy1qUYta1KIWtahFLWpRi1rUoha1qEUtAADAL0WcN8AEjhJoXJ0AAAAASUVORK5CYII=');
-    background-repeat: repeat;
-    background-size: 50px 50px;
-    background-blend-mode: overlay;
   }
   
   h1, h2, h3, h4, h5, h6 {
