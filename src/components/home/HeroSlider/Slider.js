@@ -310,25 +310,9 @@ const HeroSlider = ({ data }) => {
                     animate={{ y: [0, -8, 0], rotateZ: [0, 1, 0, -1, 0] }}
                     transition={{ duration: 6, repeat: Infinity, repeatType: "reverse" }}
                   >
-                    {/* Card Header */}
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center space-x-2">
-                        <motion.div
-                          className="text-blue-200"
-                          animate={{ rotate: [0, 15, 0, -15, 0] }}
-                          transition={{ duration: 5, repeat: Infinity }}
-                        >
-                          <FaStamp className="text-2xl" />
-                        </motion.div>
-                        <div className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">Birk&Shoes</div>
-                      </div>
-                      <motion.div
-                        className="text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r from-rose-500 to-red-600 text-white uppercase"
-                        animate={{ scale: [1, 1.1, 1], opacity: [0.9, 1, 0.9] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        Exclusif
-                      </motion.div>
+                    {/* Card Header - Simplified */}
+                    <div className="mb-2">
+                      {/* Header removed for cleaner design */}
                     </div>
 
                     {/* Card Body - Grille FIXE 6 cases */}
@@ -393,12 +377,12 @@ const HeroSlider = ({ data }) => {
               // Regular Product Slides - SIMPLE & MINIMAL DESIGN
               <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between">
 
-                {/* IMAGE - Top on Mobile, Right on Desktop */}
+                {/* IMAGE - Centered on Mobile, Right on Desktop */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="w-full lg:w-1/2 h-[45%] lg:h-auto flex items-center justify-center lg:order-2 pt-16 lg:pt-0"
+                  className="w-full lg:w-1/2 h-[45%] lg:h-auto flex items-center justify-center lg:order-2 pt-0 lg:pt-0"
                 >
                   <img
                     src={getImageUrl(currentSlide.image)}
@@ -421,25 +405,44 @@ const HeroSlider = ({ data }) => {
                     transition={{ duration: 0.5 }}
                     className={`w-full space-y-3 md:space-y-4 ${currentSlide.textColor} px-6 text-center lg:text-left`}
                   >
-                    {/* Subtitle - Simple badge */}
+                    {/* Subtitle - Stylish badge with sparkles like loyalty card */}
                     {currentSlide.subtitle && (
-                      <div className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm">
-                        <h2 className={`text-xs md:text-sm font-semibold uppercase ${currentSlide.subtitleColor || currentSlide.textColor}`}>
+                      <motion.div
+                        className="inline-flex items-center justify-center lg:justify-start space-x-2"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2, duration: 0.6 }}
+                      >
+                        <HiSparkles className="text-yellow-400 text-xl" />
+                        <h2 className={`text-sm md:text-lg font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100 ${currentSlide.subtitleColor || ''}`}>
                           {currentSlide.subtitle}
                         </h2>
-                      </div>
+                        <HiSparkles className="text-yellow-400 text-xl" />
+                      </motion.div>
                     )}
 
-                    {/* Title - Clean and simple */}
-                    <h1 className={`text-3xl md:text-5xl lg:text-6xl font-bold ${currentSlide.titleColor || currentSlide.textColor}`}>
-                      {currentSlide.title}
+                    {/* Title - Badass style with gradient and glow */}
+                    <h1 className={`text-4xl md:text-6xl lg:text-7xl font-black drop-shadow-glow tracking-tight ${currentSlide.titleColor || currentSlide.textColor}`}>
+                      <motion.span
+                        className="bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-100"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        {currentSlide.title}
+                      </motion.span>
                     </h1>
 
-                    {/* Description - Optional */}
+                    {/* Description - Elegant with animation */}
                     {currentSlide.description && (
-                      <p className={`text-sm md:text-base opacity-90 max-w-md mx-auto lg:mx-0 ${currentSlide.descriptionColor || currentSlide.textColor}`}>
+                      <motion.p
+                        className={`text-base md:text-xl opacity-90 max-w-lg mx-auto lg:mx-0 font-medium ${currentSlide.descriptionColor || currentSlide.textColor}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                      >
                         {currentSlide.description}
-                      </p>
+                      </motion.p>
                     )}
 
                     {/* Price and CTA - Simple layout */}
