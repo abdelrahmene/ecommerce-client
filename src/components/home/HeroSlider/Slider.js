@@ -392,7 +392,7 @@ const HeroSlider = ({ data }) => {
               <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between">
 
                 {/* CONTENT - Top on Mobile, Left on Desktop */}
-                <div className="w-full lg:w-1/2 h-[65%] lg:h-auto flex items-center justify-center lg:items-center pt-24 lg:pt-0 lg:order-1">
+                <div className="w-full lg:w-1/2 h-[65%] lg:h-auto flex items-center justify-center lg:items-center pt-24 pb-4 lg:pt-0 lg:pb-0 lg:order-1 z-20 relative">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -471,7 +471,7 @@ const HeroSlider = ({ data }) => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="w-full lg:w-1/2 h-[35%] lg:h-auto flex items-end justify-center lg:items-center lg:order-2 pb-8 lg:pb-0"
+                  className="w-full lg:w-1/2 h-[35%] lg:h-auto flex items-end justify-center lg:items-center lg:order-2 pb-8 lg:pb-0 z-10 relative"
                 >
                   <img
                     src={getImageUrl(currentSlide.image)}
