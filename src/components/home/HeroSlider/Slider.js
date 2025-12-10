@@ -389,29 +389,9 @@ const HeroSlider = ({ data }) => {
               </div>
             ) : (
               // Regular Product Slides - SIMPLE & MINIMAL DESIGN
-              <div className="w-full h-full flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between">
+              <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between">
 
-                {/* IMAGE - Centered on Mobile, Right on Desktop */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-full lg:w-1/2 h-[35%] lg:h-auto flex items-end justify-center lg:items-center lg:order-2 pb-8 lg:pb-0"
-                >
-                  <img
-                    src={getImageUrl(currentSlide.image)}
-                    alt={currentSlide.title}
-                    className="w-auto h-auto max-w-full max-h-full object-contain"
-                    style={{ maxHeight: 'min(250px, 30vh)' }}
-                    onError={(e) => {
-                      console.error('❌ Image loading error:', currentSlide.image);
-                    }}
-                    loading="lazy"
-                    crossOrigin="anonymous"
-                  />
-                </motion.div>
-
-                {/* CONTENT - Bottom on Mobile, Left on Desktop */}
+                {/* CONTENT - Top on Mobile, Left on Desktop */}
                 <div className="w-full lg:w-1/2 h-[65%] lg:h-auto flex items-center justify-center lg:items-center pt-24 lg:pt-0 lg:order-1">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -485,6 +465,26 @@ const HeroSlider = ({ data }) => {
                     </div>
                   </motion.div>
                 </div>
+
+                {/* IMAGE - Bottom on Mobile, Right on Desktop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="w-full lg:w-1/2 h-[35%] lg:h-auto flex items-end justify-center lg:items-center lg:order-2 pb-8 lg:pb-0"
+                >
+                  <img
+                    src={getImageUrl(currentSlide.image)}
+                    alt={currentSlide.title}
+                    className="w-auto h-auto max-w-full max-h-full object-contain"
+                    style={{ maxHeight: 'min(250px, 30vh)' }}
+                    onError={(e) => {
+                      console.error('❌ Image loading error:', currentSlide.image);
+                    }}
+                    loading="lazy"
+                    crossOrigin="anonymous"
+                  />
+                </motion.div>
               </div>
             )}
           </motion.div>
