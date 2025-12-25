@@ -284,9 +284,9 @@ const HeroSlider = ({ data }) => {
                         onClick={() => handleButtonClick(currentSlide)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="text-white text-lg font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 px-8 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-white/20"
+                        className="text-white text-lg font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-500 hover:via-yellow-600 hover:to-amber-700 px-8 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] border border-white/20"
                         animate={{
-                          boxShadow: ['0 0 10px rgba(99,102,241,0.3)', '0 0 25px rgba(168,85,247,0.6)', '0 0 10px rgba(99,102,241,0.3)'],
+                          boxShadow: ['0 0 10px rgba(245,158,11,0.3)', '0 0 25px rgba(234,179,8,0.6)', '0 0 10px rgba(245,158,11,0.3)'],
                           y: [0, -4, 0]
                         }}
                         transition={{
