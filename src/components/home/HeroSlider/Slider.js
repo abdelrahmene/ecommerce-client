@@ -275,7 +275,7 @@ const HeroSlider = ({ data }) => {
                     </motion.p>
 
                     <motion.div
-                      className="hidden md:flex flex-col md:flex-row items-center justify-center lg:justify-start space-y-4 md:space-y-0 md:space-x-6 mt-6"
+                      className="flex flex-col md:flex-row items-center justify-center lg:justify-start space-y-4 md:space-y-0 md:space-x-6 mt-6"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.8 }}
@@ -284,9 +284,15 @@ const HeroSlider = ({ data }) => {
                         onClick={() => handleButtonClick(currentSlide)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="text-white text-lg font-bold bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 px-8 py-3 rounded-lg transition-all shadow-xl"
-                        animate={{ boxShadow: ['0 0 5px rgba(255,255,255,0.2)', '0 0 15px rgba(255,255,255,0.4)', '0 0 5px rgba(255,255,255,0.2)'] }}
-                        transition={{ duration: 3, repeat: Infinity }}
+                        className="text-white text-lg font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 px-8 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-white/20"
+                        animate={{
+                          boxShadow: ['0 0 10px rgba(99,102,241,0.3)', '0 0 25px rgba(168,85,247,0.6)', '0 0 10px rgba(99,102,241,0.3)'],
+                          y: [0, -4, 0]
+                        }}
+                        transition={{
+                          boxShadow: { duration: 2, repeat: Infinity },
+                          y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                        }}
                       >
                         S'inscrire maintenant
                       </motion.button>
@@ -567,23 +573,25 @@ const HeroSlider = ({ data }) => {
             className="flex items-center space-x-3 md:space-x-6 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white shadow-2xl"
             whileHover={{ backgroundColor: 'rgba(0,0,0,0.7)', borderColor: 'rgba(255,255,255,0.3)' }}
           >
-            {/* Mobile View: Slide specific CTA and Price */}
-            <div className="flex md:hidden items-center space-x-4">
-              {currentSlide.price && (
-                <div className="flex items-baseline space-x-1">
-                  <span className="text-lg font-bold text-white">{currentSlide.price}</span>
-                  {currentSlide.oldPrice && (
-                    <span className="text-[10px] line-through opacity-50">{currentSlide.oldPrice}</span>
-                  )}
-                </div>
-              )}
-              <button
-                onClick={() => handleButtonClick(currentSlide)}
-                className={`px-5 py-1.5 rounded-full text-xs font-bold ${currentSlide.buttonColor || 'bg-white text-black'} shadow-lg active:scale-95 transition-transform`}
-              >
-                {currentSlide.isLoyaltyCard ? "S'INSCRIRE" : "DÉCOUVRIR"}
-              </button>
-            </div>
+            {/* Mobile View: Slide specific CTA and Price (Hidden on Loyalty Slide) */}
+            {!currentSlide.isLoyaltyCard && (
+              <div className="flex md:hidden items-center space-x-4">
+                {currentSlide.price && (
+                  <div className="flex items-baseline space-x-1">
+                    <span className="text-lg font-bold text-white">{currentSlide.price}</span>
+                    {currentSlide.oldPrice && (
+                      <span className="text-[10px] line-through opacity-50">{currentSlide.oldPrice}</span>
+                    )}
+                  </div>
+                )}
+                <button
+                  onClick={() => handleButtonClick(currentSlide)}
+                  className={`px-5 py-1.5 rounded-full text-xs font-bold ${currentSlide.buttonColor || 'bg-white text-black'} shadow-lg active:scale-95 transition-transform`}
+                >
+                  DÉCOUVRIR
+                </button>
+              </div>
+            )}
 
             {/* Desktop View: Store Info */}
             <div className="hidden md:flex items-center space-x-6">
@@ -596,20 +604,7 @@ const HeroSlider = ({ data }) => {
                 <FaPhone className="text-green-400" />
                 <span>+213(0) 554 625 100</span>
               </div>
-              <div className="h-3 w-px bg-white/20" />
             </div>
-
-            {/* Facebook Link (Visible on both) */}
-            <motion.a
-              href="https://fb.com/Birk.Algerie"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-1 text-blue-300 hover:text-blue-200 text-xs"
-              whileHover={{ scale: 1.05 }}
-            >
-              <FaFacebookF className="text-xs" />
-              <span className="hidden xs:inline">Birk.Algerie</span>
-            </motion.a>
           </motion.div>
         </motion.div>
       </div>
