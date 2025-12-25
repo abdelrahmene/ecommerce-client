@@ -275,7 +275,7 @@ const HeroSlider = ({ data }) => {
                     </motion.p>
 
                     <motion.div
-                      className="flex flex-col md:flex-row items-center justify-center lg:justify-start space-y-4 md:space-y-0 md:space-x-6 mt-6"
+                      className="hidden md:flex flex-col md:flex-row items-center justify-center lg:justify-start space-y-4 md:space-y-0 md:space-x-6 mt-6"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.8 }}
@@ -439,8 +439,8 @@ const HeroSlider = ({ data }) => {
                       </motion.p>
                     )}
 
-                    {/* Price and CTA - Compact layout */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1">
+                    {/* Price and CTA - Compact layout (Hidden on mobile) */}
+                    <div className="hidden md:flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1">
                       {/* Price */}
                       {currentSlide.price && (
                         <div className="flex flex-col items-center sm:items-start">
@@ -564,25 +564,47 @@ const HeroSlider = ({ data }) => {
           transition={{ delay: 1.2 }}
         >
           <motion.div
-            className="flex items-center space-x-3 md:space-x-6 px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/80 text-[10px] md:text-xs"
-            whileHover={{ backgroundColor: 'rgba(0,0,0,0.6)', borderColor: 'rgba(255,255,255,0.2)' }}
+            className="flex items-center space-x-3 md:space-x-6 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white shadow-2xl"
+            whileHover={{ backgroundColor: 'rgba(0,0,0,0.7)', borderColor: 'rgba(255,255,255,0.3)' }}
           >
-            <div className="flex items-center space-x-1">
-              <FaMapMarkerAlt className="text-red-400 text-xs" />
-              <span>Oran, Algérie</span>
+            {/* Mobile View: Slide specific CTA and Price */}
+            <div className="flex md:hidden items-center space-x-4">
+              {currentSlide.price && (
+                <div className="flex items-baseline space-x-1">
+                  <span className="text-lg font-bold text-white">{currentSlide.price}</span>
+                  {currentSlide.oldPrice && (
+                    <span className="text-[10px] line-through opacity-50">{currentSlide.oldPrice}</span>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={() => handleButtonClick(currentSlide)}
+                className={`px-5 py-1.5 rounded-full text-xs font-bold ${currentSlide.buttonColor || 'bg-white text-black'} shadow-lg active:scale-95 transition-transform`}
+              >
+                {currentSlide.isLoyaltyCard ? "S'INSCRIRE" : "DÉCOUVRIR"}
+              </button>
             </div>
-            <div className="h-2 w-px bg-white/20" />
-            <div className="flex items-center space-x-1">
-              <FaPhone className="text-green-400 text-xs" />
-              <span className="hidden sm:inline">+213(0) 554 625 100</span>
-              <span className="sm:hidden">+213(0)...</span>
+
+            {/* Desktop View: Store Info */}
+            <div className="hidden md:flex items-center space-x-6">
+              <div className="flex items-center space-x-1 text-xs">
+                <FaMapMarkerAlt className="text-red-400" />
+                <span>Oran, Algérie</span>
+              </div>
+              <div className="h-3 w-px bg-white/20" />
+              <div className="flex items-center space-x-1 text-xs">
+                <FaPhone className="text-green-400" />
+                <span>+213(0) 554 625 100</span>
+              </div>
+              <div className="h-3 w-px bg-white/20" />
             </div>
-            <div className="h-2 w-px bg-white/20" />
+
+            {/* Facebook Link (Visible on both) */}
             <motion.a
               href="https://fb.com/Birk.Algerie"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-1 text-blue-300 hover:text-blue-200"
+              className="flex items-center space-x-1 text-blue-300 hover:text-blue-200 text-xs"
               whileHover={{ scale: 1.05 }}
             >
               <FaFacebookF className="text-xs" />
