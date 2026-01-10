@@ -1,7 +1,6 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Heart, Eye, Tag } from 'lucide-react';
+import { ShoppingCart, Heart, Tag } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import imageService from '../../services/imageService';
@@ -186,16 +185,6 @@ const ProductCard = ({ product, index }) => {
                 <ShoppingCart size={16} />
               </motion.button>
 
-              <motion.div variants={buttonVariants}>
-                <Link
-                  to={`/product/${product.id}`}
-                  className="p-2 rounded-full shadow-md bg-white dark:bg-secondary-800 text-gray-700 dark:text-gray-200 inline-flex"
-                  aria-label="Voir le produit"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Eye size={16} />
-                </Link>
-              </motion.div>
             </div>
           </div>
         </div>
