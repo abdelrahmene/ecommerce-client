@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { ArrowLeft, AlertTriangle, ShoppingBag, Star, Eye, Heart } from 'lucide-react';
+import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import productService from '../../services/productService';
 import imageService from '../../services/imageService';
 
@@ -128,17 +128,6 @@ const ProductCard = ({ product, index }) => {
         )}
       </div>
 
-      {/* Action rapide flottante (uniquement sur les écrans tactiles) */}
-      <motion.div
-        className="absolute bottom-0 right-0 p-3 z-10 sm:hidden"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
-      >
-        <div className="bg-black hover:bg-gray-800 p-2 rounded-full shadow-lg">
-          <Eye size={16} className="text-white" />
-        </div>
-      </motion.div>
     </motion.div>
   );
 };

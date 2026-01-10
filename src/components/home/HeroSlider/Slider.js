@@ -250,12 +250,12 @@ const HeroSlider = ({ data }) => {
                       animate={{ y: [0, -5, 0] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     >
-                      <h2 className="text-lg md:text-xl font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 to-white">
+                      <h2 className="text-sm sm:text-base md:text-xl font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 to-white">
                         {currentSlide.subtitle}
                       </h2>
                     </motion.div>
 
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black drop-shadow-glow tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black drop-shadow-glow tracking-tight">
                       <motion.span
                         animate={{ scale: [1, 1.05, 1], textShadow: ['0 0 5px rgba(255,255,255,0.5)', '0 0 20px rgba(255,255,255,0.8)', '0 0 5px rgba(255,255,255,0.5)'] }}
                         transition={{ duration: 2, repeat: Infinity }}
