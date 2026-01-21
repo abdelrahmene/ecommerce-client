@@ -393,6 +393,136 @@ const HeroSlider = ({ data }) => {
                   </motion.div>
                 </motion.div>
               </div>
+            ) : currentSlide.displayMode === 'fullImage' ? (
+              // Mode Image Plein Écran
+              <div className="w-full h-full relative">
+                {/* Image de fond */}
+                <img
+                  src={getImageUrl(currentSlide.image)}
+                  alt={currentSlide.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error('❌ Image loading error:', currentSlide.image);
+                  }}
+                  loading="lazy"
+                  crossOrigin="anonymous"
+                />
+
+                {/* Texte */}
+                {currentSlide.textPosition === 'top' ? (
+                  // Texte en haut
+                  <div className="relative z-10 pt-24 pb-4 px-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className={`text-center space-y-2 md:space-y-3 ${currentSlide.textColor}`}
+                    >
+                      {currentSlide.subtitle && (
+                        <motion.div
+                          className="inline-flex items-center justify-center space-x-2"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.2, duration: 0.6 }}
+                        >
+                          <HiSparkles className="text-yellow-400 text-xl" />
+                          <h2 className={`text-sm md:text-lg font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100 ${currentSlide.subtitleColor || ''}`}>
+                            {currentSlide.subtitle}
+                          </h2>
+                          <HiSparkles className="text-yellow-400 text-xl" />
+                        </motion.div>
+                      )}
+                      <h1 className={`text-3xl md:text-5xl lg:text-7xl font-black drop-shadow-glow ${currentSlide.titleColor || currentSlide.textColor}`}>
+                        <motion.span
+                          className="bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-100"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.3 }}
+                        >
+                          {currentSlide.title}
+                        </motion.span>
+                      </h1>
+                      {currentSlide.description && (
+                        <motion.p
+                          className={`text-sm md:text-base max-w-2xl mx-auto ${currentSlide.descriptionColor || currentSlide.textColor}`}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.4 }}
+                        >
+                          {currentSlide.description}
+                        </motion.p>
+                      )}
+                    </motion.div>
+                  </div>
+                ) : (
+                  // Texte superposé avec overlay
+                  <>
+                    {/* Overlay sombre */}
+                    <div
+                      className="absolute inset-0 bg-black"
+                      style={{ opacity: (currentSlide.overlayOpacity || 50) / 100 }}
+                    />
+
+                    {/* Texte centré */}
+                    <div className="absolute inset-0 flex items-center justify-center px-6">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.6 }}
+                        className={`text-center space-y-4 ${currentSlide.textColor}`}
+                      >
+                        {currentSlide.subtitle && (
+                          <motion.div
+                            className="inline-flex items-center justify-center space-x-2"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.2, duration: 0.6 }}
+                          >
+                            <HiSparkles className="text-yellow-400 text-2xl" />
+                            <h2 className={`text-lg md:text-2xl font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100 ${currentSlide.subtitleColor || ''}`}>
+                              {currentSlide.subtitle}
+                            </h2>
+                            <HiSparkles className="text-yellow-400 text-2xl" />
+                          </motion.div>
+                        )}
+                        <h1 className={`text-4xl md:text-6xl lg:text-8xl font-black drop-shadow-glow ${currentSlide.titleColor || currentSlide.textColor}`}>
+                          <motion.span
+                            className="bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-100"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.3 }}
+                          >
+                            {currentSlide.title}
+                          </motion.span>
+                        </h1>
+                        {currentSlide.description && (
+                          <motion.p
+                            className={`text-base md:text-xl max-w-3xl mx-auto ${currentSlide.descriptionColor || currentSlide.textColor}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                          >
+                            {currentSlide.description}
+                          </motion.p>
+                        )}
+                        {currentSlide.buttonLink && (
+                          <motion.button
+                            onClick={() => handleButtonClick(currentSlide)}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`mt-6 px-8 py-3 rounded-full text-lg font-bold ${currentSlide.buttonColor} shadow-lg transition-transform`}
+                          >
+                            Découvrir
+                          </motion.button>
+                        )}
+                      </motion.div>
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
               // Regular Product Slides - SIMPLE & MINIMAL DESIGN
               <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between">
