@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Star, Plus, Minus, Check } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useCart } from '../../contexts/CartContext';
+import { useMetaPixel } from '../../contexts/MetaPixelContext';
 import ShippingForm from '../checkout/ShippingForm';
 
 const fadeInUp = {
@@ -83,6 +84,20 @@ const ProductInfo = ({
     } else if (product?.sizes) {
       // Fallback sur l'ancien système
       setAvailableSizes(product.sizes.filter(s => s.available));
+    }
+  }, [product]);
+
+  // 🔥 Track ViewContent (Produit Vu)
+  useEffect(() => {
+    if (product && typeof window.fbq === 'function') {
+      window.fbq('track', 'ViewContent', {
+        content_name: product.name,
+        content_ids: [product.id],
+        content_type: 'product',
+        value: product.price,
+        currency: 'DZD'
+      });
+      console.log('👀 [META PIXEL] ViewContent tracké:', product.name);
     }
   }, [product]);
 
@@ -260,10 +275,10 @@ const ProductInfo = ({
                 whileHover={size.available ? { scale: 1.08, y: -3 } : {}}
                 whileTap={size.available ? { scale: 0.95 } : {}}
                 className={`relative h-12 w-12 flex items-center justify-center rounded-lg font-bold transition-all duration-300 ${!size.available
-                    ? 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-600 cursor-not-allowed opacity-60'
-                    : selectedSize?.value === size.value
-                      ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
-                      : 'bg-gray-100 text-gray-900 hover:shadow-md dark:bg-gray-800 dark:text-gray-300'
+                  ? 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-600 cursor-not-allowed opacity-60'
+                  : selectedSize?.value === size.value
+                    ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
+                    : 'bg-gray-100 text-gray-900 hover:shadow-md dark:bg-gray-800 dark:text-gray-300'
                   }`}
               >
                 {size.value}
