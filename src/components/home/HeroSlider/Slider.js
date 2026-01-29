@@ -194,13 +194,15 @@ const HeroSlider = ({ data }) => {
 
   return (
     <div className="relative w-full h-full md:h-screen overflow-hidden">
-      {/* Background Gradient */}
-      <motion.div
-        className={`absolute inset-0 bg-gradient-to-tr ${currentSlide.accent} opacity-90`}
-        initial={false}
-        animate={{ opacity: 0.9 }}
-        transition={{ duration: 0.8 }}
-      />
+      {/* Background Gradient - Only for Loyalty Card */}
+      {currentSlide.isLoyaltyCard && (
+        <motion.div
+          className={`absolute inset-0 bg-gradient-to-tr ${currentSlide.accent} opacity-90`}
+          initial={false}
+          animate={{ opacity: 0.9 }}
+          transition={{ duration: 0.8 }}
+        />
+      )}
 
       <div className="relative h-full container mx-auto px-4 lg:px-8">
 
@@ -393,234 +395,24 @@ const HeroSlider = ({ data }) => {
                   </motion.div>
                 </motion.div>
               </div>
-            ) : currentSlide.displayMode === 'fullImage' ? (
-              // Mode Image Plein Écran
+            ) : (
+              // Full Image Mode - Clean & Minimal (Requested by user)
               <div className="w-full h-full relative">
-                {/* Image de fond */}
-                <img
+                <motion.img
+                  key={`img-${currentIndex}`}
+                  initial={{ opacity: 0, scale: 1.1 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
                   src={getImageUrl(currentSlide.image)}
-                  alt={currentSlide.title}
+                  alt={currentSlide.title || 'Slide'}
                   className="absolute inset-0 w-full h-full object-cover"
                   onError={(e) => {
                     console.error('❌ Image loading error:', currentSlide.image);
+                    e.target.src = 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=1160&auto=format&fit=crop'; // Fallback
                   }}
                   loading="lazy"
                   crossOrigin="anonymous"
                 />
-
-                {/* Texte */}
-                {currentSlide.textPosition === 'top' ? (
-                  // Texte en haut
-                  <div className="relative z-10 pt-24 pb-4 px-6">
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className={`text-center space-y-2 md:space-y-3 ${currentSlide.textColor}`}
-                    >
-                      {currentSlide.subtitle && (
-                        <motion.div
-                          className="inline-flex items-center justify-center space-x-2"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.2, duration: 0.6 }}
-                        >
-                          <HiSparkles className="text-yellow-400 text-xl" />
-                          <h2 className={`text-sm md:text-lg font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100 ${currentSlide.subtitleColor || ''}`}>
-                            {currentSlide.subtitle}
-                          </h2>
-                          <HiSparkles className="text-yellow-400 text-xl" />
-                        </motion.div>
-                      )}
-                      <h1 className={`text-3xl md:text-5xl lg:text-7xl font-black drop-shadow-glow ${currentSlide.titleColor || currentSlide.textColor}`}>
-                        <motion.span
-                          className="bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-100"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.3 }}
-                        >
-                          {currentSlide.title}
-                        </motion.span>
-                      </h1>
-                      {currentSlide.description && (
-                        <motion.p
-                          className={`text-sm md:text-base max-w-2xl mx-auto ${currentSlide.descriptionColor || currentSlide.textColor}`}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.4 }}
-                        >
-                          {currentSlide.description}
-                        </motion.p>
-                      )}
-                    </motion.div>
-                  </div>
-                ) : (
-                  // Texte superposé avec overlay
-                  <>
-                    {/* Overlay sombre */}
-                    <div
-                      className="absolute inset-0 bg-black"
-                      style={{ opacity: (currentSlide.overlayOpacity || 50) / 100 }}
-                    />
-
-                    {/* Texte centré */}
-                    <div className="absolute inset-0 flex items-center justify-center px-6">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.6 }}
-                        className={`text-center space-y-4 ${currentSlide.textColor}`}
-                      >
-                        {currentSlide.subtitle && (
-                          <motion.div
-                            className="inline-flex items-center justify-center space-x-2"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.2, duration: 0.6 }}
-                          >
-                            <HiSparkles className="text-yellow-400 text-2xl" />
-                            <h2 className={`text-lg md:text-2xl font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100 ${currentSlide.subtitleColor || ''}`}>
-                              {currentSlide.subtitle}
-                            </h2>
-                            <HiSparkles className="text-yellow-400 text-2xl" />
-                          </motion.div>
-                        )}
-                        <h1 className={`text-4xl md:text-6xl lg:text-8xl font-black drop-shadow-glow ${currentSlide.titleColor || currentSlide.textColor}`}>
-                          <motion.span
-                            className="bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-100"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                          >
-                            {currentSlide.title}
-                          </motion.span>
-                        </h1>
-                        {currentSlide.description && (
-                          <motion.p
-                            className={`text-base md:text-xl max-w-3xl mx-auto ${currentSlide.descriptionColor || currentSlide.textColor}`}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                          >
-                            {currentSlide.description}
-                          </motion.p>
-                        )}
-                        {currentSlide.buttonLink && (
-                          <motion.button
-                            onClick={() => handleButtonClick(currentSlide)}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`mt-6 px-8 py-3 rounded-full text-lg font-bold ${currentSlide.buttonColor} shadow-lg transition-transform`}
-                          >
-                            Découvrir
-                          </motion.button>
-                        )}
-                      </motion.div>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              // Regular Product Slides - SIMPLE & MINIMAL DESIGN
-              <div className="w-full h-full flex flex-col lg:flex-row lg:items-center lg:justify-between">
-
-                {/* CONTENT - Top on Mobile, Left on Desktop */}
-                <div className="w-full lg:w-1/2 h-[65%] lg:h-auto flex items-center justify-center lg:items-center pt-24 pb-4 lg:pt-0 lg:pb-0 lg:order-1 z-20 relative">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className={`w-full space-y-2 md:space-y-3 ${currentSlide.textColor} px-6 text-center lg:text-left`}
-                  >
-                    {/* Subtitle - Stylish badge with sparkles like loyalty card */}
-                    {currentSlide.subtitle && (
-                      <motion.div
-                        className="inline-flex items-center justify-center lg:justify-start space-x-2"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2, duration: 0.6 }}
-                      >
-                        <HiSparkles className="text-yellow-400 text-xl" />
-                        <h2 className={`text-sm md:text-lg font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100 ${currentSlide.subtitleColor || ''}`}>
-                          {currentSlide.subtitle}
-                        </h2>
-                        <HiSparkles className="text-yellow-400 text-xl" />
-                      </motion.div>
-                    )}
-
-                    {/* Title - Badass style with gradient and glow */}
-                    <h1 className={`text-3xl md:text-5xl lg:text-7xl font-black drop-shadow-glow tracking-tight ${currentSlide.titleColor || currentSlide.textColor}`}>
-                      <motion.span
-                        className="bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-100"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        {currentSlide.title}
-                      </motion.span>
-                    </h1>
-
-                    {/* Description - Elegant with animation */}
-                    {currentSlide.description && (
-                      <motion.p
-                        className={`text-sm md:text-base opacity-90 max-w-lg mx-auto lg:mx-0 font-medium ${currentSlide.descriptionColor || currentSlide.textColor}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                      >
-                        {currentSlide.description}
-                      </motion.p>
-                    )}
-
-                    {/* Price and CTA - Compact layout (Hidden on mobile) */}
-                    <div className="hidden md:flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1">
-                      {/* Price */}
-                      {currentSlide.price && (
-                        <div className="flex flex-col items-center sm:items-start">
-                          <span className={`text-3xl md:text-4xl font-bold ${currentSlide.priceColor || currentSlide.textColor}`}>
-                            {currentSlide.price}
-                          </span>
-                          {currentSlide.oldPrice && (
-                            <span className={`text-sm md:text-base line-through opacity-60 ${currentSlide.priceColor || currentSlide.textColor}`}>
-                              {currentSlide.oldPrice}
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* CTA Button - Simple */}
-                      <button
-                        onClick={() => handleButtonClick(currentSlide)}
-                        className={`px-6 md:px-8 py-2.5 md:py-3 rounded-full text-sm md:text-base font-semibold transition-transform hover:scale-105 ${currentSlide.buttonColor} shadow-lg`}
-                      >
-                        Découvrir
-                      </button>
-                    </div>
-                  </motion.div>
-                </div>
-
-                {/* IMAGE - Bottom on Mobile, Right on Desktop */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-full lg:w-1/2 h-[35%] lg:h-auto flex items-end justify-center lg:items-center lg:order-2 pb-8 lg:pb-0 z-10 relative"
-                >
-                  <img
-                    src={getImageUrl(currentSlide.image)}
-                    alt={currentSlide.title}
-                    className="w-auto h-auto max-w-full max-h-full object-contain"
-                    style={{ maxHeight: 'min(250px, 30vh)' }}
-                    onError={(e) => {
-                      console.error('❌ Image loading error:', currentSlide.image);
-                    }}
-                    loading="lazy"
-                    crossOrigin="anonymous"
-                  />
-                </motion.div>
               </div>
             )}
           </motion.div>
