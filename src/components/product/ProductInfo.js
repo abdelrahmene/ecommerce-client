@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Star, Plus, Minus, Check } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useCart } from '../../contexts/CartContext';
-import { useMetaPixel } from '../../contexts/MetaPixelContext';
 import ShippingForm from '../checkout/ShippingForm';
 
 const fadeInUp = {
@@ -84,20 +83,6 @@ const ProductInfo = ({
     } else if (product?.sizes) {
       // Fallback sur l'ancien système
       setAvailableSizes(product.sizes.filter(s => s.available));
-    }
-  }, [product]);
-
-  // 🔥 Track ViewContent (Produit Vu)
-  useEffect(() => {
-    if (product && typeof window.fbq === 'function') {
-      window.fbq('track', 'ViewContent', {
-        content_name: product.name,
-        content_ids: [product.id],
-        content_type: 'product',
-        value: product.price,
-        currency: 'DZD'
-      });
-      console.log('👀 [META PIXEL] ViewContent tracké:', product.name);
     }
   }, [product]);
 
