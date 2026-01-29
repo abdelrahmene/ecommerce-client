@@ -7,8 +7,8 @@ import ShippingForm from '../checkout/ShippingForm';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: {
       duration: 0.6,
@@ -17,15 +17,15 @@ const fadeInUp = {
   }
 };
 
-const ProductInfo = ({ 
-  product, 
-  selectedColor, 
-  setSelectedColor, 
-  selectedSize, 
-  setSelectedSize, 
-  quantity, 
-  handleQuantityChange, 
-  handleAddToCart 
+const ProductInfo = ({
+  product,
+  selectedColor,
+  setSelectedColor,
+  selectedSize,
+  setSelectedSize,
+  quantity,
+  handleQuantityChange,
+  handleAddToCart
 }) => {
   const { processCashOnDeliveryOrder } = useCart();
   const [availableSizes, setAvailableSizes] = useState([]);
@@ -38,7 +38,7 @@ const ProductInfo = ({
       const sizesWithStock = product.variants
         .map(variant => {
           let options = {};
-          
+
           // Parser les options de manière robuste
           if (variant.options) {
             if (typeof variant.options === 'string') {
@@ -55,10 +55,10 @@ const ProductInfo = ({
               options = variant.options;
             }
           }
-          
+
           // Fallback ultime: utiliser le SKU si aucune option
           const size = options.size || options.pointure || variant.sku;
-          
+
           return {
             value: size,
             available: variant.stock > 0,
@@ -72,12 +72,12 @@ const ProductInfo = ({
           const numB = parseInt(b.value);
           return numA - numB;
         });
-      
+
       // Supprimer les doublons
       const uniqueSizes = Array.from(
         new Map(sizesWithStock.map(item => [item.value, item])).values()
       );
-      
+
       setAvailableSizes(uniqueSizes);
       console.log('📏 Pointures disponibles:', uniqueSizes);
     } else if (product?.sizes) {
@@ -90,8 +90,41 @@ const ProductInfo = ({
   const handleOrderSubmit = async (orderData) => {
     try {
       const response = await processCashOnDeliveryOrder(orderData);
-      
+
       if (response.success) {
+        // 📍 Tracker Purchase Meta Pixel
+        // On envoie les détails de la commande confirmée
+        try {
+          const purchaseData = {
+            orderId: response.orderId,
+            total: orderData.shipping ? (orderData.product.price * orderData.product.quantity) + (orderData.shipping.totalFee || 0) : (orderData.product.price * orderData.product.quantity),
+            items: [{
+              id: orderData.product.id,
+              name: orderData.product.name,
+              price: orderData.product.price,
+              quantity: orderData.product.quantity,
+              color: orderData.product.color,
+              size: orderData.product.size
+            }]
+          };
+
+          // Appeler la fonction trackPurchase du contexte (qui appelle le service)
+          // Note: Assurez-vous d'importer useMetaPixel et de déstructurer trackPurchase
+          if (typeof window.fbq === 'function') {
+            window.fbq('track', 'Purchase', {
+              content_name: `Commande #${response.orderId}`,
+              content_ids: [orderData.product.id],
+              content_type: 'product',
+              value: purchaseData.total,
+              currency: 'DZD',
+              num_items: orderData.product.quantity
+            });
+            console.log('✅ [META PIXEL] Purchase tracké (Direct):', purchaseData);
+          }
+        } catch (pixelErr) {
+          console.error('⚠️ Erreur tracking pixel purchase:', pixelErr);
+        }
+
         handleAddToCart({
           deliveryInfo: orderData.customer,
           orderId: response.orderId,
@@ -125,14 +158,14 @@ const ProductInfo = ({
     >
       {/* Titre et évaluation */}
       <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{product.name}</h1>
-      
+
       <div className="flex items-center mt-3 space-x-4">
         <div className="flex items-center">
           {[...Array(5)].map((_, i) => (
-            <Star 
-              key={i} 
-              size={16} 
-              className={`${i < Math.floor(product.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`} 
+            <Star
+              key={i}
+              size={16}
+              className={`${i < Math.floor(product.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
               fill={i < Math.floor(product.rating || 0) ? 'currentColor' : 'none'}
             />
           ))}
@@ -140,38 +173,38 @@ const ProductInfo = ({
             {product.rating && product.rating.toFixed(1)}
           </span>
         </div>
-        
+
         {product.reviewCount && (
           <span className="text-sm text-gray-500 dark:text-gray-400">
             {product.reviewCount} avis
           </span>
         )}
       </div>
-      
+
       {/* Prix */}
       <div className="mt-6 flex items-center">
         <span className="text-2xl font-bold text-gray-900 dark:text-white">
           {product.price && product.price.toFixed(2)} DA
         </span>
-        
+
         {product.comparePrice && (
           <span className="ml-3 text-lg line-through text-gray-500 dark:text-gray-400">
             {product.comparePrice.toFixed(2)} DA
           </span>
         )}
-        
+
         {product.discount > 0 && (
           <span className="ml-3 text-sm font-medium text-red-600 bg-red-100 px-2 py-1 rounded">
             -{product.discount}%
           </span>
         )}
       </div>
-      
+
       {/* Description */}
       <p className="mt-4 text-gray-600 dark:text-gray-300">
         {product.description}
       </p>
-      
+
       {/* Sélection de couleur */}
       {product.colors && product.colors.length > 0 && (
         <div className="mt-6">
@@ -181,9 +214,8 @@ const ProductInfo = ({
               <button
                 key={index}
                 onClick={() => setSelectedColor(color)}
-                className={`relative w-10 h-10 rounded-full transition-transform ${
-                  selectedColor === color ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : ''
-                }`}
+                className={`relative w-10 h-10 rounded-full transition-transform ${selectedColor === color ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : ''
+                  }`}
                 style={{ backgroundColor: color.value }}
                 aria-label={`Couleur ${color.name}`}
               >
@@ -200,12 +232,12 @@ const ProductInfo = ({
           </p>
         </div>
       )}
-      
+
       {/* Sélection de taille - Afficher toutes les pointures */}
       {product?.variants && product.variants.length > 0 && (
         <div className="mt-8">
           <div className="flex items-center justify-between">
-            <motion.h3 
+            <motion.h3
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
@@ -218,7 +250,7 @@ const ProductInfo = ({
               {availableSizes.filter(s => s.available).length} pointure{availableSizes.filter(s => s.available).length > 1 ? 's' : ''} en stock
             </span>
           </div>
-          
+
           <motion.div className="flex flex-wrap gap-3 mt-4">
             {availableSizes.map((size) => (
               <motion.button
@@ -227,13 +259,12 @@ const ProductInfo = ({
                 disabled={!size.available}
                 whileHover={size.available ? { scale: 1.08, y: -3 } : {}}
                 whileTap={size.available ? { scale: 0.95 } : {}}
-                className={`relative h-12 w-12 flex items-center justify-center rounded-lg font-bold transition-all duration-300 ${
-                  !size.available
+                className={`relative h-12 w-12 flex items-center justify-center rounded-lg font-bold transition-all duration-300 ${!size.available
                     ? 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-600 cursor-not-allowed opacity-60'
                     : selectedSize?.value === size.value
-                    ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
-                    : 'bg-gray-100 text-gray-900 hover:shadow-md dark:bg-gray-800 dark:text-gray-300'
-                }`}
+                      ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
+                      : 'bg-gray-100 text-gray-900 hover:shadow-md dark:bg-gray-800 dark:text-gray-300'
+                  }`}
               >
                 {size.value}
                 {!size.available && (
@@ -247,7 +278,7 @@ const ProductInfo = ({
                   <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full"></span>
                 )}
                 {selectedSize?.value === size.value && (
-                  <motion.div 
+                  <motion.div
                     className="absolute inset-0 rounded-lg border-2 border-blue-500"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -256,9 +287,9 @@ const ProductInfo = ({
               </motion.button>
             ))}
           </motion.div>
-          
+
           {selectedSize && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="mt-4 flex items-center justify-between"
@@ -285,7 +316,7 @@ const ProductInfo = ({
       )}
 
       {/* Quantité */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
@@ -318,7 +349,7 @@ const ProductInfo = ({
           </motion.button>
         </div>
       </motion.div>
-      
+
       {/* Formulaire de livraison Yalidine */}
       <div className="mt-8">
         <ShippingForm
@@ -329,7 +360,7 @@ const ProductInfo = ({
           onSubmitSuccess={handleOrderSubmit}
         />
       </div>
-      
+
       {/* Stock et livraison */}
       <div className="mt-6 border-t border-gray-200 dark:border-gray-800 pt-6 space-y-3">
         {availableSizes.length > 0 ? (
@@ -344,16 +375,16 @@ const ProductInfo = ({
             <span className="text-sm font-medium">Rupture de stock</span>
           </div>
         )}
-        
+
         <div className="flex items-center text-gray-600 dark:text-gray-400">
           <span className="text-sm">Livraison dans toute l'Algérie via Yalidine</span>
         </div>
-        
+
         <div className="flex items-center text-gray-600 dark:text-gray-400">
           <span className="text-sm">Paiement à la livraison</span>
         </div>
       </div>
-      
+
       {/* Référence */}
       {product.sku && (
         <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">

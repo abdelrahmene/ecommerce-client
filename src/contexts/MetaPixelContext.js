@@ -22,7 +22,7 @@ export const MetaPixelProvider = ({ children }) => {
       try {
         // Essayer de charger depuis localStorage d'abord
         const savedConfig = localStorage.getItem('metaPixelConfig');
-        
+
         if (savedConfig) {
           const config = JSON.parse(savedConfig);
           setPixelId(config.pixelId);
@@ -30,20 +30,39 @@ export const MetaPixelProvider = ({ children }) => {
           metaPixelService.initialize(config.pixelId, config.isEnabled !== false);
           console.log('📍 [META PIXEL] Config chargée depuis localStorage');
         } else {
-          // Essayer de charger depuis l'API admin
+          // Essayer de charger depuis l'API admin (Production)
           try {
-            const response = await fetch('http://localhost:3000/api/admin/meta-pixel-config', {
-              credentials: 'include'
+            const adminUrl = 'https://admin.birkshoes.store/api/admin/meta-pixel-config';
+            console.log(`🔍 [META PIXEL] Chargement config depuis: ${adminUrl}`);
+
+            const response = await fetch(adminUrl, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json'
+              }
             });
+
             if (response.ok) {
               const config = await response.json();
-              setPixelId(config.pixelId);
-              setIsEnabled(config.isEnabled !== false);
-              metaPixelService.initialize(config.pixelId, config.isEnabled !== false);
-              console.log('📍 [META PIXEL] Config chargée depuis l\'API');
+              console.log('✅ [META PIXEL] Config reçue:', config);
+
+              if (config.pixelId) {
+                setPixelId(config.pixelId);
+                setIsEnabled(config.isEnabled !== false);
+                metaPixelService.initialize(config.pixelId, config.isEnabled !== false);
+
+                // Sauvegarder en cache
+                localStorage.setItem('metaPixelConfig', JSON.stringify(config));
+              }
+            } else {
+              throw new Error(`Erreur HTTP: ${response.status}`);
             }
           } catch (err) {
-            console.warn('⚠️ [META PIXEL] Pas de config trouvée:', err);
+            console.warn('⚠️ [META PIXEL] Pas de config trouvée sur le serveur:', err);
+            // Fallback localstorage
+            if (savedConfig) {
+              // ... déjà géré
+            }
           }
         }
       } catch (err) {
@@ -61,7 +80,7 @@ export const MetaPixelProvider = ({ children }) => {
     setPixelId(newPixelId);
     setIsEnabled(enabled);
     metaPixelService.initialize(newPixelId, enabled);
-    
+
     // Sauvegarder localement
     localStorage.setItem('metaPixelConfig', JSON.stringify({
       pixelId: newPixelId,
