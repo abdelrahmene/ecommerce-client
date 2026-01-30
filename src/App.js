@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 
 // Layout
 import MainLayout from './components/layout/MainLayout';
+import AnalyticsTracker from './components/layout/AnalyticsTracker';
 
 // Contexts
 import { AuthProvider } from './contexts/AuthContext';
@@ -45,6 +46,7 @@ function App() {
         }}
       >
         <AuthProvider>
+          <AnalyticsTracker />
           <CartProvider>
             <WishlistProvider>
               <ThemeProvider>
