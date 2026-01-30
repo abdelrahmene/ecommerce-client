@@ -122,7 +122,6 @@ const Header = ({ toggleCart, toggleSearch, cartItemsCount, scrolled }) => {
               <NavLinkWithAnimation to="/men" label="Hommes" />
               <NavLinkWithAnimation to="/women" label="Femmes" />
               <NavLinkWithAnimation to="/kids" label="Enfant" />
-              <NavLinkWithAnimation to="/new" label="Nouveautés" />
               <NavLinkWithAnimation to="/contact" label="Contact" />
             </nav>
 
@@ -170,24 +169,6 @@ const Header = ({ toggleCart, toggleSearch, cartItemsCount, scrolled }) => {
               >
                 <Heart size={20} className="text-gray-700 dark:text-gray-300" />
               </Link>
-
-              {/* Cart Button */}
-              <button
-                onClick={toggleCart}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-secondary-800 transition-colors relative"
-                aria-label="Panier"
-              >
-                <ShoppingCart size={20} className="text-gray-700 dark:text-gray-300" />
-                {cartItemsCount > 0 && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
-                  >
-                    {cartItemsCount}
-                  </motion.div>
-                )}
-              </button>
 
               {/* User Menu - Desktop */}
               <div className="hidden sm:block relative user-menu">
@@ -337,13 +318,7 @@ const Header = ({ toggleCart, toggleSearch, cartItemsCount, scrolled }) => {
                 >
                   Enfant
                 </Link>
-                <Link
-                  to="/new"
-                  className="px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Nouveautés
-                </Link>
+
                 <Link
                   to="/contact"
                   className="px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg font-medium"

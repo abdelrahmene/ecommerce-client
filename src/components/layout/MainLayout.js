@@ -5,7 +5,6 @@ import Header from './Header';
 import Footer from './Footer';
 
 import { useCart } from '../../contexts/CartContext';
-import CartDrawer from '../cart/CartDrawer';
 import SearchOverlay from './SearchOverlay';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -15,7 +14,7 @@ const MainLayout = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { cartItems } = useCart();
-  
+
   // Effet pour contrôler le header transparent/scrollé
   useEffect(() => {
     const handleScroll = () => {
@@ -24,44 +23,44 @@ const MainLayout = () => {
         setScrolled(isScrolled);
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [scrolled]);
-  
+
   // Effet pour fermer le tiroir du panier et la recherche lors du changement de page
   useEffect(() => {
     setCartOpen(false);
     setSearchOpen(false);
   }, [location.pathname]);
-  
+
   // Effet pour remonter en haut lors du changement de page
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
-  
+
   const toggleCart = () => {
     setCartOpen(prev => !prev);
     if (searchOpen) setSearchOpen(false);
   };
-  
+
   const toggleSearch = () => {
     setSearchOpen(prev => !prev);
     if (cartOpen) setCartOpen(false);
   };
-  
+
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-secondary-900 transition-colors duration-300">
       {/* Header */}
-      <Header 
-        toggleCart={toggleCart} 
+      <Header
+        toggleCart={toggleCart}
         toggleSearch={toggleSearch}
         cartItemsCount={cartItems.length}
         scrolled={scrolled}
       />
-      
+
       {/* Page Content with Transitions */}
       <main className="flex-grow relative">
         <AnimatePresence mode="wait">
@@ -77,32 +76,24 @@ const MainLayout = () => {
           </motion.div>
         </AnimatePresence>
       </main>
-      
+
       {/* Footer */}
       <Footer />
-      
-      {/* Cart Drawer */}
-      <AnimatePresence>
-        {cartOpen && (
-          <CartDrawer 
-            isOpen={cartOpen} 
-            onClose={() => setCartOpen(false)} 
-          />
-        )}
-      </AnimatePresence>
-      
+
+
+
       {/* Search Overlay */}
       <AnimatePresence>
         {searchOpen && (
-          <SearchOverlay 
-            isOpen={searchOpen} 
-            onClose={() => setSearchOpen(false)} 
+          <SearchOverlay
+            isOpen={searchOpen}
+            onClose={() => setSearchOpen(false)}
           />
         )}
       </AnimatePresence>
-      
+
       {/* Toast Notifications */}
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 4000,
