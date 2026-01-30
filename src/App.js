@@ -17,6 +17,8 @@ import HomePage from './pages/home/HomePage';
 import WomenPage from './pages/women/WomenPage';
 import KidsPage from './pages/kids/KidsPage';
 import MenPage from './pages/Men/MenPage';
+import ProductPage from './pages/product/ProductPage';
+import CollectionsPage from './pages/collections/CollectionsPage';
 import CollectionPage from './pages/collections/CollectionPage';
 import CheckoutPage from './pages/checkout/CheckoutPage';
 import LoginPage from './pages/auth/LoginPage';
