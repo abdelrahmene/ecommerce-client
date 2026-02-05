@@ -7,12 +7,12 @@ import PersonalInfoForm from './PersonalInfoForm';
 import YalidineSelector from './YalidineSelector';
 import DeliveryFeesSummary from './DeliveryFeesSummary';
 
-const ShippingForm = ({ 
-  product, 
-  quantity, 
-  selectedSize, 
-  selectedColor, 
-  onSubmitSuccess 
+const ShippingForm = ({
+  product,
+  quantity,
+  selectedSize,
+  selectedColor,
+  onSubmitSuccess
 }) => {
   const { trackInitiateCheckout } = useMetaPixel();
   const [formData, setFormData] = useState({
@@ -99,7 +99,8 @@ const ShippingForm = ({
           color: selectedColor?.name,
           size: selectedSize?.value,
           quantity: quantity,
-          image: selectedColor?.images?.[0]
+          image: selectedColor?.images?.[0],
+          selectedVariant: selectedSize
         },
         customer: {
           firstName: formData.prenom,
@@ -208,9 +209,8 @@ const ShippingForm = ({
               name="adresse"
               value={formData.adresse}
               onChange={(e) => handleFormChange({ adresse: e.target.value })}
-              className={`w-full px-4 py-2.5 bg-white dark:bg-gray-800 border ${
-                formErrors.adresse ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
-              } rounded-lg focus:ring-2 focus:ring-blue-500 transition-all outline-none h-20 resize-none`}
+              className={`w-full px-4 py-2.5 bg-white dark:bg-gray-800 border ${formErrors.adresse ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
+                } rounded-lg focus:ring-2 focus:ring-blue-500 transition-all outline-none h-20 resize-none`}
               placeholder="Rue, numéro, bâtiment, étage..."
             />
             {formErrors.adresse && (
@@ -240,8 +240,8 @@ const ShippingForm = ({
 
           {/* Résumé des frais */}
           {fees && (
-            <DeliveryFeesSummary 
-              fees={fees} 
+            <DeliveryFeesSummary
+              fees={fees}
               commune={formData.communeName}
               product={product}
               quantity={quantity}
@@ -254,9 +254,8 @@ const ShippingForm = ({
             disabled={isSubmitting}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className={`w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-6 py-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-lg shadow-blue-500/20 ${
-              isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-xl'
-            }`}
+            className={`w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-6 py-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-lg shadow-blue-500/20 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-xl'
+              }`}
           >
             {isSubmitting ? (
               <>
