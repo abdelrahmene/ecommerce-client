@@ -52,6 +52,7 @@ const ShippingForm = ({
     const loadConfig = async () => {
       try {
         const data = await checkoutConfigService.get();
+        console.log('🛒 Checkout Config Loaded:', data);
         // Sort fields by order
         data.fields.sort((a, b) => a.order - b.order);
         setConfig(data);

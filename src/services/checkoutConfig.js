@@ -11,7 +11,7 @@ export const defaultCheckoutConfig = {
         { id: 'telephone', label: 'Téléphone', placeholder: '0550123456', type: 'tel', required: true, enabled: true, order: 3, width: 'full' },
         { id: 'wilaya', label: 'Wilaya', placeholder: 'Sélectionner la wilaya', type: 'select', required: true, enabled: true, order: 4, width: 'half' },
         { id: 'commune', label: 'Commune', placeholder: 'Sélectionner la commune', type: 'select', required: true, enabled: true, order: 5, width: 'half' },
-        { id: 'adresse', label: 'Adresse complète', placeholder: 'Rue, numéro, bâtiment, étage...', type: 'textarea', required: true, enabled: true, order: 6, width: 'full' },
+        { id: 'adresse', label: 'Adresse complète', placeholder: 'Rue, numéro, bâtiment, étage...', type: 'textarea', required: false, enabled: true, order: 6, width: 'full' },
         { id: 'remarque', label: 'Remarque (optionnel)', placeholder: 'Instructions spéciales...', type: 'textarea', required: false, enabled: true, order: 7, width: 'full' },
     ]
 };
