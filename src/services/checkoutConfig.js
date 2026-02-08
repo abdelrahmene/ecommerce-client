@@ -19,7 +19,8 @@ export const defaultCheckoutConfig = {
 export const checkoutConfigService = {
     get: async () => {
         try {
-            const response = await axios.get(`${API_URL}/settings/checkout-form`);
+            // Add timestamp to prevent caching
+            const response = await axios.get(`${API_URL}/settings/checkout-form?t=${Date.now()}`);
             return response.data || defaultCheckoutConfig;
         } catch (error) {
             console.error('Failed to fetch checkout config', error);
