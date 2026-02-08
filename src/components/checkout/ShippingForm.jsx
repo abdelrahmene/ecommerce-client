@@ -156,14 +156,14 @@ const ShippingForm = ({
           selectedVariant: selectedSize
         },
         customer: {
-          firstName: formData.prenom,
-          lastName: formData.nom,
+          firstName: config?.fields.find(f => f.id === 'prenom')?.enabled ? formData.prenom : '-',
+          lastName: config?.fields.find(f => f.id === 'nom')?.enabled ? formData.nom : '-',
           phone: formData.telephone,
           wilayaId: formData.wilayaId,
           wilaya: formData.wilayaName,
           communeId: formData.communeId,
           commune: formData.communeName,
-          address: formData.adresse,
+          address: config?.fields.find(f => f.id === 'adresse')?.enabled ? formData.adresse : '-',
           notes: formData.remarque
         },
         shipping: {
