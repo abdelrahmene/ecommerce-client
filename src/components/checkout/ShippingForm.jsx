@@ -50,14 +50,25 @@ const ShippingForm = ({
   // Load config
   useEffect(() => {
     const loadConfig = async () => {
+      console.log('🚀 [ShippingForm] Starting config load...');
       try {
         const data = await checkoutConfigService.get();
-        console.log('🛒 Checkout Config Loaded:', data);
-        // Sort fields by order
-        data.fields.sort((a, b) => a.order - b.order);
+        console.log('🛒 [ShippingForm] Config loaded:', data);
+
+        if (data.fields) {
+          console.log('📋 [ShippingForm] Fields found:', data.fields.length);
+          data.fields.forEach(f => {
+            console.log(`   - ${f.id}: required=${f.required}, enabled=${f.enabled}, order=${f.order}`);
+          });
+          // Sort fields by order
+          data.fields.sort((a, b) => a.order - b.order);
+        } else {
+          console.warn('⚠️ [ShippingForm] No fields array in config!');
+        }
+
         setConfig(data);
       } catch (error) {
-        console.error('Failed to load checkout config', error);
+        console.error('💥 [ShippingForm] Fatal error loading config:', error);
       } finally {
         setLoadingConfig(false);
       }
