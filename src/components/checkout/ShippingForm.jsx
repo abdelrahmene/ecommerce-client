@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, MessageSquare, ShoppingCart, AlertCircle, Truck } from 'lucide-react';
+import { MapPin, MessageSquare, ShoppingCart, AlertCircle, Truck, User, Phone, Package, Gift, Loader } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useMetaPixel } from '../../contexts/MetaPixelContext';
-import PersonalInfoForm from './PersonalInfoForm';
-import YalidineSelector from './YalidineSelector';
+import { checkoutConfigService } from '../../services/checkoutConfig';
+import { useYalidine } from '../../hooks/useYalidine';
+import { useLoyalty } from '../../hooks/useLoyalty';
 import DeliveryFeesSummary from './DeliveryFeesSummary';
+import { FaStamp } from 'react-icons/fa';
 
 const ShippingForm = ({
   product,
@@ -15,6 +17,9 @@ const ShippingForm = ({
   onSubmitSuccess
 }) => {
   const { trackInitiateCheckout } = useMetaPixel();
+  const [config, setConfig] = useState(null);
+  const [loadingConfig, setLoadingConfig] = useState(true);
+
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
@@ -32,55 +37,92 @@ const ShippingForm = ({
     height: 10
   });
 
-  const [fees, setFees] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Gérer les changements de formulaire
-  const handleFormChange = (updates) => {
-    setFormData(prev => ({
-      ...prev,
-      ...updates
-    }));
+  // Hooks
+  const {
+    wilayas, communes, loadingWilayas, loadingCommunes, calculatingFees, fees, setFees
+  } = useYalidine(formData, setFormData);
 
-    // Effacer les erreurs des champs modifiés
-    const updatedErrors = { ...formErrors };
-    Object.keys(updates).forEach(key => {
-      if (updatedErrors[key]) {
-        delete updatedErrors[key];
+  const { loyaltyInfo, checkingLoyalty, checkLoyaltyStatus } = useLoyalty();
+
+  // Load config
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const data = await checkoutConfigService.get();
+        // Sort fields by order
+        data.fields.sort((a, b) => a.order - b.order);
+        setConfig(data);
+      } catch (error) {
+        console.error('Failed to load checkout config', error);
+      } finally {
+        setLoadingConfig(false);
       }
-    });
+    };
+    loadConfig();
+  }, []);
+
+  const handleFormChange = (updates) => {
+    setFormData(prev => ({ ...prev, ...updates }));
+
+    // Check loyalty if phone changes
+    if (updates.telephone) {
+      checkLoyaltyStatus(updates.telephone);
+    }
+
+    // Clear errors
+    const updatedErrors = { ...formErrors };
+    Object.keys(updates).forEach(key => delete updatedErrors[key]);
     setFormErrors(updatedErrors);
   };
 
-  // Callback quand les frais sont calculés
-  const handleFeesCalculated = (calculatedFees) => {
-    setFees(calculatedFees);
+  const handleWilayaChange = (e) => {
+    const wilayaId = parseInt(e.target.value);
+    const selectedWilaya = wilayas.find(w => w.id === wilayaId);
+    handleFormChange({
+      wilayaId: wilayaId || null,
+      wilayaName: selectedWilaya?.name || '',
+      communeId: null,
+      communeName: ''
+    });
   };
 
-  // Valider le formulaire
+  const handleCommuneChange = (e) => {
+    const communeId = parseInt(e.target.value);
+    const selectedCommune = communes.find(c => c.id === communeId);
+    handleFormChange({
+      communeId: communeId || null,
+      communeName: selectedCommune?.name || ''
+    });
+  };
+
   const validateForm = () => {
     const errors = {};
+    if (!config) return errors;
 
-    if (!formData.nom.trim()) errors.nom = 'Le nom est requis';
-    if (!formData.prenom.trim()) errors.prenom = 'Le prénom est requis';
-    if (!formData.telephone.trim()) {
-      errors.telephone = 'Le téléphone est requis';
-    } else if (!/^(0)(5|6|7)[0-9]{8}$|^(0)(2|3)[0-9]{7}$/.test(formData.telephone)) {
+    config.fields.forEach(field => {
+      if (field.enabled && field.required) {
+        const value = field.id === 'wilaya' ? formData.wilayaId :
+          field.id === 'commune' ? formData.communeId :
+            formData[field.id];
+
+        if (!value || (typeof value === 'string' && !value.trim())) {
+          errors[field.id] = `${field.label} est requis`;
+        }
+      }
+    });
+
+    if (formData.telephone && !/^(0)(5|6|7)[0-9]{8}$|^(0)(2|3)[0-9]{7}$/.test(formData.telephone)) {
       errors.telephone = 'Numéro invalide (ex: 0550123456)';
     }
-    if (!formData.wilayaId) errors.wilaya = 'La wilaya est requise';
-    if (!formData.communeId) errors.commune = 'La commune est requise';
-    if (!formData.adresse.trim()) errors.adresse = 'L\'adresse est requise';
 
     return errors;
   };
 
-  // Soumettre la commande
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Valider
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -89,7 +131,6 @@ const ShippingForm = ({
     }
 
     setIsSubmitting(true);
-
     try {
       const orderData = {
         product: {
@@ -128,38 +169,152 @@ const ShippingForm = ({
         }
       };
 
-      // 📍 Tracker InitiateCheckout Meta Pixel
       trackInitiateCheckout([orderData.product], orderData.product.price * orderData.product.quantity);
 
-      // Callback vers le parent
       if (onSubmitSuccess) {
         await onSubmitSuccess(orderData);
       }
-
-      // Réinitialiser le formulaire
-      setFormData({
-        nom: '',
-        prenom: '',
-        telephone: '',
-        wilayaId: null,
-        wilayaName: '',
-        communeId: null,
-        communeName: '',
-        adresse: '',
-        remarque: '',
-        totalPrice: (product?.price || 0) * quantity,
-        weight: 1,
-        length: 30,
-        width: 20,
-        height: 10
-      });
-      setFees(null);
-
     } catch (error) {
-      console.error('❌ Erreur soumission:', error);
+      console.error('Submission error:', error);
       toast.error('Une erreur est survenue');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  if (loadingConfig) {
+    return <div className="flex justify-center p-8"><Loader className="animate-spin text-blue-500" /></div>;
+  }
+
+  const renderField = (field) => {
+    if (!field.enabled) return null;
+
+    const commonClasses = `w-full px-4 py-2.5 bg-white dark:bg-gray-800 border ${formErrors[field.id] ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
+      } rounded-lg focus:ring-2 focus:ring-blue-500 transition-all outline-none`;
+
+    switch (field.id) {
+      case 'wilaya':
+        return (
+          <div className="relative">
+            <select
+              value={formData.wilayaId || ''}
+              onChange={handleWilayaChange}
+              disabled={loadingWilayas}
+              className={`${commonClasses} appearance-none`}
+            >
+              <option value="">{loadingWilayas ? 'Chargement...' : field.placeholder}</option>
+              {wilayas.map(w => (
+                <option key={w.id} value={w.id}>{w.id} - {w.name}</option>
+              ))}
+            </select>
+            {loadingWilayas && <Loader size={18} className="absolute right-3 top-3 animate-spin text-blue-500" />}
+          </div>
+        );
+
+      case 'commune':
+        return (
+          <div className="relative">
+            <select
+              value={formData.communeId || ''}
+              onChange={handleCommuneChange}
+              disabled={!formData.wilayaId || loadingCommunes}
+              className={`${commonClasses} appearance-none`}
+            >
+              <option value="">
+                {!formData.wilayaId ? 'Sélectionnez d\'abord une wilaya' :
+                  loadingCommunes ? 'Chargement...' : field.placeholder}
+              </option>
+              {communes.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            {(loadingCommunes || calculatingFees) && <Loader size={18} className="absolute right-3 top-3 animate-spin text-blue-500" />}
+          </div>
+        );
+
+      case 'telephone':
+        return (
+          <div className="relative">
+            <input
+              type="tel"
+              value={formData.telephone}
+              onChange={(e) => handleFormChange({ telephone: e.target.value })}
+              placeholder={field.placeholder}
+              className={commonClasses}
+            />
+            {checkingLoyalty && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+              </div>
+            )}
+            {loyaltyInfo && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg flex items-center gap-3"
+              >
+                <Gift className="text-blue-600" size={20} />
+                <div>
+                  <p className="text-sm font-bold text-blue-900 dark:text-blue-300">
+                    {loyaltyInfo.firstName} {loyaltyInfo.lastName}
+                  </p>
+                  <p className="text-xs text-blue-700 dark:text-blue-400 flex items-center gap-1">
+                    <FaStamp className="text-yellow-500" />
+                    {loyaltyInfo.stampCount} / 6 commandes
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </div>
+        );
+
+      case 'remarque':
+      case 'adresse':
+        return (
+          <textarea
+            value={formData[field.id]}
+            onChange={(e) => handleFormChange({ [field.id]: e.target.value })}
+            placeholder={field.placeholder}
+            className={`${commonClasses} ${field.id === 'adresse' ? 'h-20' : 'h-16'} resize-none`}
+          />
+        );
+
+      default:
+        // Generic fields (nom, prenom, or custom text fields)
+        if (field.type === 'select' && field.options) {
+          return (
+            <select
+              value={formData[field.id] || ''}
+              onChange={(e) => handleFormChange({ [field.id]: e.target.value })}
+              className={commonClasses}
+            >
+              <option value="">{field.placeholder}</option>
+              {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
+          );
+        }
+        return (
+          <input
+            type={field.type}
+            value={formData[field.id] || ''}
+            onChange={(e) => handleFormChange({ [field.id]: e.target.value })}
+            placeholder={field.placeholder}
+            className={commonClasses}
+          />
+        );
+    }
+  };
+
+  const getIcon = (id) => {
+    switch (id) {
+      case 'nom': return User;
+      case 'prenom': return User;
+      case 'telephone': return Phone;
+      case 'wilaya': return MapPin;
+      case 'commune': return Package;
+      case 'adresse': return MapPin;
+      case 'remarque': return MessageSquare;
+      default: return null;
     }
   };
 
@@ -167,78 +322,44 @@ const ShippingForm = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
       className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700"
     >
       <div className="p-6">
-        {/* Header */}
         <div className="flex items-center mb-6">
           <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-500 to-indigo-600 mr-3"></div>
           <Truck size={24} className="text-blue-500 mr-2" />
           <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-            Livraison Yalidine
+            {config?.title || 'Livraison'}
           </h3>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Informations personnelles */}
-          <PersonalInfoForm
-            formData={formData}
-            onChange={handleFormChange}
-            errors={formErrors}
-          />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {config?.fields.map((field) => {
+              if (!field.enabled) return null;
+              const Icon = getIcon(field.id);
+              const isFullWidth = field.width === 'full';
 
-          {/* Sélection Yalidine */}
-          <YalidineSelector
-            formData={formData}
-            onChange={handleFormChange}
-            errors={formErrors}
-            onFeesCalculated={handleFeesCalculated}
-          />
+              return (
+                <div
+                  key={field.id}
+                  className={`${isFullWidth ? 'md:col-span-2' : 'md:col-span-1'}`}
+                >
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 ml-1">
+                    {Icon && <Icon size={14} className="inline mr-1" />}
+                    {field.label} {field.required && '*'}
+                  </label>
+                  {renderField(field)}
+                  {formErrors[field.id] && (
+                    <p className="mt-1 text-sm text-red-500 flex items-center">
+                      <AlertCircle size={12} className="mr-1" /> {formErrors[field.id]}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
-          {/* Adresse */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 ml-1">
-              <MapPin size={14} className="inline mr-1" /> Adresse complète *
-            </label>
-            <textarea
-              name="adresse"
-              value={formData.adresse}
-              onChange={(e) => handleFormChange({ adresse: e.target.value })}
-              className={`w-full px-4 py-2.5 bg-white dark:bg-gray-800 border ${formErrors.adresse ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
-                } rounded-lg focus:ring-2 focus:ring-blue-500 transition-all outline-none h-20 resize-none`}
-              placeholder="Rue, numéro, bâtiment, étage..."
-            />
-            {formErrors.adresse && (
-              <p className="mt-1 text-sm text-red-500 flex items-center">
-                <AlertCircle size={12} className="mr-1" /> {formErrors.adresse}
-              </p>
-            )}
-          </motion.div>
-
-          {/* Remarque */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-          >
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 ml-1">
-              <MessageSquare size={14} className="inline mr-1" /> Remarque (optionnel)
-            </label>
-            <textarea
-              name="remarque"
-              value={formData.remarque}
-              onChange={(e) => handleFormChange({ remarque: e.target.value })}
-              className="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all outline-none h-16 resize-none"
-              placeholder="Instructions spéciales pour la livraison..."
-            />
-          </motion.div>
-
-          {/* Résumé des frais */}
           {fees && (
             <DeliveryFeesSummary
               fees={fees}
@@ -248,7 +369,6 @@ const ShippingForm = ({
             />
           )}
 
-          {/* Bouton de soumission */}
           <motion.button
             type="submit"
             disabled={isSubmitting}
@@ -259,24 +379,21 @@ const ShippingForm = ({
           >
             {isSubmitting ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Traitement en cours...</span>
+                <Loader className="animate-spin" size={20} />
+                <span>Traitement...</span>
               </>
             ) : (
               <>
                 <ShoppingCart size={20} />
-                <span>Commander maintenant</span>
+                <span>{config?.submitButtonText || 'Commander maintenant'}</span>
               </>
             )}
           </motion.button>
         </form>
 
-        {/* Footer info */}
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center text-sm text-green-600 dark:text-green-400">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
+            <Truck className="w-5 h-5 mr-2" />
             <span>Paiement à la livraison • Retour gratuit sous 7 jours</span>
           </div>
         </div>
