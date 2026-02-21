@@ -163,9 +163,7 @@ const ShippingForm = ({
       errors.telephone = 'Numéro invalide (ex: 0550123456)';
     }
 
-    if (isStopDesk && !selectedCenterId) {
-      errors.commune = 'Veuillez sélectionner un point relais';
-    }
+    // Stop Desk center validation removed as requested
 
     // Validate additional items
     const invalidItems = additionalItems.filter(item => !item.size || item.quantity < 1);
@@ -333,29 +331,6 @@ const ShippingForm = ({
                   </div>
                 </div>
 
-                {/* Sélecteur de bureau Stop Desk */}
-                {isStopDesk && (
-                  <div className="mt-4">
-                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                      Point relais Yalidine
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={selectedCenterId || ''}
-                        onChange={(e) => setSelectedCenterId(e.target.value)}
-                        className={`w-full px-4 py-2 bg-white dark:bg-gray-800 border ${formErrors.commune && isStopDesk ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm`}
-                      >
-                        <option value="">Sélectionnez un bureau...</option>
-                        {centers.map(center => (
-                          <option key={center.center_id} value={center.center_id}>
-                            {center.name}
-                          </option>
-                        ))}
-                      </select>
-                      {loadingCenters && <Loader size={16} className="absolute right-3 top-2.5 animate-spin text-indigo-500" />}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
