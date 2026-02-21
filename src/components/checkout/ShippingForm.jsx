@@ -424,14 +424,28 @@ const ShippingForm = ({
 
   const getProductSizes = () => {
     if (product?.variants?.length > 0) {
-      return Array.from(new Set(product.variants.map(v => {
+      const sizesMap = new Map();
+      product.variants.forEach(v => {
         try {
           const opt = typeof v.options === 'string' ? JSON.parse(v.options) : v.options;
-          return opt.size || opt.pointure || v.sku;
-        } catch (e) { return v.sku; }
-      }))).filter(Boolean).sort();
+          const size = opt.size || opt.pointure || v.sku;
+          const isAvailable = v.stock > 0;
+          if (!sizesMap.has(size) || isAvailable) {
+            sizesMap.set(size, { value: size, available: isAvailable });
+          }
+        } catch (e) { }
+      });
+      return Array.from(sizesMap.values())
+        .filter(s => s.value)
+        .sort((a, b) => parseInt(a.value) - parseInt(b.value));
     }
-    return product?.sizes?.map(s => s.value).sort() || [];
+    if (product?.sizes) {
+      return product.sizes.map(s => ({
+        value: s.value,
+        available: typeof s.available !== 'undefined' ? s.available : s.quantity > 0
+      })).sort((a, b) => parseInt(a.value) - parseInt(b.value));
+    }
+    return [];
   };
 
   return (
@@ -491,7 +505,9 @@ const ShippingForm = ({
                       >
                         <option value="">Sélect. pointure...</option>
                         {getProductSizes().map(s => (
-                          <option key={s} value={s}>Pointure {s}</option>
+                          <option key={s.value} value={s.value} disabled={!s.available}>
+                            Pointure {s.value} {!s.available && '(Épuisé)'}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -530,9 +546,9 @@ const ShippingForm = ({
           {fees && (
             <DeliveryFeesSummary
               fees={fees}
-              commune={formData.communeName}
-              product={product}
-              quantity={quantity}
+              commune={communes.find(c => c.id === formData.communeId)}
+              productTotal={cartTotalPrice}
+              totalQuantity={quantity + additionalItems.reduce((sum, item) => sum + item.quantity, 0)}
             />
           )}
 

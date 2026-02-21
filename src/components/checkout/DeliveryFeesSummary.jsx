@@ -2,12 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Truck, Clock, Shield, Package, ShoppingBag } from 'lucide-react';
 
-const DeliveryFeesSummary = ({ fees, commune, product, quantity }) => {
+const DeliveryFeesSummary = ({ fees, commune, productTotal, totalQuantity }) => {
   if (!fees) return null;
 
-  // Calculer le total produit
-  const productTotal = (product?.price || 0) * (quantity || 1);
-  
   // Total général (Produit + Livraison seulement, sans frais COD)
   const grandTotal = productTotal + fees.deliveryFee;
 
@@ -32,7 +29,7 @@ const DeliveryFeesSummary = ({ fees, commune, product, quantity }) => {
           <div className="flex items-center">
             <ShoppingBag size={16} className="text-indigo-500 mr-2" />
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              Produit ({quantity} × {(product?.price || 0).toFixed(2)} DA)
+              Produit ({totalQuantity} ×)
             </span>
           </div>
           <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
