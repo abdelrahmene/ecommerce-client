@@ -124,22 +124,33 @@ export function CartProvider({ children }) {
         return { success: false, error: 'Missing product' };
       }
 
+      // Extract items (handle both single product backward compatibility and new multi-items array)
+      const orderItems = productInfo.items ? productInfo.items.map(item => ({
+        productId: item.id || productInfo.id,
+        productVariantId: item.selectedVariant?.variantId || item.selectedVariant?.id || null,
+        quantity: item.quantity || 1,
+        size: item.size || item.selectedVariant?.value,
+        color: item.color
+      })) : [{
+        productId: productInfo.id,
+        productVariantId: productInfo.selectedVariant?.variantId || productInfo.selectedVariant?.id || null,
+        quantity: productInfo.quantity || 1,
+        size: productInfo.size || productInfo.selectedVariant?.value,
+        color: productInfo.color
+      }];
+
       // Format pour l'API
       const apiOrderData = {
-        items: [{
-          productId: productInfo.id,
-          productVariantId: productInfo.selectedVariant?.variantId || productInfo.selectedVariant?.id || null,
-          quantity: productInfo.quantity || 1,
-        }],
+        items: orderItems,
 
         // Yalidine delivery - utiliser toWilayaId au lieu de wilayaId
         toWilayaId: yalidineInfo.toWilayaId,
         toWilayaName: yalidineInfo.toWilayaName,
         toCommuneId: yalidineInfo.toCommuneId,
         toCommuneName: yalidineInfo.toCommuneName,
-        isStopDesk: false,
-        stopDeskId: null,
-        stopDeskName: null,
+        isStopDesk: yalidineInfo.isStopDesk || false,
+        stopDeskId: yalidineInfo.stopDeskId || null,
+        stopDeskName: yalidineInfo.stopDeskName || null,
 
         // Fees
         deliveryFee: shippingInfo.deliveryFee || 0,

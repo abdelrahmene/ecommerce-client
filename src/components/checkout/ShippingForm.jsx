@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, MessageSquare, ShoppingCart, AlertCircle, Truck, User, Phone, Package, Gift, Loader } from 'lucide-react';
+import { MapPin, MessageSquare, ShoppingCart, AlertCircle, Truck, User, Phone, Package, Gift, Loader, Plus, Minus, Trash2, Store, Home } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useMetaPixel } from '../../contexts/MetaPixelContext';
 import { checkoutConfigService } from '../../services/checkoutConfig';
@@ -42,10 +42,24 @@ const ShippingForm = ({
 
   // Hooks
   const {
-    wilayas, communes, loadingWilayas, loadingCommunes, calculatingFees, fees, setFees
+    wilayas, communes, centers, isStopDesk, setIsStopDesk, loadingWilayas, loadingCommunes, loadingCenters, calculatingFees, fees, setFees
   } = useYalidine(formData, setFormData);
 
   const { loyaltyInfo, checkingLoyalty, checkLoyaltyStatus } = useLoyalty();
+
+  // Multi-items support
+  const [additionalItems, setAdditionalItems] = useState([]);
+  const [selectedCenterId, setSelectedCenterId] = useState(null);
+
+  // Compute total price correctly
+  const cartTotalPrice = (product?.price || 0) * quantity +
+    additionalItems.reduce((sum, item) => sum + (product?.price || 0) * item.quantity, 0);
+
+  useEffect(() => {
+    // Update total price when cart changes
+    handleFormChange({ totalPrice: cartTotalPrice });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartTotalPrice]);
 
   // Load config
   useEffect(() => {
@@ -90,6 +104,25 @@ const ShippingForm = ({
     setFormErrors(updatedErrors);
   };
 
+  const handleAddVariant = () => {
+    setAdditionalItems([...additionalItems, {
+      id: Date.now().toString(),
+      size: '',
+      color: null,
+      quantity: 1
+    }]);
+  };
+
+  const updateAdditionalItem = (index, field, value) => {
+    const newItems = [...additionalItems];
+    newItems[index][field] = value;
+    setAdditionalItems(newItems);
+  };
+
+  const removeAdditionalItem = (index) => {
+    setAdditionalItems(additionalItems.filter((_, i) => i !== index));
+  };
+
   const handleWilayaChange = (e) => {
     const wilayaId = parseInt(e.target.value);
     const selectedWilaya = wilayas.find(w => w.id === wilayaId);
@@ -130,6 +163,16 @@ const ShippingForm = ({
       errors.telephone = 'Numéro invalide (ex: 0550123456)';
     }
 
+    if (isStopDesk && !selectedCenterId) {
+      errors.commune = 'Veuillez sélectionner un point relais';
+    }
+
+    // Validate additional items
+    const invalidItems = additionalItems.filter(item => !item.size || item.quantity < 1);
+    if (invalidItems.length > 0) {
+      errors.additionalItems = 'Veuillez préciser la pointure et quantité des articles ajoutés';
+    }
+
     return errors;
   };
 
@@ -138,14 +181,15 @@ const ShippingForm = ({
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-      toast.error('Veuillez remplir tous les champs obligatoires');
+      toast.error('Veuillez remplir correctement tous les champs');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const orderData = {
-        product: {
+      // Build items array
+      const allItems = [
+        {
           id: product.id,
           name: product.name,
           price: product.price,
@@ -154,6 +198,25 @@ const ShippingForm = ({
           quantity: quantity,
           image: selectedColor?.images?.[0],
           selectedVariant: selectedSize
+        },
+        ...additionalItems.map(item => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          color: item.color || selectedColor?.name,
+          size: item.size,
+          quantity: item.quantity,
+          image: selectedColor?.images?.[0],
+          selectedVariant: { value: item.size } // Simplified variant representation
+        }))
+      ].filter(item => item.quantity > 0);
+
+      const selectedCenter = centers.find(c => c.center_id.toString() === selectedCenterId?.toString());
+
+      const orderData = {
+        product: {
+          ...allItems[0], // Keep backward compatibility for product object
+          items: allItems, // New array for multi-items
         },
         customer: {
           firstName: config?.fields.find(f => f.id === 'prenom')?.enabled ? formData.prenom : '-',
@@ -177,7 +240,10 @@ const ShippingForm = ({
           toWilayaId: formData.wilayaId,
           toWilayaName: formData.wilayaName,
           toCommuneId: formData.communeId,
-          toCommuneName: formData.communeName
+          toCommuneName: formData.communeName,
+          isStopDesk: isStopDesk,
+          stopDeskId: selectedCenter?.center_id || null,
+          stopDeskName: selectedCenter?.name || null
         }
       };
 
@@ -225,22 +291,73 @@ const ShippingForm = ({
 
       case 'commune':
         return (
-          <div className="relative">
-            <select
-              value={formData.communeId || ''}
-              onChange={handleCommuneChange}
-              disabled={!formData.wilayaId || loadingCommunes}
-              className={`${commonClasses} appearance-none`}
-            >
-              <option value="">
-                {!formData.wilayaId ? 'Sélectionnez d\'abord une wilaya' :
-                  loadingCommunes ? 'Chargement...' : field.placeholder}
-              </option>
-              {communes.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-            {(loadingCommunes || calculatingFees) && <Loader size={18} className="absolute right-3 top-3 animate-spin text-blue-500" />}
+          <div className="space-y-4">
+            <div className="relative">
+              <select
+                value={formData.communeId || ''}
+                onChange={handleCommuneChange}
+                disabled={!formData.wilayaId || loadingCommunes}
+                className={`${commonClasses} appearance-none`}
+              >
+                <option value="">
+                  {!formData.wilayaId ? 'Sélectionnez d\'abord une wilaya' :
+                    loadingCommunes ? 'Chargement...' : field.placeholder}
+                </option>
+                {communes.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              {(loadingCommunes || calculatingFees) && <Loader size={18} className="absolute right-3 top-3 animate-spin text-blue-500" />}
+            </div>
+
+            {/* Mode de Livraison */}
+            {formData.communeId && !loadingCommunes && (
+              <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                  Mode de livraison
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div
+                    onClick={() => setIsStopDesk(false)}
+                    className={`cursor-pointer p-3 rounded-lg border flex items-center justify-center gap-2 transition-all ${!isStopDesk ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800'}`}
+                  >
+                    <Home size={18} />
+                    <span className="font-medium text-sm">À Domicile</span>
+                  </div>
+                  <div
+                    onClick={() => setIsStopDesk(true)}
+                    className={`cursor-pointer p-3 rounded-lg border flex items-center justify-center gap-2 transition-all ${isStopDesk ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300' : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800'}`}
+                  >
+                    <Store size={18} />
+                    <span className="font-medium text-sm">Stop Desk</span>
+                  </div>
+                </div>
+
+                {/* Sélecteur de bureau Stop Desk */}
+                {isStopDesk && (
+                  <div className="mt-4">
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                      Point relais Yalidine
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={selectedCenterId || ''}
+                        onChange={(e) => setSelectedCenterId(e.target.value)}
+                        className={`w-full px-4 py-2 bg-white dark:bg-gray-800 border ${formErrors.commune && isStopDesk ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm`}
+                      >
+                        <option value="">Sélectionnez un bureau...</option>
+                        {centers.map(center => (
+                          <option key={center.center_id} value={center.center_id}>
+                            {center.name}
+                          </option>
+                        ))}
+                      </select>
+                      {loadingCenters && <Loader size={16} className="absolute right-3 top-2.5 animate-spin text-indigo-500" />}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
 
@@ -330,6 +447,18 @@ const ShippingForm = ({
     }
   };
 
+  const getProductSizes = () => {
+    if (product?.variants?.length > 0) {
+      return Array.from(new Set(product.variants.map(v => {
+        try {
+          const opt = typeof v.options === 'string' ? JSON.parse(v.options) : v.options;
+          return opt.size || opt.pointure || v.sku;
+        } catch (e) { return v.sku; }
+      }))).filter(Boolean).sort();
+    }
+    return product?.sizes?.map(s => s.value).sort() || [];
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -370,6 +499,57 @@ const ShippingForm = ({
                 </div>
               );
             })}
+          </div>
+
+          {/* Additional Items Selector */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <div className="space-y-3">
+                {additionalItems.map((item, index) => (
+                  <div key={item.id} className="flex gap-2 items-center bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex-1">
+                      <select
+                        value={item.size || ''}
+                        onChange={(e) => updateAdditionalItem(index, 'size', e.target.value)}
+                        className="w-full text-sm px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        required
+                      >
+                        <option value="">Sélect. pointure...</option>
+                        {getProductSizes().map(s => (
+                          <option key={s} value={s}>Pointure {s}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => updateAdditionalItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                        className="w-16 text-sm px-2 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-center focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                      <button type="button" onClick={() => removeAdditionalItem(index)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {formErrors.additionalItems && (
+                  <p className="text-sm text-red-500 flex items-center mt-1 mb-2">
+                    <AlertCircle size={12} className="mr-1" /> {formErrors.additionalItems}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleAddVariant}
+                  className="w-full py-3 flex items-center justify-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-xl transition-colors border border-blue-200 dark:border-blue-800 border-dashed"
+                >
+                  <Plus size={18} /> Ajouter une autre pointure
+                </button>
+              </div>
+            </div>
           </div>
 
           {fees && (

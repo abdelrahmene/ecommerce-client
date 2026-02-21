@@ -11,6 +11,10 @@ export const useYalidine = (formData, setFormData) => {
     const [fromWilayaId, setFromWilayaId] = useState(null);
     const [fees, setFees] = useState(null);
 
+    const [isStopDesk, setIsStopDesk] = useState(false);
+    const [centers, setCenters] = useState([]);
+    const [loadingCenters, setLoadingCenters] = useState(false);
+
     // Charger les wilayas au montage
     useEffect(() => {
         loadWilayas();
@@ -22,15 +26,25 @@ export const useYalidine = (formData, setFormData) => {
             loadCommunes(formData.wilayaId);
         } else {
             setCommunes([]);
+            setCenters([]);
         }
     }, [formData.wilayaId]);
 
-    // Calculer les frais quand commune change
+    // Charger les stop desks (centers) quand la commune change et que Stop Desk est activé
+    useEffect(() => {
+        if (formData.communeId && isStopDesk) {
+            loadCenters(formData.communeId);
+        } else {
+            setCenters([]);
+        }
+    }, [formData.communeId, isStopDesk]);
+
+    // Calculer les frais quand les paramètres de livraison changent
     useEffect(() => {
         if (formData.wilayaId && formData.communeId && formData.totalPrice > 0 && fromWilayaId) {
             calculateFees();
         }
-    }, [formData.wilayaId, formData.communeId, formData.totalPrice, fromWilayaId, formData.weight]);
+    }, [formData.wilayaId, formData.communeId, formData.totalPrice, fromWilayaId, formData.weight, isStopDesk]);
 
     const loadWilayas = async () => {
         try {
@@ -65,6 +79,19 @@ export const useYalidine = (formData, setFormData) => {
         }
     };
 
+    const loadCenters = async (communeId) => {
+        try {
+            setLoadingCenters(true);
+            const data = await yalidineService.getCenters(communeId);
+            setCenters(data);
+        } catch (error) {
+            console.error('❌ Erreur centers:', error);
+            toast.error('Impossible de charger les points relais');
+        } finally {
+            setLoadingCenters(false);
+        }
+    };
+
     const calculateFees = async () => {
         if (!fromWilayaId) return;
 
@@ -80,7 +107,7 @@ export const useYalidine = (formData, setFormData) => {
                 length: formData.length || 30,
                 width: formData.width || 20,
                 height: formData.height || 10,
-                isStopDesk: false,
+                isStopDesk: isStopDesk,
                 freeShipping: false,
                 doInsurance: true
             });
@@ -101,8 +128,12 @@ export const useYalidine = (formData, setFormData) => {
     return {
         wilayas,
         communes,
+        centers,
+        isStopDesk,
+        setIsStopDesk,
         loadingWilayas,
         loadingCommunes,
+        loadingCenters,
         calculatingFees,
         fees,
         setFees
