@@ -14,17 +14,18 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
     address: '',
     note: ''
   });
-  
+
   const [selectedLocation, setSelectedLocation] = useState({
     wilaya: null,
     commune: null
   });
-  
+
   const [wilayas, setWilayas] = useState([]);
   const [communes, setCommunesList] = useState([]);
   const [loadingWilayas, setLoadingWilayas] = useState(true);
   const [loadingCommunes, setLoadingCommunes] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errors, setErrors] = useState({});
   const [loyaltyInfo, setLoyaltyInfo] = useState(null);
   const [checkingLoyalty, setCheckingLoyalty] = useState(false);
@@ -71,7 +72,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
   const checkLoyaltyStatus = async (phone) => {
     const cleanPhone = phone.replace(/\s/g, '');
     console.log('🔍 [LOYALTY] Vérification pour:', cleanPhone, 'Longueur:', cleanPhone.length);
-    
+
     if (!phone || cleanPhone.length < 10) {
       console.log('❌ [LOYALTY] Téléphone trop court');
       setLoyaltyInfo(null);
@@ -80,14 +81,14 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
 
     setCheckingLoyalty(true);
     console.log('⏳ [LOYALTY] Appel API...');
-    
+
     try {
       const url = `${API_BASE_URL}/api/loyalty/check/${cleanPhone}`;
       console.log('📡 [LOYALTY] URL:', url);
-      
+
       const response = await axios.get(url);
       console.log('✅ [LOYALTY] Réponse:', response.data);
-      
+
       if (response.data.exists) {
         console.log('🎊 [LOYALTY] Client inscrit trouvé!', response.data.card);
         setLoyaltyInfo(response.data.card);
@@ -112,7 +113,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
     }
@@ -120,7 +121,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
     if (name === 'phone') {
       const cleanPhone = value.replace(/\s/g, '');
       console.log('📱 [INPUT] Téléphone changé:', value, '| Clean:', cleanPhone, '| Longueur:', cleanPhone.length);
-      
+
       if (cleanPhone.length === 10) {
         console.log('✅ [INPUT] 10 chiffres atteints, vérification loyalty...');
         checkLoyaltyStatus(cleanPhone);
@@ -135,7 +136,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
     const wilayaId = parseInt(e.target.value);
     const wilaya = wilayas.find(w => w.id === wilayaId);
     setSelectedLocation(prev => ({ ...prev, wilaya, commune: null }));
-    
+
     if (errors.wilaya) {
       setErrors(prev => ({ ...prev, wilaya: null }));
     }
@@ -145,7 +146,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
     const communeId = parseInt(e.target.value);
     const commune = communes.find(c => c.id === communeId);
     setSelectedLocation(prev => ({ ...prev, commune }));
-    
+
     if (errors.commune) {
       setErrors(prev => ({ ...prev, commune: null }));
     }
@@ -175,17 +176,17 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
 
   const getDeliveryPrice = () => {
     if (!selectedLocation.commune) return 0;
-    
+
     if (selectedLocation.commune.zone) {
       switch (selectedLocation.commune.zone) {
         case 1: return 400;
-        case 2: return 500; 
+        case 2: return 500;
         case 3: return 600;
         case 4: return 800;
         default: return 500;
       }
     }
-    
+
     const deliveryTime = selectedLocation.commune.delivery_time_parcel || 10;
     if (deliveryTime <= 5) return 400;
     if (deliveryTime <= 10) return 500;
@@ -199,7 +200,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsSubmitting(true);
@@ -237,8 +238,8 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
       };
 
       await onOrderSubmit(orderData);
-      onClose();
-      
+      setShowSuccessModal(true);
+
     } catch (error) {
       console.error('Erreur lors de la commande:', error);
       setErrors({ submit: 'Une erreur s\'est produite. Veuillez réessayer.' });
@@ -246,6 +247,37 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
       setIsSubmitting(false);
     }
   };
+
+  if (showSuccessModal) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all animate-in zoom-in-95 duration-200">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2" dir="rtl" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+            تم تأكيد طلبك بنجاح!
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-8 text-lg font-medium" dir="rtl" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+            شكراً لثقتك بنا. سنتصل بك قريباً لتأكيد الطلب.
+          </p>
+          <button
+            onClick={() => {
+              setShowSuccessModal(false);
+              onClose();
+            }}
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
+            dir="rtl"
+            style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+          >
+            حسناً
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loadingWilayas) {
     return (
@@ -284,8 +316,8 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-3">📦 Votre produit</h3>
             <div className="flex items-center space-x-4">
-              <img 
-                src={product.image} 
+              <img
+                src={product.image}
                 alt={product.name}
                 className="w-16 h-16 object-cover rounded-lg"
               />
@@ -294,7 +326,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
                 <p className="text-lg font-bold text-blue-600">{product.price.toLocaleString()} DA</p>
               </div>
             </div>
-            
+
             {selectedLocation.commune && (
               <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 space-y-2">
                 <div className="flex justify-between text-sm">
@@ -324,9 +356,8 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.firstName ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.firstName ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Votre prénom"
                   disabled={isSubmitting}
                 />
@@ -342,9 +373,8 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.lastName ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.lastName ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Votre nom"
                   disabled={isSubmitting}
                 />
@@ -362,9 +392,8 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="0555 12 34 56"
                   disabled={isSubmitting}
                 />
@@ -422,9 +451,8 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
               <select
                 value={selectedLocation.wilaya?.id || ''}
                 onChange={handleWilayaChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors.wilaya ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.wilaya ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 disabled={isSubmitting}
               >
                 <option value="">Sélectionnez votre wilaya</option>
@@ -444,16 +472,15 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
               <select
                 value={selectedLocation.commune?.id || ''}
                 onChange={handleCommuneChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors.commune ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.commune ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 disabled={isSubmitting || !selectedLocation.wilaya || loadingCommunes}
               >
                 <option value="">
-                  {!selectedLocation.wilaya 
-                    ? 'Sélectionnez d\'abord une wilaya' 
-                    : loadingCommunes 
-                      ? 'Chargement des communes...' 
+                  {!selectedLocation.wilaya
+                    ? 'Sélectionnez d\'abord une wilaya'
+                    : loadingCommunes
+                      ? 'Chargement des communes...'
                       : 'Sélectionnez votre commune'
                   }
                 </option>
@@ -464,7 +491,7 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
                 ))}
               </select>
               {errors.commune && <p className="mt-1 text-sm text-red-600">{errors.commune}</p>}
-              
+
               {loadingCommunes && (
                 <div className="mt-2 flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
@@ -482,9 +509,8 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
                 value={formData.address}
                 onChange={handleInputChange}
                 rows="3"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors.address ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.address ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Adresse détaillée (rue, quartier, points de repère...)"
                 disabled={isSubmitting}
               />
@@ -548,11 +574,10 @@ const QuickOrderForm = ({ product, onOrderSubmit, onClose }) => {
               <button
                 type="submit"
                 disabled={isSubmitting || (selectedLocation.commune && !selectedLocation.commune.is_deliverable)}
-                className={`flex-1 px-4 py-3 rounded-lg font-medium text-white transition-all duration-200 ${
-                  isSubmitting || (selectedLocation.commune && !selectedLocation.commune.is_deliverable)
+                className={`flex-1 px-4 py-3 rounded-lg font-medium text-white transition-all duration-200 ${isSubmitting || (selectedLocation.commune && !selectedLocation.commune.is_deliverable)
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:scale-105 shadow-lg hover:shadow-xl'
-                }`}
+                  }`}
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center space-x-2">
