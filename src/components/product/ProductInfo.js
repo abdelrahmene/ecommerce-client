@@ -29,6 +29,7 @@ const ProductInfo = ({
 }) => {
   const { processCashOnDeliveryOrder } = useCart();
   const [availableSizes, setAvailableSizes] = useState([]);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Extraire les pointures disponibles depuis les variants
   useEffect(() => {
@@ -89,7 +90,8 @@ const ProductInfo = ({
   // Gérer la soumission de commande
   const handleOrderSubmit = async (orderData) => {
     try {
-      const response = await processCashOnDeliveryOrder(orderData);
+      // Pass false to suppress CartContext toasts
+      const response = await processCashOnDeliveryOrder(orderData, false);
 
       if (response.success) {
         // 📍 Tracker Purchase Meta Pixel
@@ -125,21 +127,8 @@ const ProductInfo = ({
           console.error('⚠️ Erreur tracking pixel purchase:', pixelErr);
         }
 
-        handleAddToCart({
-          deliveryInfo: orderData.customer,
-          orderId: response.orderId,
-          paymentMethod: 'cash-on-delivery',
-          yalidineInfo: orderData.yalidine
-        });
-
-        toast.success(
-          <div>
-            <p className="font-bold">✅ Commande enregistrée !</p>
-            <p className="text-sm">Numéro: #{response.orderId}</p>
-            <p className="text-xs text-gray-600">Vous serez contacté sous 24h</p>
-          </div>,
-          { duration: 5000 }
-        );
+        // Show our beautiful Arabic success modal instead of old toasts
+        setShowSuccessModal(true);
       }
     } catch (error) {
       console.error('❌ Erreur:', error);
@@ -148,6 +137,38 @@ const ProductInfo = ({
   };
 
   if (!product) return null;
+
+  if (showSuccessModal) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all animate-in zoom-in-95 duration-200">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2" dir="rtl" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+            تم تأكيد طلبك بنجاح!
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-8 text-lg font-medium" dir="rtl" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+            شكراً لثقتك بنا. سنتصل بك قريباً لتأكيد الطلب.
+          </p>
+          <button
+            onClick={() => {
+              setShowSuccessModal(false);
+              // Optionnel: rediriger vers l'accueil ou recharger la page
+              window.location.reload();
+            }}
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
+            dir="rtl"
+            style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+          >
+            حسناً
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div

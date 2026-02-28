@@ -83,9 +83,11 @@ export function CartProvider({ children }) {
     toast.success('Article retiré du panier');
   };
 
-  const clearCart = () => {
+  const clearCart = (showToast = true) => {
     setCartItems([]);
-    toast.success('Panier vidé');
+    if (showToast) {
+      toast.success('Panier vidé');
+    }
   };
 
   const getCartTotal = () => {
@@ -99,7 +101,7 @@ export function CartProvider({ children }) {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
-  const processCashOnDeliveryOrder = async (orderData) => {
+  const processCashOnDeliveryOrder = async (orderData, showToast = true) => {
     try {
       console.log('📦 Traitement de la commande...');
 
@@ -192,8 +194,10 @@ export function CartProvider({ children }) {
       console.log('✅ Réponse API:', result);
 
       if (result && result.id) {
-        toast.success(`Commande #${result.orderNumber} créée avec succès!`);
-        clearCart();
+        if (showToast) {
+          toast.success(`Commande #${result.orderNumber} créée avec succès!`);
+        }
+        clearCart(showToast);
         return { success: true, order: result };
       } else {
         toast.error('Erreur lors de la création de la commande');
