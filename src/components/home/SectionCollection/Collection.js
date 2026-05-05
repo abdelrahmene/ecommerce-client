@@ -97,7 +97,7 @@ const CollectionCard = ({ collection, direction }) => {
           <div className="absolute inset-0 p-6 md:p-8 lg:p-10 flex flex-col justify-start z-10">
             <motion.h3
               initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 0.75, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
               className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-2xl"
             >
