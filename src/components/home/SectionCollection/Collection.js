@@ -94,56 +94,15 @@ const CollectionCard = ({ collection, direction }) => {
           )}
 
           {/* Content Container */}
-          <div className="absolute inset-0 p-6 md:p-8 lg:p-10 flex flex-col justify-end z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+          <div className="absolute inset-0 p-6 md:p-8 lg:p-10 flex flex-col justify-start z-10">
+            <motion.h3
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 0.75, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="space-y-3 md:space-y-4"
+              className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-2xl"
             >
-              {/* Subtitle badge */}
-              {collection.subtitle && (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="inline-flex"
-                >
-                  <span className="px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold bg-white/20 backdrop-blur-md text-white uppercase tracking-wider">
-                    {collection.subtitle}
-                  </span>
-                </motion.div>
-              )}
-
-              {/* Title */}
-              <h3 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-2xl">
-                {collection.title}
-              </h3>
-
-              {/* Description */}
-              <p className="text-base md:text-lg text-gray-200 leading-relaxed max-w-2xl line-clamp-2 md:line-clamp-3">
-                {collection.description}
-              </p>
-
-              {/* CTA Button */}
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className={`inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-sm md:text-base shadow-xl transition-all ${collection.buttonColor || 'bg-white text-black hover:bg-gray-100'}`}
-              >
-                <span>{collection.ctaText || 'Découvrir'}</span>
-                <motion.svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </motion.svg>
-              </motion.button>
-            </motion.div>
+              {collection.title}
+            </motion.h3>
           </div>
 
           {/* Glow effect on hover */}
